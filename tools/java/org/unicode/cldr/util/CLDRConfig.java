@@ -62,6 +62,11 @@ public class CLDRConfig extends Properties {
      * Object to use for synchronization when interacting with Factory
      */
     private static final Object ANNOTATIONS_FACTORY_SYNC = new Object();
+    
+    /**
+     * Object to use for synchronization when interacting with Factory
+     */
+    private static final Object SUBDIVISION_FACTORY_SYNC = new Object();
 
     /**
      * Object used for synchronization when interacting with SupplementalData
@@ -72,6 +77,11 @@ public class CLDRConfig extends Properties {
      * Object used for synchronization in getCollator()
      */
     private static final Object GET_COLLATOR_SYNC = new Object();
+
+    /**
+     * Object used for synchronization in getCollator()
+     */
+    private static final Object GET_COLLATOR_SYNC_ROOT = new Object();
 
     /**
      * Object used for synchronization in getStandardCodes()
@@ -152,7 +162,9 @@ public class CLDRConfig extends Properties {
     private Factory collationFactory;
     private Factory rbnfFactory;
     private Factory annotationsFactory;
+    private Factory subdivisionFactory;
     private Factory supplementalFactory;
+    private RuleBasedCollator colRoot;
     private RuleBasedCollator col;
     private Phase phase = null; // default
 
@@ -269,19 +281,29 @@ public class CLDRConfig extends Properties {
         return annotationsFactory;
     }
 
+    public Factory getSubdivisionFactory() {
+        synchronized (SUBDIVISION_FACTORY_SYNC) {
+            if (subdivisionFactory == null) {
+                subdivisionFactory = Factory.make(CLDRPaths.SUBDIVISIONS_DIRECTORY, ".*");
+            }
+        }
+        return subdivisionFactory;
+    }
+
     public Factory getMainAndAnnotationsFactory() {
         synchronized (FULL_FACTORY_SYNC) {
             if (mainAndAnnotationsFactory == null) {
                 File[] paths = {
-                    new File(CLDRPaths.MAIN_DIRECTORY), 
+                    new File(CLDRPaths.MAIN_DIRECTORY),
                     new File(CLDRPaths.ANNOTATIONS_DIRECTORY) };
                 mainAndAnnotationsFactory = SimpleFactory.make(paths, ".*");
             }
         }
         return mainAndAnnotationsFactory;
     }
-    
+
     static Factory allFactory;
+
     public Factory getCommonSeedExemplarsFactory() {
         synchronized (FULL_FACTORY_SYNC) {
             if (allFactory == null) {
@@ -294,8 +316,8 @@ public class CLDRConfig extends Properties {
     public Factory getCommonAndSeedAndMainAndAnnotationsFactory() {
         synchronized (FULL_FACTORY_SYNC) {
             if (commonAndSeedAndMainAndAnnotationsFactory == null) {
-                File[] paths = { 
-                    new File(CLDRPaths.MAIN_DIRECTORY), 
+                File[] paths = {
+                    new File(CLDRPaths.MAIN_DIRECTORY),
                     new File(CLDRPaths.ANNOTATIONS_DIRECTORY),
                     new File(CLDRPaths.SEED_DIRECTORY)
                 };
@@ -330,13 +352,31 @@ public class CLDRConfig extends Properties {
 
     public CLDRFile getCLDRFile(String locale, boolean resolved) {
 
-        return resolved ? cldrFileResolvedCache.getUnchecked(locale) :
-            cldrFileUnresolvedCache.getUnchecked(locale);
+        return resolved ? cldrFileResolvedCache.getUnchecked(locale) : cldrFileUnresolvedCache.getUnchecked(locale);
 
     }
 
     public CLDRFile getRoot() {
         return getCLDRFile("root", true);
+    }
+
+    public Collator getCollatorRoot() {
+        synchronized (GET_COLLATOR_SYNC_ROOT) {
+            if (colRoot == null) {
+                CLDRFile root = getCollationFactory().make("root", false);
+                String rules = root.getStringValue("//ldml/collations/collation[@type=\"emoji\"][@visibility=\"external\"]/cr");
+                try {
+                    colRoot = new RuleBasedCollator(rules);
+                } catch (Exception e) {
+                    colRoot = (RuleBasedCollator) getCollator();
+                    return colRoot;
+                }
+                colRoot.setStrength(Collator.IDENTICAL);
+                colRoot.setNumericCollation(true);
+                colRoot.freeze();
+            }
+        }
+        return colRoot;
     }
 
     public Collator getCollator() {
@@ -576,7 +616,6 @@ public class CLDRConfig extends Properties {
         return ret;
     }
 
-    
     /**
      * Add subdirectories to file list as needed, from STANDARD_SUBDIRS.
      * <ul><li>map "common","seed" -> "common/main", "seed/main"
@@ -612,7 +651,7 @@ public class CLDRConfig extends Properties {
         }
         return fileList;
     }
-    
+
     private void addIfExists(List<File> ret, File baseFile, String sub) {
         File file = new File(baseFile, sub);
         if (file.exists()) {

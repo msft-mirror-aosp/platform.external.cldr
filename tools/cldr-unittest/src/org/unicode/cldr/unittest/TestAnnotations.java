@@ -17,14 +17,13 @@ import org.unicode.cldr.util.Annotations.AnnotationSet;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
-import org.unicode.cldr.util.Counter;
 import org.unicode.cldr.util.Emoji;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.PathHeader;
-import org.unicode.cldr.util.PathHeader.PageId;
-import org.unicode.cldr.util.PathHeader.SectionId;
 import org.unicode.cldr.util.SimpleFactory;
+import org.unicode.cldr.util.XListFormatter;
+import org.unicode.cldr.util.XListFormatter.ListTypeLength;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
@@ -36,6 +35,9 @@ import com.ibm.icu.dev.util.UnicodeMap.EntryRange;
 import com.ibm.icu.text.UnicodeSet;
 
 public class TestAnnotations extends TestFmwkPlus {
+    private static final boolean SHOW_LIST = false;
+    private static final boolean SHOW_ENGLISH = false;
+
     public static void main(String[] args) {
         new TestAnnotations().run(args);
     }
@@ -87,6 +89,9 @@ public class TestAnnotations extends TestFmwkPlus {
     }
 
     public void TestList() {
+        if (!SHOW_LIST) {
+            return;
+        }
         if (isVerbose()) {
             for (String locale : Annotations.getAvailable()) {
                 for (EntryRange<Annotations> s : Annotations.getData(locale).entryRanges()) {
@@ -98,37 +103,42 @@ public class TestAnnotations extends TestFmwkPlus {
 
     public void TestNames() {
         AnnotationSet eng = Annotations.getDataSet("en");
-        String[][] tests = {
-            {"🇪🇺","European Union","flag"},
-            {"#️⃣","keycap: #","keycap"},
-            {"9️⃣","keycap: 9","keycap"},
-            {"💏","kiss","couple | kiss"},
-            {"👩‍❤️‍💋‍👩","kiss: woman, woman","couple | kiss | woman"},
-            {"💑","couple with heart","couple | couple with heart | love"},
-            {"👩‍❤️‍👩","couple with heart: woman, woman","couple | couple with heart | love | woman"},
-            {"👪","family","family"},
-            {"👩‍👩‍👧","family: woman, woman, girl","family | woman | girl"},
-            {"👦🏻","boy: light skin tone","boy | young | light skin tone"},
-            {"👩🏿","woman: dark skin tone","woman | dark skin tone"},
-            {"👨‍⚖","man judge","justice | man | man judge | scales"},
-            {"👨🏿‍⚖","man judge: dark skin tone","justice | man | man judge | scales | dark skin tone"},
-            {"👩‍⚖","woman judge","judge | scales | woman | woman judge"},
-            {"👩🏼‍⚖","woman judge: medium-light skin tone","judge | scales | woman | woman judge | medium-light skin tone"},
-            {"👮","police officer","cop | officer | police | police officer"},
-            {"👮🏿","police officer: dark skin tone","cop | officer | police | police officer | dark skin tone"},
-            {"👮‍♂️","man police officer","cop | man | man police officer | officer | police"},
-            {"👮🏼‍♂️","man police officer: medium-light skin tone","cop | man | man police officer | officer | police | medium-light skin tone"},
-            {"👮‍♀️","woman police officer","cop | officer | police | woman | woman police officer"},
-            {"👮🏿‍♀️","woman police officer: dark skin tone","cop | officer | police | woman | woman police officer | dark skin tone"},
-            {"🚴","person biking","bicycle | biking | cyclist | person biking"},
-            {"🚴🏿","person biking: dark skin tone","bicycle | biking | cyclist | person biking | dark skin tone"},
-            {"🚴‍♂️","man biking","bicycle | biking | cyclist | man | man biking"},
-            {"🚴🏿‍♂️","man biking: dark skin tone","bicycle | biking | cyclist | man | man biking | dark skin tone"},
-            {"🚴‍♀️","woman biking","bicycle | biking | cyclist | woman | woman biking"},
-            {"🚴🏿‍♀️","woman biking: dark skin tone","bicycle | biking | cyclist | woman | woman biking | dark skin tone"},
+        String[][] tests = { // the expected value for keywords can use , as well as |.
+            {"👨🏻", "man: light skin tone", "adult | man | light skin tone"},
+            {"👱‍♂️", "man: blond hair", "blond | blond-haired man | man | man: blond hair"},
+            {"👱🏻‍♂️", "man: light skin tone, blond hair", "blond, blond-haired man, man, man: blond hair, light skin tone, blond hair"},
+            {"👨‍🦰", "man: red hair", "adult | man | red hair"},
+            { "👨🏻‍🦰", "man: light skin tone, red hair", "adult | man | light skin tone| red hair"},
+            { "🇪🇺", "flag: European Union", "flag" },
+            { "#️⃣", "keycap: #", "keycap" },
+            { "9️⃣", "keycap: 9", "keycap" },
+            { "💏", "kiss", "couple | kiss" },
+            { "👩‍❤️‍💋‍👩", "kiss: woman, woman", "couple | kiss | woman" },
+            { "💑", "couple with heart", "couple | couple with heart | love" },
+            { "👩‍❤️‍👩", "couple with heart: woman, woman", "couple | couple with heart | love | woman" },
+            { "👪", "family", "family" },
+            { "👩‍👩‍👧", "family: woman, woman, girl", "family | woman | girl" },
+            { "👦🏻", "boy: light skin tone", "boy | young | light skin tone" },
+            { "👩🏿", "woman: dark skin tone", "adult | woman | dark skin tone" },
+            { "👨‍⚖", "man judge", "justice | man | man judge | scales" },
+            { "👨🏿‍⚖", "man judge: dark skin tone", "justice | man | man judge | scales | dark skin tone" },
+            { "👩‍⚖", "woman judge", "judge | scales | woman" },
+            { "👩🏼‍⚖", "woman judge: medium-light skin tone", "judge | scales | woman | medium-light skin tone" },
+            { "👮", "police officer", "cop | officer | police" },
+            { "👮🏿", "police officer: dark skin tone", "cop | officer | police | dark skin tone" },
+            { "👮‍♂️", "man police officer", "cop | man | officer | police" },
+            { "👮🏼‍♂️", "man police officer: medium-light skin tone", "cop | man | officer | police | medium-light skin tone" },
+            { "👮‍♀️", "woman police officer", "cop | officer | police | woman" },
+            { "👮🏿‍♀️", "woman police officer: dark skin tone", "cop | officer | police | woman | dark skin tone" },
+            { "🚴", "person biking", "bicycle | biking | cyclist | person biking" },
+            { "🚴🏿", "person biking: dark skin tone", "bicycle | biking | cyclist | person biking | dark skin tone" },
+            { "🚴‍♂️", "man biking", "bicycle | biking | cyclist | man" },
+            { "🚴🏿‍♂️", "man biking: dark skin tone", "bicycle | biking | cyclist | man | dark skin tone" },
+            { "🚴‍♀️", "woman biking", "bicycle | biking | cyclist | woman" },
+            { "🚴🏿‍♀️", "woman biking: dark skin tone", "bicycle | biking | cyclist | woman | dark skin tone" },
         };
 
-        Splitter BAR = Splitter.on('|').trimResults();
+        Splitter BAR = Splitter.on(CharMatcher.anyOf("|,")).trimResults();
         boolean ok = true;
         for (String[] test : tests) {
             String emoji = test[0];
@@ -136,7 +146,7 @@ public class TestAnnotations extends TestFmwkPlus {
             Set<String> expectedKeywords = new HashSet<>(BAR.splitToList(test[2]));
             final String shortName = eng.getShortName(emoji);
             final Set<String> keywords = eng.getKeywords(emoji);
-            ok &=assertEquals("short name for " + emoji, expectedName, shortName);
+            ok &= assertEquals("short name for " + emoji, expectedName, shortName);
             ok &= assertEquals("keywords for " + emoji, expectedKeywords, keywords);
         }
         if (!ok) {
@@ -145,9 +155,9 @@ public class TestAnnotations extends TestFmwkPlus {
                 String emoji = test[0];
                 final String shortName = eng.getShortName(emoji);
                 final Set<String> keywords = eng.getKeywords(emoji);
-                System.out.println("{\"" + emoji 
-                    + "\",\"" + shortName 
-                    + "\",\"" + CollectionUtilities.join(keywords, " | ") 
+                System.out.println("{\"" + emoji
+                    + "\",\"" + shortName
+                    + "\",\"" + CollectionUtilities.join(keywords, " | ")
                     + "\"},");
             }
         }
@@ -155,55 +165,61 @@ public class TestAnnotations extends TestFmwkPlus {
     }
 
     // comment this out, since we now have console check for this.
-    public void oldTestUniqueness() {
+    public void TestUniqueness() {
 //        if (logKnownIssue("cldrbug:10104", "Disable until the uniqueness problems are fixed")) {
 //            return;
 //        }
-        LinkedHashSet<String> locales = new LinkedHashSet<>();
+        Set<String> locales = new TreeSet<>();
+        
         locales.add("en");
         locales.addAll(Annotations.getAvailable());
         locales.remove("root");
-        locales.remove("sr_Latn");
+//        if (getInclusion() < 6) {
+//            locales.retainAll(CLDRConfig.getInstance().getStandardCodes().getLocaleCoverageLocales(Organization.cldr));
+//        }
+        //locales.remove("sr_Latn");
         Multimap<String, String> localeToNameToEmoji = TreeMultimap.create();
         Multimap<String, String> nameToEmoji = TreeMultimap.create();
         UnicodeMap<Annotations> english = Annotations.getData("en");
+        AnnotationSet englishSet = Annotations.getDataSet("en");
         UnicodeSet englishKeys = getCurrent(english.keySet());
         Map<String, UnicodeSet> localeToMissing = new TreeMap<>();
 
         for (String locale : locales) {
-            UnicodeMap<Annotations> data = Annotations.getData(locale);
+            logln("uniqueness: " + locale);
+            AnnotationSet data = Annotations.getDataSet(locale);
             nameToEmoji.clear();
             localeToMissing.put(locale, new UnicodeSet(englishKeys).removeAll(data.keySet()).freeze());
-            for (Entry<String, Annotations> value : data.entrySet()) {
-                String emoji = value.getKey();
-                String name = value.getValue().getShortName();
+            for (String emoji : Emoji.getAllRgi()) { // Entry<String, Annotations> value : data.entrySet()) {
+                String name = data.getShortName(emoji);
                 if (name == null) {
                     continue;
                 }
                 nameToEmoji.put(name, emoji);
             }
-            for ( Entry<String, Collection<String>> entry : nameToEmoji.asMap().entrySet()) {
+            for (Entry<String, Collection<String>> entry : nameToEmoji.asMap().entrySet()) {
                 String name = entry.getKey();
                 Collection<String> emojis = entry.getValue();
                 if (emojis.size() > 1) {
-                    errln("Duplicate name in " + locale + ": “" + name + "” for " 
-                        + CollectionUtilities.join(emojis, " & "));
-                    localeToNameToEmoji.putAll(locale + "\t" + name, emojis);
+                    if (!locale.equals("sw") || Collections.frequency(emojis, "🇬🇧") < 1 || !logKnownIssue("10997", "Swahili name collision GB vs gbeng, r14129 removed GB")) {
+                        errln("Duplicate name in " + locale + ": “" + name + "” for "
+                            + CollectionUtilities.join(emojis, " & "));
+                        localeToNameToEmoji.putAll(locale + "\t" + name, emojis);
+                    }
                 }
             }
         }
         if (isVerbose() && !localeToNameToEmoji.isEmpty()) {
             System.out.println("\nCollisions");
-            for ( Entry<String, String> entry : localeToNameToEmoji.entries()) {
+            for (Entry<String, String> entry : localeToNameToEmoji.entries()) {
                 String locale = entry.getKey();
                 String emoji = entry.getValue();
                 System.out.println(locale
-                    + "\t" + english.get(emoji).getShortName()
-                    + "\t" + emoji
-                    );
+                    + "\t" + englishSet.getShortName(emoji)
+                    + "\t" + emoji);
             }
         }
-        if (isVerbose() && !localeToMissing.isEmpty()) {
+        if (SHOW_LIST && !localeToMissing.isEmpty()) {
             System.out.println("\nMissing");
             int count = 2;
             for (Entry<String, UnicodeSet> entry : localeToMissing.entrySet()) {
@@ -211,10 +227,10 @@ public class TestAnnotations extends TestFmwkPlus {
                 for (String emoji : entry.getValue()) {
                     System.out.println(locale
                         + "\t" + emoji
-                        + "\t" + english.get(emoji).getShortName()
-                        + "\t" + "=GOOGLETRANSLATE(C"+count+",\"en\",A"+count+")"
-                        // =GOOGLETRANSLATE(C2,"en",A2)
-                        );
+                        + "\t" + englishSet.getShortName(emoji)
+                        + "\t" + "=GOOGLETRANSLATE(C" + count + ",\"en\",A" + count + ")"
+                    // =GOOGLETRANSLATE(C2,"en",A2)
+                    );
                     ++count;
                 }
             }
@@ -239,31 +255,11 @@ public class TestAnnotations extends TestFmwkPlus {
         for (String locale : Arrays.asList("en", "root")) {
             CLDRFile enAnnotations = factoryAnnotations.make(locale, false);
             //               //ldml/annotations/annotation[@cp="🧜"][@type="tts"]
-            Set<String> annotationPaths = enAnnotations.getPaths("//ldml/anno", 
+            Set<String> annotationPaths = enAnnotations.getPaths("//ldml/anno",
                 Pattern.compile("//ldml/annotations/annotation.*tts.*").matcher(""), new TreeSet<>());
             Set<String> annotationPathsExpected = Emoji.getNamePaths();
-            checkAMinusBIsC(locale + ".xml - Emoji.getNamePaths", annotationPaths, annotationPathsExpected, Collections.<String>emptySet());
-            checkAMinusBIsC("Emoji.getNamePaths - " + locale + ".xml", annotationPathsExpected, annotationPaths, Collections.<String>emptySet());
-        }
-    }
-
-    public void testPathHeaderSize() {
-        Factory factoryAnnotations = SimpleFactory.make(CLDRPaths.ANNOTATIONS_DIRECTORY, ".*");
-        CLDRFile englishAnnotations = factoryAnnotations.make("en", false);
-
-        PathHeader.Factory phf = PathHeader.getFactory(CLDRConfig.getInstance().getEnglish());
-        ImmutableSet<String> englishPaths = ImmutableSortedSet.copyOf(englishAnnotations.iterator("//ldml/annotations/"));
-        Counter<SectionId> counterSectionId = new Counter<>();
-        Counter<PageId> counterPageId = new Counter<>();
-        for (String path : englishPaths) {
-            PathHeader ph = phf.fromPath(path);
-            counterSectionId.add(ph.getSectionId(), 1);
-            counterPageId.add(ph.getPageId(), 1);
-        }
-        for (PageId pageId : counterPageId) {
-            long size = counterPageId.get(pageId);
-            assertTrue(pageId.toString(), size < 450);
-            // System.out.println(pageId + "\t" + size);
+            checkAMinusBIsC(locale + ".xml - Emoji.getNamePaths", annotationPaths, annotationPathsExpected, Collections.<String> emptySet());
+            checkAMinusBIsC("Emoji.getNamePaths - " + locale + ".xml", annotationPathsExpected, annotationPaths, Collections.<String> emptySet());
         }
     }
 
@@ -313,10 +309,27 @@ public class TestAnnotations extends TestFmwkPlus {
         return superfluous;
     }
 
-
     private void checkAMinusBIsC(String title, Set<String> a, Set<String> b, Set<String> c) {
         Set<String> aMb = new TreeSet<>(a);
-        aMb.removeAll(b); 
+        aMb.removeAll(b);
         assertEquals(title, c, aMb);
+    }
+    
+    public void testListFormatter() {
+        Object[][] tests = {
+            {"en", ListTypeLength.NORMAL, "ABC", "A, B, and C"},
+            {"en", ListTypeLength.AND_SHORT, "ABC", "A, B, and C"},
+            {"en", ListTypeLength.OR_WIDE, "ABC", "A, B, or C"}
+        };
+        Factory factory = CLDRConfig.getInstance().getCldrFactory();
+        for (Object[] test : tests) {
+            CLDRFile cldrFile = factory.make((String)(test[0]), true);
+            ListTypeLength listTypeLength = (ListTypeLength)(test[1]);
+            String expected = (String)test[3];
+            XListFormatter xlistFormatter = new XListFormatter(cldrFile, listTypeLength);
+            String source = (String)test[2];
+            String actual = xlistFormatter.formatCodePoints(source);
+            assertEquals(test[0] + ", " + listTypeLength + ", " + source, expected, actual);
+        }
     }
 }

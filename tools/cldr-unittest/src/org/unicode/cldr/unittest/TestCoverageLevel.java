@@ -65,7 +65,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
 
     public void testSpecificPaths() {
         String[][] rows = {
-            {"//ldml/characters/parseLenients[@scope=\"number\"][@level=\"lenient\"]/parseLenient[@sample=\",\"]", "moderate", "20"}
+            { "//ldml/characters/parseLenients[@scope=\"number\"][@level=\"lenient\"]/parseLenient[@sample=\",\"]", "moderate", "20" }
         };
         Factory phf = PathHeader.getFactory(ENGLISH);
         CoverageLevel2 coverageLevel = CoverageLevel2.getInstance(SDI, "fr");
@@ -131,7 +131,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
             System.out.println(maxLevelCount
                 + "\t"
                 + localesWithUniqueLevels.size()
-                / localeCount
+                    / localeCount
                 + "\t"
                 + starred
                 + "\t"
@@ -253,15 +253,15 @@ public class TestCoverageLevel extends TestFmwkPlus {
             switch (field) {
             case CLDRFile.LANGUAGE_NAME:
                 dep = SDI.getLocaleAliasInfo()
-                .get("language");
+                    .get("language");
                 break;
             case CLDRFile.TERRITORY_NAME:
                 dep = SDI.getLocaleAliasInfo()
-                .get("territory");
+                    .get("territory");
                 break;
             case CLDRFile.SCRIPT_NAME:
                 dep = SDI.getLocaleAliasInfo()
-                .get("script");
+                    .get("script");
                 break;
             default:
                 dep = null;
@@ -292,11 +292,11 @@ public class TestCoverageLevel extends TestFmwkPlus {
 
     RegexLookup<Level> exceptions = RegexLookup.of(null,
         new Transform<String, Level>() {
-        public Level transform(String source) {
-            return Level.fromLevel(Integer.parseInt(source));
-        }
-    }, null).loadFromFile(TestCoverageLevel.class,
-        "TestCoverageLevel.txt");
+            public Level transform(String source) {
+                return Level.fromLevel(Integer.parseInt(source));
+            }
+        }, null).loadFromFile(TestCoverageLevel.class,
+            "TestCoverageLevel.txt");
 
     public void TestExceptions() {
         for (Map.Entry<Finder, Level> x : exceptions) {
@@ -365,19 +365,27 @@ public class TestCoverageLevel extends TestFmwkPlus {
             + "zap?|zbl|ze[an])");
 
         final Pattern script100 = PatternCache.get("("
-            + "Adlm|Afak|Aghb|Ahom|Armi|Avst|Bali|Bamu|Bass|Batk|Bhks|Blis|Brah|Bugi|Buhd|Cakm|Cans|Cari|Cham|Cher|Cirt|Copt|Cprt|Cyrs|"
-            + "Dsrt|Dupl|Egy[dhp]|Elba|Geok|Glag|Gonm|Goth|Gran|Hatr|Hanb|Hano|Hluw|Hmng|Hrkt|Hung|Inds|Ital|Jamo|Java|Jurc|"
-            + "Kali|Khar|Khoj|Kpel|Kthi|Kits|Lana|Lat[fg]|Lepc|Limb|Lin[ab]|Lisu|Loma|Ly[cd]i|Mahj|Man[di]|Marc|Maya|Mend|Mer[co]|Modi|Moon|Mroo|Mtei|Mult|"
-            + "Narb|Nbat|Newa|Nkgb|Nkoo|Nshu|Ogam|Olck|Orkh|Osge|Osma|Palm|Pauc|Perm|Phag|Phl[ipv]|Phnx|Plrd|Prti|"
-            + "Rjng|Roro|Runr|Samr|Sar[ab]|Saur|Sgnw|Shaw|Shrd|Sidd|Sind|Sora|Soyo|Sund|Sylo|Syr[cejn]|"
-            + "Tagb|Takr|Tal[eu]|Tang|Tavt|Teng|Tfng|Tglg|Tirh|Ugar|Vaii|Visp|Wara|Wole|Xpeo|Xsux|Yiii|Zanb|Zinh|Zmth)");
+            + "Adlm|Afak|Aghb|Ahom|Armi|Avst|Bali|Bamu|Bass|Batk|Bhks|Blis|Brah|Bugi|Buhd|"
+            + "Cakm|Cans|Cari|Cham|Cher|Cirt|Copt|Cprt|Cyrs|"
+            + "Dogr|Dsrt|Dupl|Egy[dhp]|Elba|Geok|Glag|Gong|Gonm|Goth|Gran|"
+            + "Hatr|Hanb|Hano|Hluw|Hmng|Hrkt|Hung|Inds|Ital|Jamo|Java|Jurc|"
+            + "Kali|Khar|Khoj|Kpel|Kthi|Kits|Lana|Lat[fg]|Lepc|Limb|Lin[ab]|Lisu|Loma|Ly[cd]i|"
+            + "Mahj|Maka|Man[di]|Marc|Maya|Medf|Mend|Mer[co]|Modi|Moon|Mroo|Mtei|Mult|"
+            + "Narb|Nbat|Newa|Nkgb|Nkoo|Nshu|Ogam|Olck|Orkh|Osge|Osma|"
+            + "Palm|Pauc|Perm|Phag|Phl[ipv]|Phnx|Plrd|Prti|"
+            + "Rjng|Rohg|Roro|Runr|"
+            + "Samr|Sar[ab]|Saur|Sgnw|Shaw|Shrd|Sidd|Sind|Sogd|Sogo|Sora|Soyo|Sund|Sylo|Syr[cejn]|"
+            + "Tagb|Takr|Tal[eu]|Tang|Tavt|Teng|Tfng|Tglg|Tirh|"
+            + "Ugar|Vaii|Visp|Wara|Wole|Xpeo|Xsux|Yiii|Zanb|Zinh|Zmth)");
 
         final Pattern keys100 = PatternCache.get("(col(Alternate|Backwards|CaseFirst|CaseLevel|HiraganaQuaternary|"
             + "Normalization|Numeric|Reorder|Strength)|kv|sd|timezone|va|variableTop|x|d0|h0|i0|k0|m0|s0)");
 
         final Pattern numberingSystem100 = PatternCache.get("("
-            + "finance|native|traditional|adlm|ahom|bali|bhks|brah|cakm|cham|cyrl|gonm|hanidays|hmng|java|kali|lana(tham)?|lepc|limb|"
-            + "math(bold|dbl|mono|san[bs])|modi|mong|mroo|mtei|mymr(shan|tlng)|newa|nkoo|olck|osma|saur|shrd|sin[dh]|sora|sund|takr|talu|tirh|vaii|wara)");
+            + "finance|native|traditional|adlm|ahom|bali|bhks|brah|cakm|cham|cyrl|"
+            + "gong|gonm|hanidays|hmng|java|kali|lana(tham)?|lepc|limb|"
+            + "math(bold|dbl|mono|san[bs])|modi|mong|mroo|mtei|mymr(shan|tlng)|"
+            + "newa|nkoo|olck|osma|rohg|saur|shrd|sin[dh]|sora|sund|takr|talu|tirh|vaii|wara)");
 
         final Pattern collation100 = PatternCache.get("("
             + "big5han|compat|dictionary|emoji|eor|gb2312han|phonebook|phonetic|pinyin|reformed|searchjl|stroke|traditional|unihan|zhuyin)");
@@ -448,8 +456,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
                 if (needsNumberSystem.contains(xpp.getElement(2))) {
                     continue;
                 }
-            }
-            else if (xpp.containsElement("zone")) {
+            } else if (xpp.containsElement("zone")) {
                 String zoneType = xpp.findAttributeValue("zone", "type");
                 if ((zoneType.startsWith("Etc/GMT") || zoneType.equals("Etc/UTC"))
                     && path.endsWith("exemplarCity")) {
