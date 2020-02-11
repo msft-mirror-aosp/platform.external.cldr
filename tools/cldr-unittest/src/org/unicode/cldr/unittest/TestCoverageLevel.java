@@ -339,7 +339,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
         final Pattern language100 = PatternCache.get("("
             + "ach|aeb?|afh|ak[kz]|aln|ang|ar[coqswyz]|ase|avk|"
             + "ba[lrx]|bb[cj]|be[jw]|bf[dq]|bgn|bik|bjn|bkm|bpy|bqi|br[ah]|bss|bu[am]|byv|"
-            + "ca[dry]|cch|ch[bgnp]|cop|cps|crh?|csb|"
+            + "ca[dry]|cch|ch[bgnp]|cic|cop|cps|crh?|csb|"
             + "de[ln]|din|doi|dtp|dum|dyu|"
             + "eg[ly]|elx|enm|esu|ext|"
             + "fa[nt]|fit|fr[cmoprs]|"
@@ -349,7 +349,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
             + "jam|jpr|jrb|jut|"
             + "ka[aw]|kbl|ken|kgp?|kh[ow]|kiu|ko[is]|kr[ij]|kut|"
             + "la[hm]|lfn|li[jv]|lmo|lo[lu]|ltg|lui|lz[hz]|"
-            + "ma[fn]|md[er]|mga|mnc|mrj|mw[rv]|mye|"
+            + "ma[fn]|md[er]|mga|mnc|mrj|mus|mw[rv]|mye|"
             + "nan|nds(_NL)?|njo|no[nv]?|nwc|ny[mo]|nzi|"
             + "oj|osa|ota|"
             + "pal|pcd|pd[ct]|peo|pfl|phn|pi|pms|pnt|pon|pro|"
@@ -365,7 +365,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
             + "zap?|zbl|ze[an]|"
             + "gil|tlh|gil|tlh|tet|ro_MD|ss|new|ba|iu|suk|kmb|rup|sms|udm|lus|gn|ada|kbd|kcg|eka|"
             + "dak|nap|bin|arn|kfo|ch|ab|fa_AF|kac|ty|tvl|arp|aa|ng|hup|wa|min|ilo|kru|hil|sat|bho|"
-            + "jbo|pag|tig|bi|mus|tyv|pcm|ace|tum|mh|fon|chk|awa|root|hz|chm|mdf|kaj|nr|dar|shn|zun|"
+            + "jbo|pag|tig|bi|tyv|pcm|ace|tum|mh|fon|chk|awa|root|hz|chm|mdf|kaj|nr|dar|shn|zun|"
             + "cho|li|moh|nso|sw_CD|srn|lad|ve|gaa|pam|ale|sma|sba|lua|kha|sc|nv|men|cv|quc|pap|bla|"
             + "kj|anp|an|niu|mni|dv|swb|pau|gor|nqo|krc|crs|gwi|zza|mad|nog|lez|byn|sad|ssy|mag|iba|"
             + "tpi|kum|wal|mos|dzg|gez|io|tn|snk|mai|ady|chy|mwl|sco|av|efi|war|mic|loz|scn|smj|tem|"
@@ -374,23 +374,23 @@ public class TestCoverageLevel extends TestFmwkPlus {
 
         final Pattern script100 = PatternCache.get("("
             + "Adlm|Afak|Aghb|Ahom|Armi|Avst|Bali|Bamu|Bass|Batk|Bhks|Blis|Brah|Bugi|Buhd|"
-            + "Cakm|Cans|Cari|Cham|Cher|Cirt|Copt|Cprt|Cyrs|"
-            + "Dogr|Dsrt|Dupl|Egy[dhp]|Elba|Elym|Geok|Glag|Gong|Gonm|Goth|Gran|"
+            + "Cakm|Cans|Cari|Cham|Chrs|Cher|Cirt|Copt|Cprt|Cyrs|"
+            + "Diak|Dogr|Dsrt|Dupl|Egy[dhp]|Elba|Elym|Geok|Glag|Gong|Gonm|Goth|Gran|"
             + "Hatr|Hanb|Hano|Hluw|Hmng|Hmnp|Hrkt|Hung|Inds|Ital|Jamo|Java|Jurc|"
-            + "Kali|Khar|Khoj|Kpel|Kthi|Kits|Lana|Lat[fg]|Lepc|Limb|Lin[ab]|Lisu|Loma|Ly[cd]i|"
+            + "Kali|Khar|Khoj|Kits|Kpel|Kthi|Lana|Lat[fg]|Lepc|Limb|Lin[ab]|Lisu|Loma|Ly[cd]i|"
             + "Mahj|Maka|Man[di]|Marc|Maya|Medf|Mend|Mer[co]|Modi|Moon|Mroo|Mtei|Mult|"
             + "Nand|Narb|Nbat|Newa|Nkgb|Nkoo|Nshu|Ogam|Olck|Orkh|Osge|Osma|"
             + "Palm|Pauc|Perm|Phag|Phl[ipv]|Phnx|Plrd|Prti|"
             + "Rjng|Rohg|Roro|Runr|"
             + "Samr|Sar[ab]|Saur|Sgnw|Shaw|Shrd|Sidd|Sind|Sogd|Sogo|Sora|Soyo|Sund|Sylo|Syr[cejn]|"
             + "Tagb|Takr|Tal[eu]|Tang|Tavt|Teng|Tfng|Tglg|Tirh|"
-            + "Ugar|Vaii|Visp|Wara|Wcho|Wole|Xpeo|Xsux|Yiii|Zanb|Zinh|Zmth)");
+            + "Ugar|Vaii|Visp|Wara|Wcho|Wole|Xpeo|Xsux|Yezi|Yiii|Zanb|Zinh|Zmth)");
 
         final Pattern keys100 = PatternCache.get("(col(Alternate|Backwards|CaseFirst|CaseLevel|HiraganaQuaternary|"
             + "Normalization|Numeric|Reorder|Strength)|kv|sd|timezone|va|variableTop|x|d0|h0|i0|k0|m0|s0)");
 
         final Pattern numberingSystem100 = PatternCache.get("("
-            + "finance|native|traditional|adlm|ahom|bali|bhks|brah|cakm|cham|cyrl|"
+            + "finance|native|traditional|adlm|ahom|bali|bhks|brah|cakm|cham|cyrl|diak|"
             + "gong|gonm|hanidays|hmng|hmnp|java|jpanyear|kali|lana(tham)?|lepc|limb|"
             + "math(bold|dbl|mono|san[bs])|modi|mong|mroo|mtei|mymr(shan|tlng)|"
             + "newa|nkoo|olck|osma|rohg|saur|shrd|sin[dh]|sora|sund|takr|talu|tirh|vaii|wara|wcho)");
@@ -400,7 +400,6 @@ public class TestCoverageLevel extends TestFmwkPlus {
 
         SupplementalDataInfo sdi = testInfo.getSupplementalDataInfo();
         CLDRFile english = testInfo.getEnglish();
-        XPathParts xpp = new XPathParts();
 
         // Calculate date of the upcoming CLDR release, minus 5 years (deprecation policy)
         final int versionNumber = Integer.valueOf((CLDRFile.GEN_VERSION).split("\\.")[0]);
@@ -420,7 +419,7 @@ public class TestCoverageLevel extends TestFmwkPlus {
 
         for (String path : english.fullIterable()) {
             logln("Testing path => " + path);
-            xpp.set(path);
+            XPathParts xpp = XPathParts.getFrozenInstance(path);
             if (path.endsWith("/alias") || path.matches("//ldml/(identity|contextTransforms|layout|localeDisplayNames/transformNames)/.*")) {
                 continue;
             }
