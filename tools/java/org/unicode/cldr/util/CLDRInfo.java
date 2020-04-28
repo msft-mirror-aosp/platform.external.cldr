@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
-import org.unicode.cldr.util.VoteResolver.Status;
 import org.unicode.cldr.util.VoteResolver.VoterInfo;
 
 /**
@@ -21,18 +20,10 @@ public class CLDRInfo {
         CandidateInfo getCurrentItem();
 
         String getLastReleaseValue();
-        
-        default Status getLastReleaseStatus() {
-            return Status.missing;
-        }
 
-        Level getCoverageLevel();
+        Level getCoverageLevel(); // OK
 
         boolean hadVotesSometimeThisRelease();
-        
-        CLDRLocale getLocale();
-
-        String getXpath();
     }
 
     public interface CandidateInfo { // DataSection.DataRow.CandidateItem will implement

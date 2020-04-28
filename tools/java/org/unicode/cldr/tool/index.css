@@ -191,15 +191,9 @@ td.plain {
 	border: 2px solid #ccc;
 }
 
-.version {
-    content: "β";
-    color: black;
-    font-weight: bold;
-}
-.version::after {
+.beta::after {
     content: "β";
     color: red;
-    font-weight: bold;
 }
 
 /* formatting for date time review */

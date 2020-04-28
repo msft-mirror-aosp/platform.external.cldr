@@ -20,7 +20,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.unicode.cldr.test.DisplayAndInputProcessor;
-import org.unicode.cldr.tool.CldrVersion;
+import org.unicode.cldr.tool.GenerateBirth.Versions;
 import org.unicode.cldr.tool.LikelySubtags;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRConfig;
@@ -99,11 +99,7 @@ public class TestBasic extends TestFmwkPlus {
         Pair.of("ldml", "version"),
         Pair.of("supplementalData", "version"),
         Pair.of("ldmlICU", "version"),
-        Pair.of("layout", "standard"),
-        Pair.of("currency", "id"),      // for v1.1.1
-        Pair.of("monthNames", "type"),  // for v1.1.1
-        Pair.of("alias", "type")        // for v1.1.1
-        );
+        Pair.of("layout", "standard"));
 
     private static final ImmutableSet<Pair<String, String>> knownChildExceptions = ImmutableSet.of(
         Pair.of("abbreviationFallback", "special"),
@@ -1131,11 +1127,12 @@ public class TestBasic extends TestFmwkPlus {
 
     public void TestBasicDTDCompatibility() {
 
-        if (logKnownIssue("cldrbug:11583", "Comment out test until last release data is available for unit tests")) {
+        // Only run the rest in exhaustive mode, since it requires CLDR_ARCHIVE_DIRECTORY
+        if (getInclusion() <= 5) {
             return;
         }
 
-        final String oldCommon = CldrVersion.v22_1.getBaseDirectory() + "/common";
+        final String oldCommon = CLDRPaths.ARCHIVE_DIRECTORY + "/cldr-" + Versions.v22_1.toString() + "/common";
 
         // set up exceptions
         Set<String> changedToEmpty = new HashSet<String>(
@@ -1315,14 +1312,17 @@ public class TestBasic extends TestFmwkPlus {
                 type
                     + " DTD elements with children must have 'special' elements",
                 Collections.EMPTY_SET, elementsWithoutSpecial);
-            
-            if (logKnownIssue("cldrbug:11583", "Comment out test until last release data is available for unit tests")) {
+
+            // Only run the rest in exhaustive mode, since it requires CLDR_ARCHIVE_DIRECTORY
+            if (getInclusion() <= 5) {
                 return;
             }
 
-            for (CldrVersion version : CldrVersion.CLDR_VERSIONS_DESCENDING) {
-                if (version == CldrVersion.unknown || version == CldrVersion.trunk) {
+            for (Versions version : Versions.values()) {
+                if (version == Versions.trunk) {
                     continue;
+                } else if (version == Versions.v1_1_1) {
+                    break;
                 }
                 DtdData dtdDataOld;
                 try {
@@ -1332,11 +1332,11 @@ public class TestBasic extends TestFmwkPlus {
                     switch (type) {
                     case ldmlBCP47:
                     case ldmlICU:
-                        tooOld = version.isOlderThan(CldrVersion.v1_7_2);
+                        tooOld = version.compareTo(Versions.v1_7_2) >= 0;
                         break;
                     case keyboard:
                     case platform:
-                        tooOld = version.isOlderThan(CldrVersion.v22_1);
+                        tooOld = version.compareTo(Versions.v22_1) >= 0;
                         break;
                     default:
                         break;
@@ -1344,8 +1344,7 @@ public class TestBasic extends TestFmwkPlus {
                     if (tooOld) {
                         continue;
                     } else {
-                        errln(version + ": " + e.getClass().getSimpleName() + ", " + e.getMessage());
-                        continue;
+                        throw e;
                     }
                 }
                 // verify that if E is in dtdDataOld, then it is in dtdData, and
@@ -1375,7 +1374,7 @@ public class TestBasic extends TestFmwkPlus {
                                 continue;
                             }
                             assertNotNull(
-                                type + " DTD - Trunk children of «"
+                                type + " DTD - Children of «"
                                     + newElement.getName()
                                     + "» must be superset of v"
                                     + version + ", and must contain «"
@@ -1391,12 +1390,13 @@ public class TestBasic extends TestFmwkPlus {
                                 continue;
                             }
                             assertNotNull(
-                                type + " DTD - Trunk attributes of «"
+                                type + " DTD - Attributes of «"
                                     + newElement.getName()
                                     + "» must be superset of v"
                                     + version + ", and must contain «"
                                     + oldAttribute.getName() + "»",
                                 newAttribute);
+
                         }
                     }
                 }

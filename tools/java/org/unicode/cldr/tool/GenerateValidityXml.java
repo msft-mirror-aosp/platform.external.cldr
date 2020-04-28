@@ -272,10 +272,7 @@ public class GenerateValidityXml {
             info.clear();
             for (Entry<String, Map<LstrField, String>> entry2 : entry.getValue().entrySet()) {
                 String code = entry2.getKey();
-                if (type == LstrType.language && code.equals("aam")
-                    || type == LstrType.variant && code.equals("arevela")
-                    || type == LstrType.extlang && code.equals("lsg")
-                    ) {
+                if (type == LstrType.language && code.startsWith("bh")) {
                     int debug = 0;
                 }
                 Map<LstrField, String> data = entry2.getValue();
@@ -284,17 +281,14 @@ public class GenerateValidityXml {
                     subtype = Validity.Status.unknown;
                 } else if (type.specials.contains(code)) {
                     subtype = Validity.Status.special;
-                } else if (aliases != null && aliases.containsKey(code)
-                    || data.containsKey(LstrField.Deprecated)) {
+                } else if (aliases != null && aliases.containsKey(code)) {
                     subtype = Validity.Status.deprecated;
                 } else if (data.get(LstrField.Description).startsWith("Private use")) {
                     subtype = Validity.Status.private_use;
                 }
                 switch (type) {
                 case language:
-                    if (subtype == Status.private_use && code.compareTo("qfz") < 0) {
-                        subtype = Status.reserved;
-                    } else if (code.equals("root")) {
+                    if (code.equals("root")) {
                         continue;
                     }
                     break;
@@ -304,45 +298,24 @@ public class GenerateValidityXml {
                     } else if (code.equals("XA") || code.equals("XB")) {
                         subtype = Validity.Status.special;
                     }
-                    switch (subtype) {
-                    case regular:
+                    if (subtype == Status.regular) {
                         Info subInfo = Info.getInfo("subdivision");
                         subInfo.put(code.toLowerCase(Locale.ROOT) + "zzzz", Status.unknown);
-                        break;
-                    case private_use:
-                        if (code.compareTo("X") < 0) {
-                            subtype = Status.reserved;
-                        }
-                        break;
-                    default:
-                        break;
                     }
                     break;
                 case script:
                     switch (code) {
                     case "Qaag":
                     case "Zsye": 
-                    case "Zanb":
-                    case "Zinh":
-                    case "Zyyy":
                         subtype = Status.special;
                         break;
                     default:
-                        switch (subtype) {
-                        case private_use: 
-                            if (code.compareTo("Qaaq") < 0) {
-                                subtype = Validity.Status.reserved;
-                            }
-                            break;
-                        case regular:
+                        if (subtype == Validity.Status.regular) {
                             ScriptMetadata.Info scriptInfo = ScriptMetadata.getInfo(code);
                             if (scriptInfo == null && !code.equals("Hrkt")) {
                                 skippedScripts.add(code);
                                 continue;
                             }
-                            break;
-                        default: // don't care about rest
-                            break;
                         }
                         break;
                     }

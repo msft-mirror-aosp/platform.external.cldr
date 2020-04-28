@@ -174,7 +174,7 @@ public class SearchCLDR {
                     levelCounter.add(pathLevel, 1);
                 }
 
-                if (levelMatcher != null && !levelMatcher.contains(pathLevel)) {
+                if (!levelMatcher.contains(pathLevel)) {
                     continue;
                 }
 

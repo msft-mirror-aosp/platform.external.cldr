@@ -313,9 +313,6 @@ public class DisplayAndInputProcessor {
         if (internalException != null) {
             internalException[0] = null;
         }
-        if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
-            return value; // Reference: https://unicode.org/cldr/trac/ticket/11261
-        }
         try {
             // Normalise Malayalam characters.
             boolean isUnicodeSet = hasUnicodeSetValue(path);

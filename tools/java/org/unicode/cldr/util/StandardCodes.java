@@ -1067,10 +1067,6 @@ public class StandardCodes {
                 throw new UnsupportedOperationException();
             }
         }
-
-        public String toCompatString() {
-            return this == region ? "territory" : toString();
-        }
     }
 
     public enum LstrField {

@@ -167,7 +167,7 @@ public class CoverageLevel2 {
             } else {
                 result = lookup.get(path, myInfo, null);
             }
-            return result == null ? Level.COMPREHENSIVE : result;
+            return result == null ? Level.OPTIONAL : result;
         }
     }
 

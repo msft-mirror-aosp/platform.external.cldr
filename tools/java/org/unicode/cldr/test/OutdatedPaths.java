@@ -13,13 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.unicode.cldr.tool.CldrVersion;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InputStreamFactory;
-import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.StringId;
@@ -43,8 +41,6 @@ import com.ibm.icu.util.ICUUncheckedIOException;
  * To update the data file, use GenerateBirth.java.
  */
 public class OutdatedPaths {
-    public static String FORMAT_KEY = "odp-1";
-    public static final String NO_VALUE = "�";
 
     public static final String OUTDATED_DIR = "births/";
     public static final String OUTDATED_ENGLISH_DATA = "outdatedEnglish.data";
@@ -52,8 +48,8 @@ public class OutdatedPaths {
 
     private static final boolean DEBUG = CldrUtility.getProperty("OutdatedPathsDebug", false);
 
-    private final Map<String, Set<Long>> localeToData = new HashMap<>();
-    private final Map<Long, Pair<CldrVersion,String>> pathToBirthNPrevious = new HashMap<>();
+    private final HashMap<String, Set<Long>> localeToData = new HashMap<String, Set<Long>>();
+    private final HashMap<Long, String> pathToPrevious = new HashMap<Long, String>();
 
     /**
      * Creates a new OutdatedPaths, using the data file "outdated.data" in the same directory as this class.
@@ -70,22 +66,9 @@ public class OutdatedPaths {
      * @param directory
      */
     public OutdatedPaths(String directory) {
-        Map<Long, PathHeader> id2header = new HashMap<Long, PathHeader>(); // for debugging
-        
-        readLocaleToPaths(directory, id2header);
-
-        // now previous English
-
-        readBirthValues(directory, id2header, pathToBirthNPrevious);
-    }
-
-    private void readLocaleToPaths(String directory, Map<Long, PathHeader> id2header) {
         try {
             DataInputStream dataIn = openDataInput(directory, OUTDATED_DATA);
-            String key = dataIn.readUTF();
-            if (!OutdatedPaths.FORMAT_KEY.equals(key)) {
-                throw new IllegalArgumentException("Mismatch in FORMAT_KEY: expected=" + OutdatedPaths.FORMAT_KEY + ", read=" + key);
-            }
+            Map<Long, PathHeader> id2header = new HashMap<Long, PathHeader>();
             if (DEBUG) {
                 Factory factory = CLDRConfig.getInstance().getMainAndAnnotationsFactory();
                 id2header = getIdToPath(factory);
@@ -110,20 +93,10 @@ public class OutdatedPaths {
                 localeToData.put(locale, Collections.unmodifiableSet(data));
             }
             dataIn.close();
-        } catch (IOException e) {
-            throw new ICUUncheckedIOException("Data Not Available", e);
-        }
-    }
 
-    public static void readBirthValues(String outdatedDirectory, Map<Long, PathHeader> id2header, 
-        Map<Long, Pair<CldrVersion, String>> pathToBirthNPrevious2) {
-        try {
-            DataInputStream dataIn = openDataInput(outdatedDirectory, OUTDATED_ENGLISH_DATA);
-            String key = dataIn.readUTF();
-            if (!OutdatedPaths.FORMAT_KEY.equals(key)) {
-                throw new IllegalArgumentException("Mismatch in FORMAT_KEY: expected=" + OutdatedPaths.FORMAT_KEY + ", read=" + key);
-            }
+            // now previous English
 
+            dataIn = openDataInput(directory, OUTDATED_ENGLISH_DATA);
             int size = dataIn.readInt();
             if (DEBUG) {
                 System.out.println("English Data");
@@ -131,19 +104,17 @@ public class OutdatedPaths {
             for (int i = 0; i < size; ++i) {
                 long pathId = dataIn.readLong();
                 String previous = dataIn.readUTF();
-                CldrVersion birth = CldrVersion.from(dataIn.readUTF());
-
                 if (DEBUG) {
-                    System.out.println("en\t(" + previous + ")" 
-                        + (id2header == null ? "" : "\t" + id2header.get(pathId)));
+                    System.out.println("en\t(" + previous + ")\t" + id2header.get(pathId));
                 }
-                pathToBirthNPrevious2.put(pathId, Pair.of(birth,previous).freeze());
+                pathToPrevious.put(pathId, previous);
             }
             String finalCheck = dataIn.readUTF();
             if (!finalCheck.equals("$END$")) {
                 throw new IllegalArgumentException("Corrupted " + OUTDATED_ENGLISH_DATA);
             }
             dataIn.close();
+
         } catch (IOException e) {
             throw new ICUUncheckedIOException("Data Not Available", e);
         }
@@ -161,14 +132,15 @@ public class OutdatedPaths {
         return result;
     }
 
-    private static DataInputStream openDataInput(String directory, String filename) throws FileNotFoundException {
+    @SuppressWarnings("resource")
+    private DataInputStream openDataInput(String directory, String filename) throws FileNotFoundException {
         String dataFileName = filename;
         InputStream fileInputStream = directory == null
             ? CldrUtility.getInputStream(OUTDATED_DIR + dataFileName) :
-                //: new FileInputStream(new File(directory, dataFileName));
-                InputStreamFactory.createInputStream(new File(directory, dataFileName));
-            DataInputStream dataIn = new DataInputStream(fileInputStream);
-            return dataIn;
+            //: new FileInputStream(new File(directory, dataFileName));
+            InputStreamFactory.createInputStream(new File(directory, dataFileName));
+        DataInputStream dataIn = new DataInputStream(fileInputStream);
+        return dataIn;
     }
 
     /**
@@ -230,14 +202,7 @@ public class OutdatedPaths {
      */
     public String getPreviousEnglish(String distinguishedPath) {
         long id = StringId.getId(distinguishedPath);
-        Pair<CldrVersion, String> value = pathToBirthNPrevious.get(id);
-        return value == null ? null : value.getSecond();
-    }
-
-    public CldrVersion getEnglishBirth(String distinguishedPath) {
-        long id = StringId.getId(distinguishedPath);
-        Pair<CldrVersion, String> value = pathToBirthNPrevious.get(id);
-        return value == null ? null : value.getFirst();
+        return pathToPrevious.get(id);
     }
 
     static RegexLookup<Boolean> SKIP_PATHS = new RegexLookup<Boolean>()

@@ -290,16 +290,11 @@ Google	;	as	;	modern	;	T5	Assamese
 Google	;	sd	;	modern	;	T5	Sindhi
 
 #Google Tier T6
-Google	;	jv	;	modern	;	Javanese
-Google  ;   so  ;   modern    ;   Somali
+Google	;	jv	;	moderate	;	Javanese
+Google  ;   so  ;   moderate    ;   Somali
 
 #Google Tier T7
-
-Google	;	chr	;	basic	;	Cherokee
-Google	;	ha	;	basic	;	Hausa
-Google	;	ig	;	basic	;	Igbo
-Google	;	yo	;	basic	;	Yoruba
-Google	;	ceb	;	basic	;	Cebuano
+Google	;	chr	;	basic	; Cherokee
 
 #Google Tier TR
 Google	;	es_US	;	modern	; TR Spanish (United States)
@@ -601,8 +596,8 @@ Cldr	;	de_CH	;	modern	; TR High German (Switzerland)
 Cldr	;	ar_DZ	;	modern	; TR Arabic (Algeria)
 
 #Cldr	other (from Apple)		
-#Cldr    ;   fo  ;   modern
-#Cldr    ;   to  ;   moderate	# maybe different level from Apple's
+Cldr    ;   fo  ;   modern
+Cldr    ;   to  ;   moderate	# maybe different level from Apple's
 Cldr	;	en_AU	;	modern
 Cldr	;	es_MX	;	modern
 Cldr	;	fr_CA	;	modern
@@ -615,13 +610,9 @@ Cldr	;	ps	;	modern	;	Pashto
 Cldr	;	as	;	modern	;	Assamese
 Cldr	;	sd	;	modern	;	Sindhi
 
-Cldr	;	jv	;	modern	;	Javanese
-Cldr	;   so  ;   modern	;   Somali
+Cldr	;	jv	;	moderate	;	Javanese
+Cldr  ;   so  ;   moderate    ;   Somali
 
-Cldr	;	ha	;	basic	;	Hausa
-Cldr	;	ig	;	basic	;	Igbo
-Cldr	;	yo	;	basic	;	Yoruba
-Cldr	;	ceb	;	basic	;	Cebuano
 
 Bangor_Univ ;   cy   ;    modern  ; Welsh
 Bangor_Univ ;   *    ;    moderate  ; All others

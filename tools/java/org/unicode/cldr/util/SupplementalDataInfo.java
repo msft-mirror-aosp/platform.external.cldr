@@ -910,8 +910,6 @@ public class SupplementalDataInfo {
     public Map<Row.R2<String, String>, String> bcp47Since = new TreeMap<Row.R2<String, String>, String>();
     public Map<Row.R2<String, String>, String> bcp47Preferred = new TreeMap<Row.R2<String, String>, String>();
     public Map<Row.R2<String, String>, String> bcp47Deprecated = new TreeMap<Row.R2<String, String>, String>();
-    public Map<String, String> bcp47ValueType = new TreeMap<String, String>();
-
 
     public Map<String, Row.R2<String, String>> validityInfo = new LinkedHashMap<String, Row.R2<String, String>>();
     public Map<AttributeValidityInfo, String> attributeValidityInfo = new LinkedHashMap<>();
@@ -1154,10 +1152,6 @@ public class SupplementalDataInfo {
             throw new InternalError("No BCP47 key 2 subtype data was loaded from bcp47 dir " + getBcp47Directory().getAbsolutePath());
         }
         CldrUtility.protectCollection(bcp47Descriptions);
-        CldrUtility.protectCollection(bcp47Since);
-        CldrUtility.protectCollection(bcp47Preferred);
-        CldrUtility.protectCollection(bcp47Deprecated);
-        CldrUtility.protectCollection(bcp47ValueType);
 
         CoverageLevelInfo.fixEU(coverageLevels, this);
         coverageLevels = Collections.unmodifiableSortedSet(coverageLevels);
@@ -1431,7 +1425,6 @@ public class SupplementalDataInfo {
                 String subtypeSince = parts.getAttributeValue(3, "since");
                 String subtypePreferred = parts.getAttributeValue(3, "preferred");
                 String subtypeDeprecated = parts.getAttributeValue(3, "deprecated");
-                String valueType = parts.getAttributeValue(3, "deprecated");
 
                 Set<String> set = bcp47Key2Subtypes.get(key);
                 if (set != null && set.contains(key)) {
@@ -1455,9 +1448,6 @@ public class SupplementalDataInfo {
                 }
                 if (subtypeDeprecated != null) {
                     bcp47Deprecated.put(key_subtype, subtypeDeprecated);
-                }
-                if (valueType != null) {
-                    bcp47ValueType.put(subtype, valueType);
                 }
                 break;
             default:
@@ -1499,7 +1489,7 @@ public class SupplementalDataInfo {
                     parts.getAttributeValue(3, "supported"),
                     percent != null ? Integer.parseInt(percent)
                         : 100 - Integer.parseInt(distance),
-                        "true".equals(parts.getAttributeValue(3, "oneway"))));
+                    "true".equals(parts.getAttributeValue(3, "oneway"))));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown element");
@@ -1805,8 +1795,8 @@ public class SupplementalDataInfo {
                     .setLiteratePopulation(languageLiteracyPercent * languagePopulation / 100)
                     .setWritingPopulation(writingPercent * languagePopulation / 100)
                     .setOfficialStatus(officialStatus)
-                    // .setGdp(languageGdp)
-                    ;
+                // .setGdp(languageGdp)
+                ;
                 newData.freeze();
                 if (territoryLanguageToPopulation.get(language) != null) {
                     System.out
@@ -2943,7 +2933,7 @@ public class SupplementalDataInfo {
         // ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="format"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="am"]
         /*
          * <supplementalData>
-         * <version number="$Revision: 14824 $"/>
+         * <version number="$Revision: 13987 $"/>
          * <generation date="$D..e... $"/>
          * <dayPeriodRuleSet>
          * <dayPeriodRules locales = "en"> <!-- default for any locales not listed under other dayPeriods -->
@@ -3150,12 +3140,14 @@ public class SupplementalDataInfo {
                     if (b.length() != 0) {
                         b.append(", ");
                     }
+                    // Android patch (CLDR ticket #11014) begin.
                     FixedDecimal fraction = fractions.get(i);
                     String formatted = String.format(
-                        Locale.ROOT,
-                        "%." + fraction.getVisibleDecimalDigitCount() + "f",
-                        fraction.getSource());
+                            Locale.ROOT,
+                            "%." + fraction.getVisibleDecimalDigitCount() + "f",
+                            fraction.getSource());
                     b.append(formatted);
+                    // Android patch (CLDR ticket #11014) end.
                     ++fractionCount;
                 }
                 b.append(", …");
@@ -3928,14 +3920,6 @@ public class SupplementalDataInfo {
     public Map<R2<String, String>, String> getBcp47Deprecated() {
         return bcp47Deprecated;
     }
-
-    /**
-     * Return mapping from subtype to deprecated
-     */
-    public Map<String, String> getBcp47ValueType() {
-        return bcp47ValueType;
-    }
-
 
     static Set<String> MainTimeZones;;
 
