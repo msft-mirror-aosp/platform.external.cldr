@@ -320,7 +320,7 @@ public class LocaleMatcher {
     private void addFiltered(String desired, R3<ULocale, ULocale, Double> localeToMaxAndWeight) {
         Set<R3<ULocale, ULocale, Double>> map = desiredLanguageToPossibleLocalesToMaxLocaleToData.get(desired);
         if (map == null) {
-            desiredLanguageToPossibleLocalesToMaxLocaleToData.put(desired, map = new LinkedHashSet<>());
+            desiredLanguageToPossibleLocalesToMaxLocaleToData.put(desired, map = new LinkedHashSet<R3<ULocale, ULocale, Double>>());
         }
         map.add(localeToMaxAndWeight);
         if (DEBUG) {
@@ -328,8 +328,8 @@ public class LocaleMatcher {
         }
     }
 
-    Set<Row.R3<ULocale, ULocale, Double>> localeToMaxLocaleAndWeight = new LinkedHashSet<>();
-    Map<String, Set<Row.R3<ULocale, ULocale, Double>>> desiredLanguageToPossibleLocalesToMaxLocaleToData = new LinkedHashMap<>();
+    Set<Row.R3<ULocale, ULocale, Double>> localeToMaxLocaleAndWeight = new LinkedHashSet<Row.R3<ULocale, ULocale, Double>>();
+    Map<String, Set<Row.R3<ULocale, ULocale, Double>>> desiredLanguageToPossibleLocalesToMaxLocaleToData = new LinkedHashMap<String, Set<Row.R3<ULocale, ULocale, Double>>>();
 
     // =============== Special Mapping Information ==============
 
@@ -377,7 +377,7 @@ public class LocaleMatcher {
         static Pattern pattern = Pattern.compile(
             "([a-z]{1,8}|\\*)"
                 + "(?:[_-]([A-Z][a-z]{3}|\\*))?"
-                + "(?:[_-]([$]!?[a-zA-Z]+|[A-Z]{2}|[0-9]{3}|\\*))?");
+                + "(?:[_-]([A-Z]{2}|[0-9]{3}|\\*))?");
 
         public LocalePatternMatcher(String toMatch) {
             Matcher matcher = pattern.matcher(toMatch);
@@ -429,7 +429,6 @@ public class LocaleMatcher {
             return (region == null ? "*" : region);
         }
 
-        @Override
         public String toString() {
             String result = getLanguage();
             if (level != Level.language) {
@@ -484,7 +483,7 @@ public class LocaleMatcher {
         @SuppressWarnings("unused")
         private static final double maxUnequal_changeEqual = 0.75;
 
-        LinkedHashSet<Row.R3<LocalePatternMatcher, LocalePatternMatcher, Double>> scores = new LinkedHashSet<>();
+        LinkedHashSet<Row.R3<LocalePatternMatcher, LocalePatternMatcher, Double>> scores = new LinkedHashSet<R3<LocalePatternMatcher, LocalePatternMatcher, Double>>();
         final Level level;
 
         public ScoreData(Level level) {
@@ -537,7 +536,6 @@ public class LocaleMatcher {
             return level.worst;
         }
 
-        @Override
         public String toString() {
             StringBuilder result = new StringBuilder().append(level);
             for (R3<LocalePatternMatcher, LocalePatternMatcher, Double> score : scores) {
@@ -546,7 +544,6 @@ public class LocaleMatcher {
             return result.toString();
         }
 
-        @Override
         @SuppressWarnings("unchecked")
         public ScoreData cloneAsThawed() {
             try {
@@ -562,12 +559,10 @@ public class LocaleMatcher {
 
         private volatile boolean frozen = false;
 
-        @Override
         public ScoreData freeze() {
             return this;
         }
 
-        @Override
         public boolean isFrozen() {
             return frozen;
         }
@@ -620,7 +615,6 @@ public class LocaleMatcher {
          * @internal
          * @deprecated This API is ICU internal only.
          */
-        @Override
         @Deprecated
         public String toString() {
             return languageScores + "\n\t" + scriptScores + "\n\t" + regionScores;
@@ -750,7 +744,6 @@ public class LocaleMatcher {
          * @internal
          * @deprecated This API is ICU internal only.
          */
-        @Override
         @Deprecated
         public LanguageMatcherData cloneAsThawed() {
             LanguageMatcherData result;
@@ -771,7 +764,6 @@ public class LocaleMatcher {
          * @internal
          * @deprecated This API is ICU internal only.
          */
-        @Override
         @Deprecated
         public LanguageMatcherData freeze() {
             languageScores.freeze();
@@ -787,7 +779,6 @@ public class LocaleMatcher {
          * @internal
          * @deprecated This API is ICU internal only.
          */
-        @Override
         @Deprecated
         public boolean isFrozen() {
             return frozen;
@@ -798,7 +789,7 @@ public class LocaleMatcher {
 
     private static final LanguageMatcherData defaultWritten;
 
-    private static HashMap<String, String> canonicalMap = new HashMap<>();
+    private static HashMap<String, String> canonicalMap = new HashMap<String, String>();
 
     static {
         canonicalMap.put("iw", "he");

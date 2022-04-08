@@ -25,10 +25,10 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.DtdData;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.PatternCache;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.TransliteratorUtilities;
+import org.unicode.cldr.util.XPathParts;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -38,9 +38,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DeclHandler;
 
 public class GenerateAttributeList {
-    Map<String, Map<String, Set<String>[]>> element_attribute_valueSet = new TreeMap<>();
-    Set<String> allElements = new TreeSet<>();
-    Map<String, String> defaults = new HashMap<>();
+    XPathParts parts = new XPathParts();
+    Map<String, Map<String, Set<String>[]>> element_attribute_valueSet = new TreeMap<String, Map<String, Set<String>[]>>();
+    Set<String> allElements = new TreeSet<String>();
+    Map<String, String> defaults = new HashMap<String, String>();
 
     public GenerateAttributeList(Factory cldrFactory) throws IOException {
         addFromStandardCodes();
@@ -105,7 +106,7 @@ public class GenerateAttributeList {
 
     private void addFromDirectory(String directory) throws IOException {
         File dir = new File(directory);
-        directory = PathUtilities.getNormalizedPathString(dir);
+        directory = dir.getCanonicalPath();
         String[] files = dir.list();
         for (int i = 0; i < files.length; ++i) {
             if (files[i].startsWith(".#")) continue;
@@ -157,13 +158,13 @@ public class GenerateAttributeList {
         }
         // now add
         Map<String, Set<String>[]> attribute_valueSet = element_attribute_valueSet.get(element);
-        if (attribute_valueSet == null) element_attribute_valueSet.put(element, attribute_valueSet = new TreeMap<>());
+        if (attribute_valueSet == null) element_attribute_valueSet.put(element, attribute_valueSet = new TreeMap<String, Set<String>[]>());
         Set<String>[] valueSets = attribute_valueSet.get(attribute);
         if (valueSets == null) {
             Comparator<String> c = DtdData.getAttributeValueComparator(element, attribute);
             valueSets = new Set[2];
-            valueSets[0] = new TreeSet<>(c);
-            valueSets[1] = new TreeSet<>();
+            valueSets[0] = new TreeSet<String>(c);
+            valueSets[1] = new TreeSet<String>();
             attribute_valueSet.put(attribute, valueSets);
         }
         try {
@@ -212,8 +213,8 @@ public class GenerateAttributeList {
                 String defaultKey = element + "|" + attribute;
                 pw.print(toString(valueSets[0], defaultKey));
                 pw.println("</td><td>");
-                Set<String> toRemove = new TreeSet<>(valueSets[0]);
-                Set<String> remainder = new TreeSet<>(valueSets[1]);
+                Set<String> toRemove = new TreeSet<String>(valueSets[0]);
+                Set<String> remainder = new TreeSet<String>(valueSets[1]);
                 remainder.removeAll(toRemove);
                 pw.print(toString(remainder, defaultKey));
                 pw.println("</td></tr>");
@@ -252,7 +253,6 @@ public class GenerateAttributeList {
 
         Matcher idmatcher = PatternCache.get("[a-zA-Z][-_a-zA-Z0-9]*").matcher("");
 
-        @Override
         public void attributeDecl(String eName, String aName, String type, String mode, String value)
             throws SAXException {
             // System.out.println("Attribute\t" + eName + "\t" + aName + "\t" + type + "\t" + mode + "\t" + value);
@@ -271,7 +271,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ext.DeclHandler#elementDecl(java.lang.String, java.lang.String)
          */
-        @Override
         public void elementDecl(String name, String model) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -282,7 +281,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ext.DeclHandler#internalEntityDecl(java.lang.String, java.lang.String)
          */
-        @Override
         public void internalEntityDecl(String name, String value) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -293,7 +291,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ext.DeclHandler#externalEntityDecl(java.lang.String, java.lang.String, java.lang.String)
          */
-        @Override
         public void externalEntityDecl(String name, String publicId, String systemId) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -307,7 +304,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#endDocument()
          */
-        @Override
         public void endDocument() throws SAXException {
             // TODO Auto-generated method stub
 
@@ -318,7 +314,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#startDocument()
          */
-        @Override
         public void startDocument() throws SAXException {
             // TODO Auto-generated method stub
 
@@ -329,7 +324,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#characters(char[], int, int)
          */
-        @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -340,7 +334,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
          */
-        @Override
         public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -351,7 +344,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
          */
-        @Override
         public void endPrefixMapping(String prefix) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -362,7 +354,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
          */
-        @Override
         public void skippedEntity(String name) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -373,7 +364,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
          */
-        @Override
         public void setDocumentLocator(Locator locator) {
             // TODO Auto-generated method stub
 
@@ -384,7 +374,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String, java.lang.String)
          */
-        @Override
         public void processingInstruction(String target, String data) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -395,7 +384,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
          */
-        @Override
         public void startPrefixMapping(String prefix, String uri) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -406,7 +394,6 @@ public class GenerateAttributeList {
          *
          * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
          */
-        @Override
         public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
             // TODO Auto-generated method stub
 
@@ -418,7 +405,6 @@ public class GenerateAttributeList {
          * @see org.xml.sax.ContentHandler#startElement(java.lang.String, java.lang.String, java.lang.String,
          * org.xml.sax.Attributes)
          */
-        @Override
         public void startElement(String namespaceURI, String localName, String qName, Attributes attributes)
             throws SAXException {
             if (attributes == null) return;

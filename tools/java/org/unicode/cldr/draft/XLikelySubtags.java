@@ -50,7 +50,6 @@ public class XLikelySubtags {
         }
 
         static final Maker HASHMAP = new Maker() {
-            @Override
             @SuppressWarnings("unchecked")
             public Map<Object, Object> make() {
                 return new HashMap<>();
@@ -58,7 +57,6 @@ public class XLikelySubtags {
         };
 
         static final Maker TREEMAP = new Maker() {
-            @Override
             @SuppressWarnings("unchecked")
             public Map<Object, Object> make() {
                 return new TreeMap<>();
@@ -204,7 +202,7 @@ public class XLikelySubtags {
             final LSR value = regionEntry.getValue();
             set(result, "und", value.script, value.region, value);
         }
-        //
+        // 
         // check that every level has "" (or "und")
         if (!result.containsKey("und")) {
             throw new IllegalArgumentException("failure: base");
@@ -298,7 +296,7 @@ public class XLikelySubtags {
     }
 
 //    public static ULocale addLikelySubtags(ULocale loc) {
-//
+//        
 //    }
 
     /**
@@ -378,7 +376,7 @@ public class XLikelySubtags {
         if (result.script.equals(value00.script)) { //script is default
             if (result.region.equals(value00.region)) {
                 return result.replace(null, "", "");
-            } else if (fieldToFavor == Minimize.FAVOR_REGION) {
+            } else if (fieldToFavor == fieldToFavor.FAVOR_REGION) {
                 return result.replace(null, "", null);
             } else {
                 favorRegionOk = true;
@@ -458,9 +456,9 @@ public class XLikelySubtags {
 //        }
 
         // get all the languages, scripts, and regions
-        Set<String> languages = new TreeSet<>();
-        Set<String> scripts = new TreeSet<>();
-        Set<String> regions = new TreeSet<>();
+        Set<String> languages = new TreeSet<String>();
+        Set<String> scripts = new TreeSet<String>();
+        Set<String> regions = new TreeSet<String>();
         Counter<String> languageCounter = new Counter<>();
         Counter<String> scriptCounter = new Counter<>();
         Counter<String> regionCounter = new Counter<>();

@@ -40,7 +40,6 @@ public abstract class IntMap<T> {
 
     public abstract int approximateStorage();
 
-    @Override
     public String toString() {
         return getValueMap().toString();
     }
@@ -54,12 +53,10 @@ public abstract class IntMap<T> {
             this.intToValue = intToValue;
         }
 
-        @Override
         public T get(int index) {
             return intToValue[index];
         }
 
-        @Override
         public Map<T, Integer> getValueMap(Map<T, Integer> output) {
             for (int i = 0; i < intToValue.length; ++i) {
                 output.put(intToValue[i], i);
@@ -67,7 +64,6 @@ public abstract class IntMap<T> {
             return output;
         }
 
-        @Override
         public int approximateStorage() {
             int size = OBJECT_OVERHEAD;
             for (T item : intToValue) {
@@ -79,10 +75,9 @@ public abstract class IntMap<T> {
     }
 
     public static class BasicIntMapFactory<T> implements IntMapFactory<T> {
-        @Override
         @SuppressWarnings("unchecked")
         public BasicIntMap<T> make(Collection<T> values) {
-            return new BasicIntMap<>((T[]) new ArrayList<>(new HashSet<>(values)).toArray());
+            return new BasicIntMap<T>((T[]) new ArrayList<T>(new HashSet<T>(values)).toArray());
         }
     }
 
@@ -102,7 +97,6 @@ public abstract class IntMap<T> {
             this.intToValue = intToValue;
         }
 
-        @Override
         public String get(int index) {
             // the packedIndex stores the string as an index in the top 24 bits, and length in the bottom 8.
             int packedIndex = intToValue[index];
@@ -111,7 +105,6 @@ public abstract class IntMap<T> {
             return data.substring(dataIndex, dataIndex + len);
         }
 
-        @Override
         public Map<String, Integer> getValueMap(Map<String, Integer> output) {
             for (int i = 0; i < intToValue.length; ++i) {
                 output.put(get(i), i);
@@ -119,7 +112,6 @@ public abstract class IntMap<T> {
             return output;
         }
 
-        @Override
         public int approximateStorage() {
             int size = OBJECT_OVERHEAD + POINTER_OVERHEAD * 2;
             size += data.length() * 2 + STRING_OVERHEAD;
@@ -129,7 +121,6 @@ public abstract class IntMap<T> {
     }
 
     public static final Comparator<String> LONGEST_FIRST_COMPARATOR = new Comparator<String>() {
-        @Override
         public int compare(String a, String b) {
             return a.length() > b.length() ? -1
                 : a.length() < b.length() ? 1
@@ -138,10 +129,9 @@ public abstract class IntMap<T> {
     };
 
     public static class CompactStringIntMapFactory implements IntMapFactory<String> {
-        @Override
         public CompactStringIntMap make(Collection<String> values) {
             // first sort, longest first
-            Set<String> sorted = new TreeSet<>(LONGEST_FIRST_COMPARATOR);
+            Set<String> sorted = new TreeSet<String>(LONGEST_FIRST_COMPARATOR);
             sorted.addAll(values);
 
             StringBuilder data = new StringBuilder();

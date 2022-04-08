@@ -1,7 +1,9 @@
 package org.unicode.cldr.api;
 
-import static org.unicode.cldr.api.CldrData.PathOrder.ARBITRARY;
-import static org.unicode.cldr.api.CldrData.PathOrder.DTD;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.ibm.icu.dev.test.TestFmwk;
+import org.unicode.cldr.util.CLDRConfig;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,11 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.unicode.cldr.util.CLDRConfig;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.ibm.icu.dev.test.TestFmwk;
+import static org.unicode.cldr.api.CldrData.PathOrder.ARBITRARY;
+import static org.unicode.cldr.api.CldrData.PathOrder.DTD;
 
 public class CldrFileDataSourceTest extends TestFmwk {
     // The config knows if it's being run as part of a test. This is NOT immutable (but this test

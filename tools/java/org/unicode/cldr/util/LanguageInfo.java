@@ -20,7 +20,7 @@ public class LanguageInfo {
 
     public enum CldrDir {
         base, main, seed
-    }
+    };
 
     private int literatePopulation;
     private Relation<OfficialStatus, String> statusToRegions = Relation.of(new EnumMap<OfficialStatus, Set<String>>(OfficialStatus.class), TreeSet.class);
@@ -68,7 +68,7 @@ public class LanguageInfo {
 
     static final Map<String, LanguageInfo> languageCodeToInfo;
     static {
-        TreeMap<String, LanguageInfo> temp = new TreeMap<>();
+        TreeMap<String, LanguageInfo> temp = new TreeMap<String, LanguageInfo>();
         // get population/official status
         LanguageTagParser ltp = new LanguageTagParser();
         for (String territory : SDI.getTerritoriesWithPopulationData()) {

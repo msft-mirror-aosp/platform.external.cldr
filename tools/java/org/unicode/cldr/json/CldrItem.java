@@ -30,7 +30,7 @@ public class CldrItem implements Comparable<CldrItem> {
         }
 
         int start = 0;
-        ArrayList<String> segments = new ArrayList<>();
+        ArrayList<String> segments = new ArrayList<String>();
         boolean inBracket = false;
         boolean inBracketQuote = false;
         for (int pos = start; pos < path.length(); ++pos) {
@@ -94,7 +94,7 @@ public class CldrItem implements Comparable<CldrItem> {
      */
     private String value;
 
-    CldrItem(final String path, String fullPath, String untransformedPath, String untransformedFullPath, String value) {
+    CldrItem(String path, String fullPath, String untransformedPath, String untransformedFullPath, String value) {
 
         if (DEBUG) {
             System.out.println("---");
@@ -102,11 +102,6 @@ public class CldrItem implements Comparable<CldrItem> {
             System.out.println("FULLPATH => " + fullPath);
             System.out.println("   VALUE => " + value);
             System.out.println("---");
-        }
-
-        if(path.isEmpty()) {
-            // Should not happen
-            throw new IllegalArgumentException("empty path with " + fullPath+"|"+untransformedPath+"|"+untransformedFullPath+ " = " + value );
         }
 
         this.path = path;
@@ -168,7 +163,7 @@ public class CldrItem implements Comparable<CldrItem> {
         String[] pathSegments = splitPathToSegments(path);
         String[] fullPathSegments = splitPathToSegments(fullPath);
         assert (pathSegments.length == fullPathSegments.length);
-        ArrayList<CldrNode> nodesInPath = new ArrayList<>();
+        ArrayList<CldrNode> nodesInPath = new ArrayList<CldrNode>();
 
         String parent = "";
         for (int i = 0; i < pathSegments.length; i++) {
@@ -208,9 +203,6 @@ public class CldrItem implements Comparable<CldrItem> {
     }
 
     public void setPath(String path) {
-        if(path.isEmpty()) {
-            throw new IllegalArgumentException("empty path");
-        }
         this.path = path;
     }
 
@@ -232,15 +224,15 @@ public class CldrItem implements Comparable<CldrItem> {
 
         for (SplittableAttributeSpec s : LdmlConvertRules.SPLITTABLE_ATTRS) {
             if (fullxpp.containsElement(s.element) && fullxpp.containsAttribute(s.attribute)) {
-                ArrayList<CldrItem> list = new ArrayList<>();
+                ArrayList<CldrItem> list = new ArrayList<CldrItem>();
                 String wordString = fullxpp.findAttributeValue(s.element, s.attribute);
                 String[] words = null;
                 words = wordString.trim().split("\\s+");
                 for (String word : words) {
-                    XPathParts newxpp = xpp.cloneAsThawed();
-                    XPathParts newfullxpp = fullxpp.cloneAsThawed();
-                    XPathParts untransformednewxpp = untransformedxpp.cloneAsThawed();
-                    XPathParts untransformednewfullxpp = untransformedfullxpp.cloneAsThawed();
+                    XPathParts newxpp = XPathParts.getInstance(xpp.toString());
+                    XPathParts newfullxpp = XPathParts.getInstance(fullxpp.toString());
+                    XPathParts untransformednewxpp = XPathParts.getInstance(untransformedxpp.toString());
+                    XPathParts untransformednewfullxpp = XPathParts.getInstance(untransformedfullxpp.toString());
 
                     newxpp.setAttribute(s.element, s.attribute, word);
                     newfullxpp.setAttribute(s.element, s.attribute, word);

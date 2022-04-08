@@ -63,11 +63,10 @@ import org.unicode.cldr.util.SupplementalDataInfo.PopulationData;
 import org.unicode.cldr.util.TransliteratorUtilities;
 import org.unicode.cldr.util.XPathParts;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.impl.Row.R4;
@@ -81,7 +80,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.ICUUncheckedIOException;
 import com.ibm.icu.util.ULocale;
 
-@CLDRTool(alias = "showlanguages", description = "Generate Language info charts")
+@CLDRTool(alias = "showlanguages", description = "Generate Lanugage info charts")
 public class ShowLanguages {
     private static final boolean SHOW_NATIVE = true;
 
@@ -99,7 +98,7 @@ public class ShowLanguages {
         FileCopier.ensureDirectoryExists(FormattedFileWriter.CHART_TARGET_DIR);
         FileCopier.copy(ShowLanguages.class, "index.css", FormattedFileWriter.CHART_TARGET_DIR);
         FormattedFileWriter.copyIncludeHtmls(FormattedFileWriter.CHART_TARGET_DIR);
-
+        
         StringWriter sw = printLanguageData(cldrFactory, "index.html");
         writeSupplementalIndex("index.html", sw);
 
@@ -127,13 +126,7 @@ public class ShowLanguages {
         new ChartLanguageMatching().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
         new ChartLanguageGroups().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
         new ChartSubdivisions().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
-        if (ToolConstants.CHART_VERSION.compareTo("37") >= 0) {
-            new ChartUnitConversions().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
-            new ChartUnitPreferences().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
-        }
-        if (ToolConstants.CHART_VERSION.compareTo("37") >= 0) {
-            new ChartGrammaticalForms().writeChart(SUPPLEMENTAL_INDEX_ANCHORS);
-        }
+
         // since we don't want these listed on the supplemental page, use null
 
         new ShowPlurals().printPlurals(english, null, pw, cldrFactory);
@@ -189,13 +182,13 @@ public class ShowLanguages {
         linfo.printCharacters(pw);
 
         pw.close();
-
+        
         return sw;
     }
 
     private static void writeSupplementalIndex(String filename, StringWriter sw) throws IOException {
-        String[] replacements = {
-            "%date%", CldrUtility.isoFormatDateOnly(new Date()),
+        String[] replacements = { 
+            "%date%", CldrUtility.isoFormatDateOnly(new Date()), 
             "%contents%", SUPPLEMENTAL_INDEX_ANCHORS.toString(),
             "%data%", sw.toString(),
             "%index%", "../index.html" };
@@ -231,7 +224,7 @@ public class ShowLanguages {
             .addColumn("P", "class='target' title='primary'", null, "class='target'", true).setSortPriority(3);
 
         // get the codes so we can show the remainder
-        Set<String> remainingScripts = new TreeSet<>(getScriptsToShow()); // StandardCodes.MODERN_SCRIPTS);
+        Set<String> remainingScripts = new TreeSet<String>(getScriptsToShow()); // StandardCodes.MODERN_SCRIPTS);
         UnicodeSet temp = new UnicodeSet();
         for (String script : getScriptsToShow()) {
             temp.clear();
@@ -253,7 +246,7 @@ public class ShowLanguages {
         remainingScripts.remove("Zzzz");
         remainingScripts.remove("Zyyy");
 
-        Set<String> remainingLanguages = new TreeSet<>(getLanguagesToShow());
+        Set<String> remainingLanguages = new TreeSet<String>(getLanguagesToShow());
         for (String language : getLanguagesToShow()) {
             Scope s = Iso639Data.getScope(language);
             Type t = Iso639Data.getType(language);
@@ -293,7 +286,7 @@ public class ShowLanguages {
 
     }
 
-    static final Map<String, OfficialStatus> languageToBestStatus = new HashMap<>();
+    static final Map<String, OfficialStatus> languageToBestStatus = new HashMap<String, OfficialStatus>();
     static {
         for (String language : supplementalDataInfo.getLanguagesForTerritoriesPopulationData()) {
             Set<String> territories = supplementalDataInfo.getTerritoriesForPopulationData(language);
@@ -338,7 +331,7 @@ public class ShowLanguages {
     }
 
     private static Set<String> getEnglishTypes(String type, int code) {
-        Set<String> result = new HashSet<>(sc.getSurveyToolDisplayCodes(type));
+        Set<String> result = new HashSet<String>(sc.getSurveyToolDisplayCodes(type));
         for (Iterator<String> it = english.getAvailableIterator(code); it.hasNext();) {
             XPathParts parts = XPathParts.getFrozenInstance(it.next());
             String newType = parts.getAttributeValue(-1, "type");
@@ -371,8 +364,8 @@ public class ShowLanguages {
             .addColumn("Code", "class='target'", null, "class='target'", true);
 
         // get the codes so we can show the remainder
-        Set<String> remainingScripts = new TreeSet<>(getScriptsToShow());
-        Set<String> remainingTerritories = new TreeSet<>(sc.getGoodAvailableCodes("territory"));
+        Set<String> remainingScripts = new TreeSet<String>(getScriptsToShow());
+        Set<String> remainingTerritories = new TreeSet<String>(sc.getGoodAvailableCodes("territory"));
         UnicodeSet temp = new UnicodeSet();
         for (String script : getScriptsToShow()) {
             temp.clear();
@@ -394,7 +387,7 @@ public class ShowLanguages {
         remainingScripts.remove("Zzzz");
         remainingScripts.remove("Zyyy");
 
-        Set<String> remainingLanguages = new TreeSet<>(getLanguagesToShow());
+        Set<String> remainingLanguages = new TreeSet<String>(getLanguagesToShow());
         for (String language : getLanguagesToShow()) {
             Scope s = Iso639Data.getScope(language);
             Type t = Iso639Data.getType(language);
@@ -416,7 +409,7 @@ public class ShowLanguages {
                     // mainTerritories.add("ZZ");
                 }
 
-                TreeSet<String> mainScripts = new TreeSet<>(basicData.getScripts());
+                TreeSet<String> mainScripts = new TreeSet<String>(basicData.getScripts());
                 if (mainScripts.size() == 0) {
                     continue;
                 }
@@ -453,7 +446,7 @@ public class ShowLanguages {
         }
         Set<String> territories = territoryFix.getAll(language);
         if (territories == null) {
-            territories = new TreeSet<>();
+            territories = new TreeSet<String>();
         }
         return territories;
     }
@@ -571,13 +564,13 @@ public class ShowLanguages {
         .finishRow();
     }
 
-    static ImmutableMap<String, String> fixScriptGif = ImmutableMap.<String, String>builder()
-        .put("hangul", "hangulsyllables")
-        .put("japanese", "hiragana")
-        .put("unknown or invalid script", "unknown")
-        .put("Hant", "Hant")
-        .put("Hans", "Hans")
-        .build();
+    static Map<String, String> fixScriptGif = CollectionUtilities.asMap(new String[][] {
+        { "hangul", "hangulsyllables" },
+        { "japanese", "hiragana" },
+        { "unknown or invalid script", "unknown" },
+        { "Hant", "Hant" },
+        { "Hans", "Hans" },
+    });
 
     private static String getGifName(String script) {
         String temp = fixScriptGif.get(script);
@@ -644,13 +637,13 @@ public class ShowLanguages {
     }
 
     static class LanguageInfo {
-        private static final Map<String, Map<String, String>> localeAliasInfo = new TreeMap<>();
+        private static final Map<String, Map<String, String>> localeAliasInfo = new TreeMap<String, Map<String, String>>();
 
         Multimap<String, String> language_scripts = TreeMultimap.create();
 
         Multimap<String, String> language_territories = TreeMultimap.create();
 
-        List<Map<String, String>> deprecatedItems = new ArrayList<>();
+        List<Map<String, String>> deprecatedItems = new ArrayList<Map<String, String>>();
 
         Multimap<String, String> territory_languages;
 
@@ -668,19 +661,19 @@ public class ShowLanguages {
 
         Map<String, Set> territory_currency = new TreeMap<String, Set>(col);
 
-        Set<String> territoriesWithCurrencies = new TreeSet<>();
+        Set<String> territoriesWithCurrencies = new TreeSet<String>();
 
-        Set<String> currenciesWithTerritories = new TreeSet<>();
+        Set<String> currenciesWithTerritories = new TreeSet<String>();
 
-        Map<String, Map<String, Set<String>>> territoryData = new TreeMap<>();
+        Map<String, Map<String, Set<String>>> territoryData = new TreeMap<String, Map<String, Set<String>>>();
 
-        Set<String> territoryTypes = new TreeSet<>();
+        Set<String> territoryTypes = new TreeSet<String>();
 
         Map<String, LinkedHashSet<String>> charSubstitutions = new TreeMap<String, LinkedHashSet<String>>(col);
 
         String defaultDigits = null;
 
-        Map<String, Map<String, Object>> territoryLanguageData = new TreeMap<>();
+        Map<String, Map<String, Object>> territoryLanguageData = new TreeMap<String, Map<String, Object>>();
 
         private Relation<String, String> territoriesToModernCurrencies = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class,
             null);
@@ -865,8 +858,6 @@ public class ShowLanguages {
             localeAliasInfo.put("variant", new TreeMap<String, String>());
             localeAliasInfo.put("zone", new TreeMap<String, String>());
             localeAliasInfo.put("subdivision", new TreeMap<String, String>());
-            localeAliasInfo.put("unit", new TreeMap<String, String>());
-            localeAliasInfo.put("usage", new TreeMap<String, String>());
 
             localeAliasInfo.get("language").put("no", "nb");
             localeAliasInfo.get("language").put("zh_CN", "zh_Hans_CN");
@@ -884,18 +875,13 @@ public class ShowLanguages {
                     String type = entry2.getKey();
                     R2<List<String>, String> replacementReason = entry2.getValue();
                     List<String> replacementList = replacementReason.get0();
-                    String replacement = replacementList == null ? null :
-                        Joiner.on(" ").join(replacementList);
+                    String replacement = replacementList == null ? null : CollectionUtilities
+                        .join(replacementList, " ");
                     String reason = replacementReason.get1();
                     if (element.equals("timezone")) {
                         element = "zone";
                     }
-                    try {
-                        localeAliasInfo.get(element).put(type, replacement == null ? "?" : replacement);
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        throw new IllegalArgumentException("Can't find alias data for '" + element + "'", e);
-                    }
+                    localeAliasInfo.get(element).put(type, replacement == null ? "?" : replacement);
 
                     String name = "";
                     if (replacement == null) {
@@ -984,7 +970,6 @@ public class ShowLanguages {
         }
 
         static final Comparator INVERSE_COMPARABLE = new Comparator() {
-            @Override
             public int compare(Object o1, Object o2) {
                 return ((Comparable) o2).compareTo(o1);
             }
@@ -1024,9 +1009,22 @@ public class ShowLanguages {
             }
         }
 
+        // http://trac.edgewall.org/wiki/TracTickets#PresetValuesforNewTickets
+        // http://unicode.org/cldr/trac/newticket?summary=Fix_XXX
         private String addBug(int bugNumber, String text, String from, String subject, String body) {
+            String parameters = "";
+            // if (from != null && from.length() != 0) {
+            // parameters += "&from=" + urlEncode(from);
+            // }
+            if (body != null && body.length() != 0) {
+                parameters += "&amp;description=" + urlEncode(body);
+            }
+            if (subject != null && subject.length() != 0) {
+                parameters += "&amp;summary=" + urlEncode(subject);
+            }
+            if (parameters.length() != 0) parameters = "?" + parameters;
             return "<a target='_blank' href='" + CLDRURLS.CLDR_NEWTICKET_URL
-                + "'>" + text + "</a>";
+                + parameters + "'>" + text + "</a>";
         }
 
         private void showLanguageCountryInfo(PrintWriter pw) throws IOException {
@@ -1066,11 +1064,11 @@ public class ShowLanguages {
                 // .addColumn("Territory Literacy", "class='target'", "{0,number,00.0}%", "class='targetRight'", true)
                 // .addColumn("Territory GDP (PPP)", "class='target'", "{0,number,#,##0}", "class='targetRight'", true)
                 ;
-            TreeSet<String> languages = new TreeSet<>();
-            Collection<Comparable[]> data = new ArrayList<>();
+            TreeSet<String> languages = new TreeSet<String>();
+            Collection<Comparable[]> data = new ArrayList<Comparable[]>();
             String msg = "<br><i>Please click on each country code</i>";
 
-            Collection<Comparable[]> plainData = new ArrayList<>();
+            Collection<Comparable[]> plainData = new ArrayList<Comparable[]>();
 
             for (String territoryCode : supplementalDataInfo.getTerritoriesWithPopulationData()) {
                 // PopulationData territoryData = supplementalDataInfo.getPopulationDataForTerritory(territoryCode);
@@ -1128,7 +1126,7 @@ public class ShowLanguages {
             pw2.close();
             try (PrintWriter pw21plain = FileUtilities.openUTF8Writer(ffw.getDir(), ffw.getBaseFileName() + ".txt")) {
                 for (Comparable[] row : plainData) {
-                    pw21plain.println(Joiner.on("\t").join(row));
+                    pw21plain.println(CollectionUtilities.join(row, "\t"));
                 }
             }
         }
@@ -1174,7 +1172,7 @@ public class ShowLanguages {
                 .addColumn("Code", "class='source'",
                     "<a href=\"http://www.unicode.org/cldr/data/common/main/{0}.xml\">{0}</a>", "class='source'", false);
             Map<Organization, Map<String, Level>> vendordata = sc.getLocaleTypes();
-            Set<String> locales = new TreeSet<>();
+            Set<String> locales = new TreeSet<String>();
             Set<Organization> vendors = new LinkedHashSet<>();
             Set<Organization> smallVendors = new LinkedHashSet<>();
 
@@ -1192,8 +1190,8 @@ public class ShowLanguages {
                 locales.addAll(data.keySet());
             }
 
-            Collection<Comparable[]> data = new ArrayList<>();
-            List<String> list = new ArrayList<>();
+            Collection<Comparable[]> data = new ArrayList<Comparable[]>();
+            List<String> list = new ArrayList<String>();
             LanguageTagParser ltp = new LanguageTagParser();
             //String alias2 = getAlias("sh_YU");
 
@@ -1495,7 +1493,7 @@ public class ShowLanguages {
             return " <span title='" + x.getOfficialStatus().toString().replace('_', ' ') + "'>{"
             + x.getOfficialStatus().toShortString() + "}</span>";
         }
-
+        
         private String getRawOfficialStatus(String territoryCode, String languageCode) {
             PopulationData x = supplementalDataInfo.getLanguageAndTerritoryPopulationData(languageCode, territoryCode);
             if (x == null || x.getOfficialStatus() == OfficialStatus.unknown) return "";
@@ -1538,7 +1536,7 @@ public class ShowLanguages {
                 return;
             LinkedHashSet<String> already = charSubstitutions.get(value);
             if (already == null)
-                charSubstitutions.put(value, already = new LinkedHashSet<>(0));
+                charSubstitutions.put(value, already = new LinkedHashSet<String>(0));
             already.add(substitute);
             Log.logln(hex(value, " ") + "; " + hex(substitute, " "));
         }
@@ -1575,11 +1573,11 @@ public class ShowLanguages {
                 String territory = getName(CLDRFile.TERRITORY_NAME, territories[i], false);
                 Map<String, Set<String>> s = territoryData.get(territory);
                 if (s == null) {
-                    territoryData.put(territory, s = new TreeMap<>());
+                    territoryData.put(territory, s = new TreeMap<String, Set<String>>());
                 }
                 Set<String> ss = s.get(type);
                 if (ss == null) {
-                    s.put(type, ss = new TreeSet<>());
+                    s.put(type, ss = new TreeSet<String>());
                 }
                 ss.add(info);
             }
@@ -1635,7 +1633,7 @@ public class ShowLanguages {
 
         public void showCorrespondances() {
             // show correspondances between language and script
-            Map<String, String> name_script = new TreeMap<>();
+            Map<String, String> name_script = new TreeMap<String, String>();
             for (Iterator<String> it = sc.getAvailableCodes("script").iterator(); it.hasNext();) {
                 String script = it.next();
                 String name = english.getName(CLDRFile.SCRIPT_NAME, script);
@@ -1649,7 +1647,7 @@ public class ShowLanguages {
                  * : source == CLDRFile.LANGUAGE_NAME && target == CLDRFile.SCRIPT_NAME ? language_scripts
                  */}
             String delimiter = "\\P{L}+";
-            Map<String, String> name_language = new TreeMap<>();
+            Map<String, String> name_language = new TreeMap<String, String>();
             for (Iterator<String> it = sc.getAvailableCodes("language").iterator(); it.hasNext();) {
                 String language = it.next();
                 String names = english.getName(CLDRFile.LANGUAGE_NAME, language);
@@ -2103,7 +2101,7 @@ public class ShowLanguages {
             if (contains == null) {
                 contains = sc.getCountryToZoneSet().get(start);
                 if (contains == null && depth == 3) {
-                    contains = new TreeSet<>();
+                    contains = new TreeSet<String>();
                     if (start.compareTo("A") >= 0) {
                         contains.add("<font color='red'>MISSING TZID</font>");
                     } else {
@@ -2120,7 +2118,7 @@ public class ShowLanguages {
          *
          */
         public void printMissing(PrintWriter pw, int source, int table) {
-            Set<String> missingItems = new HashSet<>();
+            Set<String> missingItems = new HashSet<String>();
             String type = null;
             if (source == CLDRFile.TERRITORY_NAME) {
                 type = "territory";
@@ -2231,7 +2229,6 @@ public class ShowLanguages {
         }
 
         Comparator territoryNameComparator = new Comparator() {
-            @Override
             public int compare(Object o1, Object o2) {
                 return col.compare(getName(CLDRFile.TERRITORY_NAME, (String) o1, false),
                     getName(CLDRFile.TERRITORY_NAME, (String) o2, false));
@@ -2241,14 +2238,14 @@ public class ShowLanguages {
         static String[] stringArrayPattern = new String[0];
         static String[][] string2ArrayPattern = new String[0][];
 
-        public static Map<String, String> territoryAliases = new HashMap<>();
+        public static Map<String, String> territoryAliases = new HashMap<String, String>();
 
         public void printContains(PrintWriter index) throws IOException {
             String title = "Territory Containment (UN M.49)";
 
             PrintWriter pw = new PrintWriter(new FormattedFileWriter(null, title, null, SUPPLEMENTAL_INDEX_ANCHORS));
             // doTitle(pw, title);
-            List<String[]> rows = new ArrayList<>();
+            List<String[]> rows = new ArrayList<String[]>();
             printContains3("001", rows, new ArrayList<String>());
             TablePrinter tablePrinter = new TablePrinter()
                 .addColumn("World", "class='source'", null, "class='z0'", true).setSortPriority(0)
@@ -2369,7 +2366,7 @@ public class ShowLanguages {
      */
     private static Map<String, Set<String>> getInverse(Map<String, Set<String>> language_territories) {
         // get inverse relation
-        Map<String, Set<String>> territory_languages = new TreeMap<>();
+        Map<String, Set<String>> territory_languages = new TreeMap<String, Set<String>>();
         for (Iterator<String> it = language_territories.keySet().iterator(); it.hasNext();) {
             String language = it.next();
             Set<String> territories = language_territories.get(language);

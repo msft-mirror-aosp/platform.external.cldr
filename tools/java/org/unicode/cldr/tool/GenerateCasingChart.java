@@ -22,6 +22,7 @@ import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.XPathParts;
 
 import com.google.common.base.Splitter;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.text.DisplayContext;
 import com.ibm.icu.text.LocaleDisplayNames;
 import com.ibm.icu.text.UnicodeSet;
@@ -57,7 +58,7 @@ public class GenerateCasingChart {
         <contextTransformUsage type="month-standalone-except-narrow">
             <contextTransform type="stand-alone">titlecase-firstword</contextTransform>
         </contextTransformUsage>
-
+    
      */
     public static void main(String[] args) {
         check(ULocale.ENGLISH);
@@ -100,7 +101,7 @@ public class GenerateCasingChart {
             Level level = CLDRConfig.getInstance().getStandardCodes().getLocaleCoverageLevel("cldr", locale);
             boolean hasCasedLetters = changesUpper.containsSome(exemplars);
             Set<String> items = new LinkedHashSet<>();
-            cldrFile.iterator("//ldml/contextTransforms").forEachRemaining(items::add);
+            CollectionUtilities.addAll(cldrFile.iterator("//ldml/contextTransforms"), items);
             if (!hasCasedLetters) {
                 if (items.size() != 0) {
                     System.out.println(locale + "Uncased language has context!!!");

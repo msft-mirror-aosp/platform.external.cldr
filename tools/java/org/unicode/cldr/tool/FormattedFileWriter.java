@@ -135,7 +135,6 @@ public class FormattedFileWriter extends java.io.Writer {
         return this;
     }
 
-    @Override
     public void close() {
         String contents = out.toString();
         if (contents.isEmpty()) {
@@ -171,12 +170,8 @@ public class FormattedFileWriter extends java.io.Writer {
     }
 
     public static void copyIncludeHtmls (String targetDirectory) {
-        copyIncludeHtmls(targetDirectory, false);
-    }
-
-    public static void copyIncludeHtmls (String targetDirectory, boolean addPrevVersion) {
         String[] replacements = {
-            "%version%", ToolConstants.CHART_DISPLAY_VERSION + (addPrevVersion ? " – " + ToolConstants.PREV_CHART_VERSION_WITH0 : ""),
+            "%version%", ToolConstants.CHART_DISPLAY_VERSION,
             "%date%", CldrUtility.isoFormatDateOnly(new Date())
         };
         writeTargetWithReplacements(targetDirectory, "include-date.html", "include-date.html", replacements);
@@ -187,12 +182,10 @@ public class FormattedFileWriter extends java.io.Writer {
         return showDate ? CldrUtility.isoFormatDateOnly(new Date()) : "";
     }
 
-    @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         out.write(cbuf, off, len);
     }
 
-    @Override
     public void flush() throws IOException {
         out.flush();
     }

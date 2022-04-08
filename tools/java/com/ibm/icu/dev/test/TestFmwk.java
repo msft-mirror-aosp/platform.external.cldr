@@ -184,12 +184,10 @@ public class TestFmwk extends AbstractTestLog {
             this(null, classnames, null);
         }
 
-        @Override
         protected String getDescription() {
             return description;
         }
 
-        @Override
         protected Target getTargets(String targetName) {
             Target target = null;
             if (targetName != null) {
@@ -238,7 +236,6 @@ public class TestFmwk extends AbstractTestLog {
 
             return target;
         }
-        @Override
         protected TestFmwk getSubtest(String testName) throws TestFmwkException {
             finishInit();
 
@@ -366,7 +363,6 @@ public class TestFmwk extends AbstractTestLog {
             super(name);
         }
 
-        @Override
         protected boolean validate() {
             return true;
         }
@@ -380,17 +376,14 @@ public class TestFmwk extends AbstractTestLog {
             testMethod = method;
         }
 
-        @Override
         protected boolean validate() {
             return testMethod != null && validateMethod(name);
         }
 
-        @Override
         protected String getDescription() {
             return getMethodDescription(name);
         }
 
-        @Override
         protected void execute() throws Exception{
             if (params.inDocMode()) {
                 // nothing to execute
@@ -443,17 +436,14 @@ public class TestFmwk extends AbstractTestLog {
             this.targetName = targetName;
         }
 
-        @Override
         protected boolean validate() {
             return TestFmwk.this.validate();
         }
 
-        @Override
         protected String getDescription() {
             return TestFmwk.this.getDescription();
         }
 
-        @Override
         protected void execute() throws Exception {
             params.indentLevel++;
             Target target = randomize(getTargets(targetName));
@@ -479,7 +469,6 @@ public class TestFmwk extends AbstractTestLog {
                     // so we sort them (always, and then randomize them, so that
                     // forcing a seed will also work across jvms).
                     Arrays.sort(arr, new Comparator() {
-                        @Override
                         public int compare(Object lhs, Object rhs) {
                             // sort in reverse order, later we link up in
                             // forward order
@@ -841,7 +830,6 @@ public class TestFmwk extends AbstractTestLog {
         return params.inclusion == 0;
     }
 
-    @Override
     public void msg(String message, int level, boolean incCount, boolean newln) {
         params.msg(message, level, incCount, newln);
     }
@@ -854,7 +842,7 @@ public class TestFmwk extends AbstractTestLog {
      * Log the known issue.
      * This method returns true unless -prop:logKnownIssue=no is specified
      * in the argument list.
-     *
+     * 
      * @param ticket A ticket number string. For an ICU ticket, use numeric characters only,
      * such as "10245". For a CLDR ticket, use prefix "cldrbug:" followed by ticket number,
      * such as "cldrbug:5013".
@@ -885,11 +873,11 @@ public class TestFmwk extends AbstractTestLog {
         }
 
         if (params.knownIssues == null) {
-            params.knownIssues = new TreeMap<>();
+            params.knownIssues = new TreeMap<String, List<String>>();
         }
         List<String> lines = params.knownIssues.get(ticketLink);
         if (lines == null) {
-            lines = new ArrayList<>();
+            lines = new ArrayList<String>();
             params.knownIssues.put(ticketLink, lines);
         }
         if (!lines.contains(description)) {
@@ -1097,16 +1085,12 @@ public class TestFmwk extends AbstractTestLog {
         public NullWriter() {
             super(System.out, false);
         }
-        @Override
         public void write(int c) {
         }
-        @Override
         public void write(char[] buf, int off, int len) {
         }
-        @Override
         public void write(String s, int off, int len) {
         }
-        @Override
         public void println() {
         }
     }
@@ -1126,7 +1110,6 @@ public class TestFmwk extends AbstractTestLog {
             super(os, autoFlush);
         }
 
-        @Override
         public void write(int c) {
             synchronized (lock) {
                 buffer.setLength(0);
@@ -1139,7 +1122,6 @@ public class TestFmwk extends AbstractTestLog {
             }
         }
 
-        @Override
         public void write(char[] buf, int off, int len) {
             synchronized (lock) {
                 buffer.setLength(0);
@@ -1158,7 +1140,6 @@ public class TestFmwk extends AbstractTestLog {
             }
         }
 
-        @Override
         public void write(String s, int off, int len) {
             write(s.substring(off, off + len).toCharArray(), 0, len);
         }
@@ -1941,7 +1922,7 @@ public class TestFmwk extends AbstractTestLog {
 
     protected void fail(String message) {
         if (message == null) {
-            message = "";
+            message = "";            
         }
         if (!message.equals("")) {
             message = ": " + message;
@@ -1996,7 +1977,7 @@ public class TestFmwk extends AbstractTestLog {
             String source = st.getFileName();
             if (source != null && !source.equals("TestFmwk.java") && !source.equals("AbstractTestLog.java")) {
                 String methodName = st.getMethodName();
-                if (methodName != null &&
+                if (methodName != null && 
                        (methodName.startsWith("Test") || methodName.startsWith("test") || methodName.equals("main"))) {
                     return "(" + source + ":" + st.getLineNumber() + ") ";
                 }

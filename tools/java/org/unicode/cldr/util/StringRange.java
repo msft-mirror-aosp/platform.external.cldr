@@ -120,6 +120,7 @@ public class StringRange {
                 }
             }
         }
+        ;
         return ranges;
     }
 

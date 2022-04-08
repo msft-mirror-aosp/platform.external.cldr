@@ -20,7 +20,6 @@ public class VariantFolder {
     public static SetMaker mySetMaker = new SetMaker() {
         Comparator c = new UTF16.StringComparator(true, false, 0);
         Comparator bestIsLowest = new Comparator() {
-            @Override
             public int compare(Object o1, Object o2) {
                 String s1 = o1.toString();
                 String s2 = o2.toString();
@@ -44,7 +43,6 @@ public class VariantFolder {
 
         };
 
-        @Override
         public Set make() {
             return new TreeSet(bestIsLowest);
         }
@@ -82,7 +80,6 @@ public class VariantFolder {
             }
         }
 
-        @Override
         public Set<String> getAlternates(String item, Set<String> output) {
             output.add(item);
             return equivalents.getEquivalences(item);
@@ -100,7 +97,6 @@ public class VariantFolder {
             }
         }
 
-        @Override
         public Set<String> getAlternates(String item, Set<String> output) {
             output.add(item);
             return equivalents.getEquivalences(item);
@@ -121,7 +117,6 @@ public class VariantFolder {
             }
         }
 
-        @Override
         public Set<String> getAlternates(String item, Set<String> output) {
             output.add(item);
             return equivalents.getEquivalences(item);
@@ -148,7 +143,7 @@ public class VariantFolder {
     public Set<String> getClosure(String source) {
         int stringLength = source.length();
         if (stringLength == 0) {
-            Set<String> result = new HashSet<>();
+            Set<String> result = new HashSet<String>();
             result.add(source);
             return result;
         }
@@ -166,7 +161,7 @@ public class VariantFolder {
                 int limit = start + level + 1;
                 // System.out.println(start + ", " + limit);
                 // we first add any longer alternates
-                Collection<String> current = combos[level][start] = new HashSet<>();
+                Collection<String> current = combos[level][start] = new HashSet<String>();
                 current.addAll(alternateFetcher.getAlternates(source.substring(start,
                     limit), new HashSet<String>()));
                 // then we add the cross product of shorter strings

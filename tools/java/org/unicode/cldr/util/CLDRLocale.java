@@ -2,11 +2,11 @@
 
 package org.unicode.cldr.util;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
@@ -112,7 +112,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
             return ldn.languageDisplayName(cldrLocale.getLanguage());
         }
 
-        @SuppressWarnings("unused")
         @Override
         public String getDisplayName(CLDRLocale cldrLocale, boolean onlyConstructCompound, Transform<String, String> altPicker) {
             return getDisplayName(cldrLocale);
@@ -153,7 +152,8 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
         public String getDisplayVariant(CLDRLocale cldrLocale) {
             if (file != null) return file.getName("variant", cldrLocale.getVariant());
             return tryForBetter(super.getDisplayVariant(cldrLocale),
-                cldrLocale.getVariant());
+                cldrLocale.getVariant(),
+                "variant");
         }
 
         @Override
@@ -172,24 +172,27 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
         public String getDisplayScript(CLDRLocale cldrLocale) {
             if (file != null) return file.getName("script", cldrLocale.getScript());
             return tryForBetter(super.getDisplayScript(cldrLocale),
-                cldrLocale.getScript());
+                cldrLocale.getScript(),
+                "language");
         }
 
         @Override
         public String getDisplayLanguage(CLDRLocale cldrLocale) {
             if (file != null) return file.getName("language", cldrLocale.getLanguage());
             return tryForBetter(super.getDisplayLanguage(cldrLocale),
-                cldrLocale.getLanguage());
+                cldrLocale.getLanguage(),
+                "language");
         }
 
         @Override
         public String getDisplayCountry(CLDRLocale cldrLocale) {
             if (file != null) return file.getName("territory", cldrLocale.getCountry());
             return tryForBetter(super.getDisplayLanguage(cldrLocale),
-                cldrLocale.getLanguage());
+                cldrLocale.getLanguage(),
+                "territory");
         }
 
-        private String tryForBetter(String superString, String code) {
+        private String tryForBetter(String superString, String code, String type) {
             if (superString.equals(code)) {
                 String fromLst = StandardCodes.make().getData("language", code);
                 if (fromLst != null && !fromLst.equals(code)) {
@@ -209,21 +212,12 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
 
     public enum FormatBehavior {
         replace, extend, extendHtml
-    }
+    };
 
     /**
-     * The parent locale id string, or null if no parent
+     * Reference to the parent CLDRLocale
      */
-    private String parentId;
-
-    /**
-     * Reference to the parent CLDRLocale.
-     *
-     * It is volatile, and accessed directly only by getParent,
-     * since it uses the double-check idiom for lazy initialization.
-     */
-    private volatile CLDRLocale parentLocale;
-
+    private CLDRLocale parent = null;
     /**
      * Cached ICU format locale
      */
@@ -242,7 +236,15 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     private LocaleIDParser parts = null;
 
     /**
-     * Returns the BCP47 language tag for all except root. For root, returns "root" = ROOT_NAME.
+     * Construct a CLDRLocale from an ICU ULocale.
+     * Internal, called by the factory function.
+     */
+    private CLDRLocale(ULocale loc) {
+        init(loc);
+    }
+
+    /**
+     * Returns the BCP47 langauge tag for all except root. For root, returns "root" = ROOT_NAME.
      * @return
      */
     private String toDisplayLanguageTag() {
@@ -265,22 +267,46 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
      * Construct a CLDRLocale from a string with the full locale ID.
      * Internal, called by the factory function.
      *
+     * @param str
+     */
+    private CLDRLocale(String str) {
+        init(str);
+    }
+
+    /**
+     * Initialize a CLDRLocale from a ULocale
+     *
+     * @param loc
+     */
+    private void init(ULocale loc) {
+        ulocale = loc;
+        init(loc.getBaseName());
+    }
+
+    /**
+     * Initialize a CLDRLocale from a string.
+     *
      * @param str the string representing a locale.
      *
      * If str is empty, it's equal to ULocale.ROOT.getBaseName(), and we are
      * initializing a CLDRLocale for root.
      */
-    private CLDRLocale(String str) {
+    private void init(String str) {
         str = process(str);
         if (rootMatches(str)) {
             fullname = ROOT_NAME;
-            parentId = null;
+            parent = null;
         } else {
             parts = new LocaleIDParser();
             parts.set(str);
             fullname = parts.toString();
-            parentId = LocaleIDParser.getParent(str);
+            String parentId = LocaleIDParser.getParent(str);
             if (DEBUG) System.out.println(str + " par = " + parentId);
+            if (parentId != null && parentId.length() > 0) {
+                parent = CLDRLocale.getInstance(parentId);
+            } else {
+                parent = null; // probably, we are root or we are supplemental
+            }
         }
         basename = fullname;
         if (ulocale == null) {
@@ -291,7 +317,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     /**
      * Return the full locale name, in CLDR format.
      */
-    @Override
     public String toString() {
         return fullname;
     }
@@ -319,7 +344,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     /**
      * Compare to another CLDRLocale. Uses string order of toString().
      */
-    @Override
     public int compareTo(CLDRLocale o) {
         if (o == this) return 0;
         return fullname.compareTo(o.fullname);
@@ -328,7 +352,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     /**
      * Hashcode - is the hashcode of the full string
      */
-    @Override
     public int hashCode() {
         return fullname.hashCode();
     }
@@ -349,17 +372,25 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
      * @return
      */
     public static CLDRLocale getInstance(String s) {
-        if (s == null) {
-            return null;
+        synchronized(CLDRLocale.class) {
+            if (s == null) {
+                return null;
+            }
+            /*
+             * Normalize variations of ROOT_NAME before checking stringToLoc.
+             */
+            if (rootMatches(s)) {
+                s = ROOT_NAME;
+            }
+            CLDRLocale loc = stringToLoc.get(s);
+            if (loc == null) {
+                loc = new CLDRLocale(s);
+                loc.register();
+            }
+            return loc;
         }
-        /*
-         * Normalize variations of ROOT_NAME before checking stringToLoc.
-         */
-        if (rootMatches(s)) {
-            s = ROOT_NAME;
-        }
-        return stringToLoc.computeIfAbsent(s, k -> new CLDRLocale(k));
     }
+
 
     /**
      * Does the given string match the root locale? Treat empty string as matching,
@@ -386,42 +417,35 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
      * @return the CLDRLocale
      */
     public static CLDRLocale getInstance(ULocale u) {
-        if (u == null) {
-            return null;
+        synchronized(CLDRLocale.class) {
+            if (u == null) return null;
+            CLDRLocale loc = ulocToLoc.get(u);
+            if (loc == null) {
+                loc = new CLDRLocale(u);
+                loc.register();
+            }
+            return loc;
         }
-        return getInstance(u.getBaseName());
     }
 
-    private static ConcurrentHashMap<String, CLDRLocale> stringToLoc = new ConcurrentHashMap<>();
+    /**
+     * Register the singleton instance.
+     */
+    private void register() {
+        stringToLoc.put(this.toString(), this);
+        ulocToLoc.put(this.toULocale(), this);
+    }
+
+    private static Hashtable<String, CLDRLocale> stringToLoc = new Hashtable<String, CLDRLocale>();
+    private static Hashtable<ULocale, CLDRLocale> ulocToLoc = new Hashtable<ULocale, CLDRLocale>();
 
     /**
      * Return the parent locale of this item. Null if no parent (root has no parent)
      *
-     * @return the parent locale, or null
-     *
-     * Use lazy initialization for parentLocale, since getInstance calling itself
-     * recursively for the parent could cause ConcurrentHashMap to hang within computeIfAbsent.
-     *
-     * Use the "double-check idiom with a volatile field" for high-performance thread-safe
-     * lazy initialization:
-     * https://www.oracle.com/technical-resources/articles/javase/bloch-effective-08-qa.html
-     *
-     * For further efficiency, return null immediately if parentId is null.
+     * @return
      */
     public CLDRLocale getParent() {
-        if (parentId == null) {
-            return null;
-        }
-        CLDRLocale result = parentLocale;
-        if (result == null) {
-            synchronized(this) {
-                result = parentLocale;
-                if (result == null) {
-                    parentLocale = result = CLDRLocale.getInstance(parentId);
-                }
-            }
-        }
-        return result;
+        return parent;
     }
 
     /**
@@ -430,7 +454,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     public boolean childOf(CLDRLocale other) {
         if (other == null) return false;
         if (other == this) return true;
-        CLDRLocale parent = getParent();
         if (parent == null) return false; // end
         return parent.childOf(other);
     }
@@ -443,18 +466,17 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     public Iterable<CLDRLocale> getParentIterator() {
         final CLDRLocale newThis = this;
         return new Iterable<CLDRLocale>() {
-            @Override
             public Iterator<CLDRLocale> iterator() {
                 return new Iterator<CLDRLocale>() {
                     CLDRLocale what = newThis;
 
-                    @Override
                     public boolean hasNext() {
+                        // TODO Auto-generated method stub
                         return what.getParent() != null;
                     }
 
-                    @Override
                     public CLDRLocale next() {
+                        // TODO Auto-generated method stub
                         CLDRLocale curr = what;
                         if (what != null) {
                             what = what.getParent();
@@ -462,7 +484,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
                         return curr;
                     }
 
-                    @Override
                     public void remove() {
                         throw new InternalError("unmodifiable iterator");
                     }
@@ -513,7 +534,6 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
     /**
      * Most objects should be singletons, and so equality/inequality comparison is done first.
      */
-    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof CLDRLocale)) return false;
@@ -575,6 +595,7 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
                 }
             });
         } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
@@ -623,7 +644,7 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
      * @return
      */
     public static Set<CLDRLocale> getInstance(Iterable<String> available) {
-        Set<CLDRLocale> s = new TreeSet<>();
+        Set<CLDRLocale> s = new TreeSet<CLDRLocale>();
         for (String str : available) {
             s.add(CLDRLocale.getInstance(str));
         }
@@ -646,13 +667,13 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
         CLDRLocale res;
         if (this == ROOT) {
             res = null;
+            ;
+        } else if (this.parent == ROOT) {
+            res = this;
+        } else if (this.parent == null) {
+            res = this;
         } else {
-            CLDRLocale parent = getParent();
-            if (parent == ROOT || parent == null) {
-                res = this;
-            } else {
-                res = parent.getHighestNonrootParent();
-            }
+            res = parent.getHighestNonrootParent();
         }
         if (DEBUG) System.out.println(this + ".HNRP=" + res);
         return res;

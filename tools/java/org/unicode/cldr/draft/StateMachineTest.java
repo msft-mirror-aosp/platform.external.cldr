@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.unicode.cldr.draft.UnicodeSetBuilder.MyActions;
-import org.unicode.cldr.util.PathUtilities;
 
 import com.ibm.icu.text.UnicodeSet;
 
@@ -20,13 +19,13 @@ public class StateMachineTest {
     private static boolean SHOW_IF_ERROR = true;
 
     public static void main(String[] args) throws Exception {
-        System.out.println(PathUtilities.getNormalizedPathString("."));
+        System.out.println(new File(".").getCanonicalPath());
 
         BufferedReader in = FileUtilities.openUTF8Reader("../", "cldr-code/java/org/unicode/cldr/draft/UnicodeSetBuilderTests.txt");
         // icu4c-trunk/source/common/rbbirpt.txt
         // "icu4c-trunk/source/i18n/regexcst.txt"
 
-        List<String[]> testLines = new ArrayList<>();
+        List<String[]> testLines = new ArrayList<String[]>();
         while (true) {
             String line = in.readLine();
             if (line == null)
@@ -48,9 +47,9 @@ public class StateMachineTest {
             System.out.println(machine);
         }
         MyActions[] valuesUsed = UnicodeSetBuilder.MyActions.values();
-        Set<String> possibleActions = new TreeSet<>();
-        Set<String> actionsUsed = new TreeSet<>();
-        Set<String> errors = new TreeSet<>();
+        Set<String> possibleActions = new TreeSet<String>();
+        Set<String> actionsUsed = new TreeSet<String>();
+        Set<String> errors = new TreeSet<String>();
         for (MyActions valueUsed : valuesUsed) {
             final String string = valueUsed.toString();
             actionsUsed.add(string);
@@ -64,7 +63,7 @@ public class StateMachineTest {
         }
 
         System.out.println("Errors: " + errors);
-        Set<String> temp = new TreeSet<>();
+        Set<String> temp = new TreeSet<String>();
         temp.addAll(possibleActions);
         temp.removeAll(actionsUsed);
         System.out.println("Unused Actions: " + temp);

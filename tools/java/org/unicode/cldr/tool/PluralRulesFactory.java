@@ -29,21 +29,20 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
 
     private final SupplementalDataInfo supplementalDataInfo;
 
-    @Override
     public abstract boolean hasOverride(ULocale locale);
 
     public enum Type {
         NORMAL, ALTERNATE
-    }
+    };
 
     public static PluralRulesFactory getInstance(SupplementalDataInfo supplementalDataInfo) {
         return getInstance(supplementalDataInfo, Type.NORMAL);
     }
 
-    private static ConcurrentHashMap<Pair<Type, String>, PluralRulesFactory> singletons = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Pair<Type, String>, PluralRulesFactory> singletons = new ConcurrentHashMap<Pair<Type, String>, PluralRulesFactory>();
 
     public static PluralRulesFactory getInstance(SupplementalDataInfo supplementalDataInfo, Type type) {
-        Pair<Type, String> key = new Pair<>(type, supplementalDataInfo.getDirectory().getAbsolutePath());
+        Pair<Type, String> key = new Pair<Type, String>(type, supplementalDataInfo.getDirectory().getAbsolutePath());
         PluralRulesFactory prf = singletons.get(key);
         if (prf == null) {
             switch (type) {
@@ -197,7 +196,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
 //                XPathParts parts = XPathParts.getFrozenInstance(path);
 //                String sample = cldrFile.getStringValue(path);
 //                String element = parts.getElement(-1);
-//                PluralType type = "pluralMinimalPairs".equals(element) ? PluralType.CARDINAL
+//                PluralType type = "pluralMinimalPairs".equals(element) ? PluralType.CARDINAL 
 //                    : "ordinalMinimalPairs".equals(element) ? PluralType.ORDINAL
 //                        : null;
 //                PluralInfo.Count category = PluralInfo.Count.valueOf(
@@ -220,7 +219,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
         <ordinalMinimalPairs ordinal="two">Take the {0}nd right.</ordinalMinimalPairs>
         </minimalPairs>
         </numbers>
-
+        
          */
 //        }
 
@@ -292,7 +291,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
         }
 //        LOCALE_TO_SAMPLE_PATTERNS = Collections.unmodifiableMap(temp);
 //        OVERRIDES = Collections.unmodifiableMap(tempOverrides);
-        EXTRA_SAMPLES = tempSamples.freeze();
+        EXTRA_SAMPLES = (Relation<ULocale, FixedDecimal>) tempSamples.freeze();
     }
 
     //    static String[][] OLDRULES = {

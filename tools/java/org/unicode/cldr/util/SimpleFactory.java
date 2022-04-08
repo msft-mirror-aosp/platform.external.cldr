@@ -60,8 +60,6 @@ public class SimpleFactory extends Factory {
 
     private static final boolean DEBUG_SIMPLEFACTORY = false;
 
-    private static final boolean USE_COMBINEDCACHE = false;
-
     /**
      * Simple class used as a key for the map that holds the CLDRFiles -only used in the new version of the code
      * @author ribnitz
@@ -130,7 +128,6 @@ public class SimpleFactory extends Factory {
             return true;
         }
 
-        @Override
         public String toString() {
             return "[ LocaleName: " + localeName + " Resolved: " + resolved + " Draft status: " + draftStatus + " Directories: " + directories + " ]";
         }
@@ -286,7 +283,7 @@ public class SimpleFactory extends Factory {
 
     // private volatile CLDRFile result; // used in handleMake
     private File sourceDirectories[];
-    private Set<String> localeList = new TreeSet<>();
+    private Set<String> localeList = new TreeSet<String>();
     private Cache<CLDRCacheKey, CLDRFile> combinedCache = null;
     //private   Map<CLDRCacheKey,CLDRFile> combinedCache=  null;
     //     Collections.synchronizedMap(new LruMap<CLDRCacheKey, CLDRFile>(CACHE_LIMIT));
@@ -309,7 +306,6 @@ public class SimpleFactory extends Factory {
     private SimpleFactory() {
     }
 
-    @Override
     public DraftStatus getMinimalDraftStatus() {
         return minimalDraftStatus;
     }
@@ -376,8 +372,6 @@ public class SimpleFactory extends Factory {
      * @return
      */
     public static Factory make(File sourceDirectory[], String matchString, DraftStatus minimalDraftStatus) {
-        // TODO change API to take list
-        sourceDirectory = filterOutNulls(sourceDirectory);
         if (!CACHE_SIMPLE_FACTORIES) {
             return new SimpleFactory(sourceDirectory, matchString, minimalDraftStatus);
         }
@@ -425,16 +419,6 @@ public class SimpleFactory extends Factory {
         }
     }
 
-    private static File[] filterOutNulls(File[] sourceDirectory) {
-        List<File> result = new ArrayList<>();
-        for (File f : sourceDirectory) {
-            if (f != null) {
-                result.add(f);
-            }
-        }
-        return result.toArray(new File[result.size()]);
-    }
-
     @SuppressWarnings("unchecked")
     private SimpleFactory(File sourceDirectories[], String matchString, DraftStatus minimalDraftStatus) {
         // initialize class based
@@ -478,7 +462,6 @@ public class SimpleFactory extends Factory {
         return sb.toString();
     }
 
-    @Override
     protected Set<String> handleGetAvailable() {
         return localeList;
     }
@@ -501,7 +484,6 @@ public class SimpleFactory extends Factory {
      * Make a CLDR file. The result is a locked file, so that it can be cached. If you want to modify it,
      * use clone().
      */
-    @Override
     @SuppressWarnings("unchecked")
     public CLDRFile handleMake(String localeName, boolean resolved, DraftStatus minimalDraftStatus) {
         @SuppressWarnings("rawtypes")
@@ -515,27 +497,6 @@ public class SimpleFactory extends Factory {
             // changed from IllegalArgumentException, which does't let us filter exceptions.
             throw new NoSourceDirectoryException(localeName);
         }
-
-        // disabling SimpleFactory.combinedCache and only use XMLNormalizingLoader.cache to avoid double-caching
-        if (!USE_COMBINEDCACHE) {
-            CLDRFile result = null; // result of the lookup / generation
-            if (resolved) {
-                ResolvingSource makeResolvingSource;
-                try {
-                    makeResolvingSource = makeResolvingSource(localeName, minimalDraftStatus);
-                } catch (Exception e) {
-                    throw new ICUException("Couldn't make resolved CLDR file for " + localeName, e);
-                }
-                result = new CLDRFile(makeResolvingSource);
-            } else {
-                if (parentDirs != null) {
-                    result = new CLDRFile(localeName, parentDirs, minimalDraftStatus);
-                    result.freeze();
-                }
-            }
-            return result;
-        }
-
         final Object cacheKey;
         CLDRFile result; // result of the lookup / generation
         if (USE_OLD_HANDLEMAKE_CODE) {
@@ -593,8 +554,7 @@ public class SimpleFactory extends Factory {
                         sb.append(minimalDraftStatus);
                         System.out.println(sb.toString());
                     }
-                    // result = makeFile(localeName, parentDirs, minimalDraftStatus);
-                    result = new CLDRFile(localeName, parentDirs, minimalDraftStatus);
+                    result = makeFile(localeName, parentDirs, minimalDraftStatus);
                     result.freeze();
                 }
             }

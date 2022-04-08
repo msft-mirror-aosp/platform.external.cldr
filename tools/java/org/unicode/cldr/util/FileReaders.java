@@ -45,15 +45,15 @@ public class FileReaders {
             return bufferedReader;
         } catch (Exception e) {
             String className = class1 == null ? null : class1.getCanonicalName();
-            String normalizedPath = null;
+            String canonicalName = null;
             try {
                 String relativeFileName = FileReaders.getRelativeFileName(class1, "../util/");
-                normalizedPath = PathUtilities.getNormalizedPathString(relativeFileName);
+                canonicalName = new File(relativeFileName).getCanonicalPath();
             } catch (Exception e1) {
                 throw new IllegalArgumentException("Couldn't open file: " + file + "; relative to class: "
                     + className, e);
             }
-            throw new IllegalArgumentException("Couldn't open file " + file + "; in path " + normalizedPath + "; relative to class: "
+            throw new IllegalArgumentException("Couldn't open file " + file + "; in path " + canonicalName + "; relative to class: "
                 + className, e);
         }
     }
@@ -81,16 +81,16 @@ public class FileReaders {
             throw new IllegalArgumentException("File not found: " + resourceString);
         }
     }
-
-
+    
+    
     public static class ReadLineSimpleIterator implements SimpleIterator<String> {
         final BufferedReader bufferedReader;
-
+        
         public ReadLineSimpleIterator(BufferedReader bufferedReader) {
             super();
             this.bufferedReader = bufferedReader;
         }
-
+        
         @Override
         public String next() {
             try {

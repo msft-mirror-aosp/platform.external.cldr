@@ -34,7 +34,8 @@ public class LikelySubtagsTest extends TestFmwk {
         .getInstance().getSupplementalDataInfo();
     static final Map<String, String> likely = SUPPLEMENTAL_DATA_INFO
         .getLikelySubtags();
-    static final LikelySubtags LIKELY = new LikelySubtags();
+    static final LikelySubtags LIKELY = new LikelySubtags(
+        SUPPLEMENTAL_DATA_INFO, likely);
 
     public static void main(String[] args) {
         new LikelySubtagsTest().run(args);

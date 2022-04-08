@@ -130,7 +130,7 @@ public class Tokenizer {
         int result = next();
         System.out.println(toString(result, backedupBefore));
         return result;
-    }
+    }    
     */
 
     public int next() {
@@ -236,7 +236,6 @@ public class Tokenizer {
         return buffer.toString();
     }
 
-    @Override
     public String toString() {
         return source.substring(0, index) + "$$$" + source.substring(index);
     }
@@ -305,7 +304,6 @@ public class Tokenizer {
         /* (non-Javadoc)
          * @see com.ibm.icu.text.SymbolTable#lookup(java.lang.String)
          */
-        @Override
         public char[] lookup(String s) {
             itemsLookedUp.add('$' + s);
             return (char[]) contents.get(s);
@@ -314,7 +312,6 @@ public class Tokenizer {
         /* (non-Javadoc)
          * @see com.ibm.icu.text.SymbolTable#lookupMatcher(int)
          */
-        @Override
         public UnicodeMatcher lookupMatcher(int ch) {
             // TODO Auto-generated method stub
             return null;
@@ -323,7 +320,6 @@ public class Tokenizer {
         /* (non-Javadoc)
          * @see com.ibm.icu.text.SymbolTable#parseReference(java.lang.String, java.text.ParsePosition, int)
          */
-        @Override
         public String parseReference(String text, ParsePosition pos, int limit) {
             int cp;
             int start = pos.getIndex();

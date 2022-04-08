@@ -45,12 +45,9 @@ public class PluralMinimalPairs {
                 XPathParts parts = XPathParts.getFrozenInstance(path);
                 String sample = cldrFile.getStringValue(path);
                 String element = parts.getElement(-1);
-                PluralType type;
-                switch(element) {
-                case "pluralMinimalPairs": type = PluralType.CARDINAL; break;
-                case "ordinalMinimalPairs": type = PluralType.ORDINAL; break;
-                default: continue; // skip grammar, case
-                }
+                PluralType type = "pluralMinimalPairs".equals(element) ? PluralType.CARDINAL
+                    : "ordinalMinimalPairs".equals(element) ? PluralType.ORDINAL
+                        : null;
                 PluralInfo.Count category = PluralInfo.Count.valueOf(
                     parts.getAttributeValue(-1, type == PluralType.CARDINAL ? "count" : "ordinal"));
                 if (category == null || type == null) {

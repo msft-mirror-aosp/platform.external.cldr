@@ -40,7 +40,7 @@ public class LocaleIDParser {
     }
 
     public static Set<String> getLanguageScript(Collection<String> in, Set<String> output) {
-        if (output == null) output = new TreeSet<>();
+        if (output == null) output = new TreeSet<String>();
         LocaleIDParser lparser = new LocaleIDParser();
         for (Iterator<String> it = in.iterator(); it.hasNext();) {
             output.add(lparser.set(it.next()).getLanguageScript());
@@ -66,7 +66,7 @@ public class LocaleIDParser {
      * @return Returns the variants.
      */
     public String[] getVariants() {
-        return variants.clone();
+        return (String[]) variants.clone();
     }
 
     // TODO, update to RFC3066
@@ -97,7 +97,7 @@ public class LocaleIDParser {
             region = pieces[i++];
             if (i >= pieces.length) return this;
         }
-        List<String> al = new ArrayList<>();
+        List<String> al = new ArrayList<String>();
         while (i < pieces.length && pieces[i].length() > 0) {
             al.add(pieces[i++]);
         }
@@ -193,7 +193,7 @@ public class LocaleIDParser {
     }
 
     public LocaleIDParser setVariants(String[] variants) {
-        this.variants = variants.clone();
+        this.variants = (String[]) variants.clone();
         return this;
     }
 
@@ -220,7 +220,7 @@ public class LocaleIDParser {
         String parentID = getParent(localeID);
 
         String prefix = (parentID == null || "root".equals(parentID)) ? "" : parentID + "_";
-        Set<String> siblings = new TreeSet<>();
+        Set<String> siblings = new TreeSet<String>();
         for (String id : set) {
             if (id.startsWith(prefix) && set(id).getLevels().equals(myLevel)) {
                 siblings.add(id);
@@ -230,7 +230,6 @@ public class LocaleIDParser {
         return siblings;
     }
 
-    @Override
     public String toString() {
         StringBuffer result = new StringBuffer(language);
         if (script.length() != 0) result.append('_').append(script);

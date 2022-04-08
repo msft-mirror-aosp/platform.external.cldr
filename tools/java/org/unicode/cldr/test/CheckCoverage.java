@@ -50,7 +50,6 @@ public class CheckCoverage extends FactoryCheckCLDR {
         super(factory);
     }
 
-    @Override
     public CheckCLDR handleCheck(String path, String fullPath, String value,
         Options options, List<CheckStatus> result) {
 
@@ -69,11 +68,11 @@ public class CheckCoverage extends FactoryCheckCLDR {
         }
 
         Status status = new Status();
-
+        
         /*
          * Need skipInheritanceMarker false for getSourceLocaleIdExtended here.
          * Reference: https://unicode.org/cldr/trac/ticket/11720
-         *
+         * 
          * Compare same change in getMissingStatus for https://unicode.org/cldr/trac/ticket/11765
          */
         String source = resolvedCldrFileToCheck.getSourceLocaleIdExtended(path, status, false /* skipInheritanceMarker */);

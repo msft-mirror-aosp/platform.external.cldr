@@ -32,7 +32,7 @@ public class ReadXMB {
     }
 
     private static class CasingHandler extends XMLFileReader.SimpleHandler {
-        public Map<String, String> info = new LinkedHashMap<>();
+        public Map<String, String> info = new LinkedHashMap<String, String>();
         String path;
         String id;
         String value;

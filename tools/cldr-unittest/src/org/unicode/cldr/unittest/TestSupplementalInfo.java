@@ -33,10 +33,6 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
-import org.unicode.cldr.util.GrammarInfo;
-import org.unicode.cldr.util.GrammarInfo.GrammaticalFeature;
-import org.unicode.cldr.util.GrammarInfo.GrammaticalScope;
-import org.unicode.cldr.util.GrammarInfo.GrammaticalTarget;
 import org.unicode.cldr.util.Iso639Data;
 import org.unicode.cldr.util.Iso639Data.Scope;
 import org.unicode.cldr.util.IsoCurrencyParser;
@@ -68,10 +64,10 @@ import org.unicode.cldr.util.SupplementalDataInfo.SampleList;
 import org.unicode.cldr.util.Validity;
 import org.unicode.cldr.util.Validity.Status;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
@@ -84,7 +80,6 @@ import com.ibm.icu.text.PluralRules;
 import com.ibm.icu.text.PluralRules.FixedDecimal;
 import com.ibm.icu.text.PluralRules.FixedDecimalRange;
 import com.ibm.icu.text.PluralRules.FixedDecimalSamples;
-import com.ibm.icu.text.PluralRules.Operand;
 import com.ibm.icu.text.PluralRules.SampleType;
 import com.ibm.icu.text.StringTransform;
 import com.ibm.icu.text.UnicodeSet;
@@ -93,8 +88,6 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 public class TestSupplementalInfo extends TestFmwkPlus {
-    private static final boolean DEBUG = true;
-
     static CLDRConfig testInfo = CLDRConfig.getInstance();
 
     private static final StandardCodes STANDARD_CODES = testInfo
@@ -108,7 +101,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     public void TestPluralSampleOrder() {
-        HashSet<PluralInfo> seen = new HashSet<>();
+        HashSet<PluralInfo> seen = new HashSet<PluralInfo>();
         for (String locale : SUPPLEMENTAL.getPluralLocales()) {
             if (locale.equals("root")) {
                 continue;
@@ -132,7 +125,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     FixedDecimalRange lastSample = null;
                     for (FixedDecimalRange sample : sSamples.samples) {
                         if (lastSample != null) {
-                            if (compare(lastSample.start,sample.start) > 0) {
+                            if (lastSample.start.compareTo(sample.start) > 0) {
                                 errln(locale + ":" + c + ": out of order with "
                                     + lastSample + " > " + sample);
                             } else if (false) {
@@ -147,33 +140,9 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         }
     }
 
-    /**
-     * Hack until ICU's FixedDecimal is fixed
-     *
-     */
-    public static int compare(PluralRules.FixedDecimal me, PluralRules.FixedDecimal other) {
-        if (me.getPluralOperand(Operand.e) != other.getPluralOperand(Operand.e)) {
-            return me.getPluralOperand(Operand.e) < other.getPluralOperand(Operand.e) ? -1 : 1;
-        }
-        if (me.getIntegerValue() != other.getIntegerValue()) {
-            return me.getIntegerValue() < other.getIntegerValue() ? -1 : 1;
-        }
-        if (me.getSource() != other.getSource()) {
-            return me.getSource() < other.getSource() ? -1 : 1;
-        }
-        if (me.getVisibleDecimalDigitCount() != other.getVisibleDecimalDigitCount()) {
-            return me.getVisibleDecimalDigitCount() < other.getVisibleDecimalDigitCount() ? -1 : 1;
-        }
-        long diff = me.getDecimalDigits() - other.getDecimalDigits();
-        if (diff != 0) {
-            return diff < 0 ? -1 : 1;
-        }
-        return 0;
-    }
-
     public void TestPluralRanges() {
         PluralRulesFactory prf = PluralRulesFactory.getInstance(SUPPLEMENTAL);
-        Set<String> localesToTest = new TreeSet<>(
+        Set<String> localesToTest = new TreeSet<String>(
             SUPPLEMENTAL.getPluralRangesLocales());
         for (String locale : StandardCodes.make().getLocaleCoverageLocales(
             "google")) { // superset
@@ -186,8 +155,8 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             .getLocaleCoverageLocales(Organization.cldr,
                 EnumSet.of(Level.MODERN));
 
-        Output<FixedDecimal> maxSample = new Output<>();
-        Output<FixedDecimal> minSample = new Output<>();
+        Output<FixedDecimal> maxSample = new Output<FixedDecimal>();
+        Output<FixedDecimal> minSample = new Output<FixedDecimal>();
 
         for (String locale : localesToTest) {
             final String templateLine = "Template for " + ULocale.getDisplayName(locale, "en") + " (" + locale + ") translators to fix:";
@@ -221,8 +190,8 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     && !counts.contains(count)) {
                     assertTrue(
                         locale
-                        + "\t pluralRanges categories must be valid for locale:\t"
-                        + count + " must be in " + counts,
+                            + "\t pluralRanges categories must be valid for locale:\t"
+                            + count + " must be in " + counts,
                         !pluralRanges.isExplicitlySet(count));
                 }
                 for (Count end : Count.values()) {
@@ -405,7 +374,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             }
         }
 
-        ImmutableSet<String> variants = ImmutableSet.of("Cyrs", "Geok", "Latf", "Latg", "Syre", "Syrj", "Syrn");
+        ImmutableSet<String> variants = ImmutableSet.of("Aran", "Cyrs", "Geok", "Latf", "Latg", "Syre", "Syrj", "Syrn");
         assertRelation("getCLDRScriptCodes contains variants", false, codes, CONTAINS_SOME, variants);
     }
 
@@ -413,7 +382,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         PluralInfo pluralInfo = SUPPLEMENTAL.getPlurals(
             PluralType.valueOf(row[1]), row[0]);
         Count count = pluralInfo.getCount(new FixedDecimal(row[2]));
-        assertEquals(String.join(", ", row),
+        assertEquals(CollectionUtilities.join(row, ", "),
             Count.valueOf(row[3]), count);
     }
 
@@ -422,7 +391,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         for (PluralType type : PluralType.values()) {
             Relation<PluralInfo, String> pluralsToLocale = Relation.of(
                 new HashMap<PluralInfo, Set<String>>(), TreeSet.class);
-            for (String locale : new TreeSet<>(
+            for (String locale : new TreeSet<String>(
                 SUPPLEMENTAL.getPluralLocales(type))) {
                 PluralInfo pluralInfo = SUPPLEMENTAL.getPlurals(type, locale);
                 pluralsToLocale.put(pluralInfo, locale);
@@ -449,7 +418,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     }
                     assertFalse(
                         "Rule '" + rule + "' for " + Arrays.asList(locales)
-                        + " doesn't contain 'within'",
+                            + " doesn't contain 'within'",
                         rule.contains("within"));
                 }
             }
@@ -468,25 +437,25 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             { "en", "other", "4", "1000-9999, 1000.0, 1000.1, 1000.2, …" },
             { "hr", "one", "1", "1, 0.1, 2.10, 1.1, …" },
             { "hr", "one", "2",
-            "21, 31, 41, 51, 61, 71, …, 10.1, 12.10, 11.1, …" },
+                "21, 31, 41, 51, 61, 71, …, 10.1, 12.10, 11.1, …" },
             { "hr", "one", "3",
-            "101, 121, 131, 141, 151, 161, …, 100.1, 102.10, 101.1, …" },
+                "101, 121, 131, 141, 151, 161, …, 100.1, 102.10, 101.1, …" },
             { "hr", "one", "4",
-            "1001, 1021, 1031, 1041, 1051, 1061, …, 1000.1, 1002.10, 1001.1, …" },
+                "1001, 1021, 1031, 1041, 1051, 1061, …, 1000.1, 1002.10, 1001.1, …" },
             { "hr", "few", "1", "2-4, 0.2, 0.3, 0.4, …" },
             { "hr", "few", "2",
-            "22-24, 32-34, 42-44, …, 10.2, 10.3, 10.4, …" },
+                "22-24, 32-34, 42-44, …, 10.2, 10.3, 10.4, …" },
             { "hr", "few", "3",
-            "102-104, 122-124, 132-134, …, 100.2, 100.3, 100.4, …" },
+                "102-104, 122-124, 132-134, …, 100.2, 100.3, 100.4, …" },
             { "hr", "few", "4",
-            "1002-1004, 1022-1024, 1032-1034, …, 1000.2, 1000.3, 1000.4, …" },
+                "1002-1004, 1022-1024, 1032-1034, …, 1000.2, 1000.3, 1000.4, …" },
             { "hr", "other", "1", "0, 5-9, 0.0, 0.5, 0.6, …" },
             { "hr", "other", "2",
-            "10-20, 25-30, 35-40, …, 10.0, 10.5, 10.6, …" },
+                "10-20, 25-30, 35-40, …, 10.0, 10.5, 10.6, …" },
             { "hr", "other", "3",
-            "100, 105-120, 125-130, 135-140, …, 100.0, 100.5, 100.6, …" },
+                "100, 105-120, 125-130, 135-140, …, 100.0, 100.5, 100.6, …" },
             { "hr", "other", "4",
-            "1000, 1005-1020, 1025-1030, 1035-1040, …, 1000.0, 1000.5, 1000.6, …" }, };
+                "1000, 1005-1020, 1025-1030, 1035-1040, …, 1000.0, 1000.5, 1000.6, …" }, };
         for (String[] row : tests) {
             PluralInfo plurals = SUPPLEMENTAL.getPlurals(row[0]);
             SampleList uset = plurals.getSamples9999(Count.valueOf(row[1]),
@@ -499,8 +468,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     public void TestDigitPluralCompleteness() {
         String[][] exceptionStrings = {
             // defaults
-            { "*", "zero", "0,00,000,0000" },
-            { "*", "one", "0" },
+            { "*", "zero", "0,00,000,0000" }, { "*", "one", "0" },
             { "*", "two", "0,00,000,0000" },
             { "*", "few", "0,00,000,0000" },
             { "*", "many", "0,00,000,0000" },
@@ -587,10 +555,9 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             // % 100 = 1
             {"kw", "many", "00,000,0000"},  // n != 1 and n % 100 = 1,21,41,61,81
             {"kw", "zero", "0"},    // n = 0
-            {"fr", "many", ""},    // e is special
         };
         // parse out the exceptions
-        Map<PluralInfo, Relation<Count, Integer>> exceptions = new HashMap<>();
+        Map<PluralInfo, Relation<Count, Integer>> exceptions = new HashMap<PluralInfo, Relation<Count, Integer>>();
         Relation<Count, Integer> fallback = Relation.of(
             new EnumMap<Count, Set<Integer>>(Count.class), TreeSet.class);
         for (String[] row : exceptionStrings) {
@@ -615,8 +582,8 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 countToDigits.put(c, digit.length());
             }
         }
-        Set<PluralInfo> seen = new HashSet<>();
-        Set<String> sorted = new TreeSet<>(
+        Set<PluralInfo> seen = new HashSet<PluralInfo>();
+        Set<String> sorted = new TreeSet<String>(
             SUPPLEMENTAL.getPluralLocales(PluralType.cardinal));
         Relation<String, String> ruleToExceptions = Relation.of(
             new TreeMap<String, Set<String>>(), TreeSet.class);
@@ -631,7 +598,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 countToDigits = fallback;
             }
             for (Count c : plurals.getCounts()) {
-                List<String> compose = new ArrayList<>();
+                List<String> compose = new ArrayList<String>();
                 boolean needLine = false;
                 Set<Integer> digitSet = countToDigits.get(c);
                 if (digitSet == null) {
@@ -653,14 +620,14 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                         c.toString());
                     ruleToExceptions.put(countRules == null ? "" : countRules,
                         "{\"" + locale + "\", \"" + c + "\", \""
-                            + Joiner.on(",").join(compose)
+                            + CollectionUtilities.join(compose, ",")
                             + "\"},");
                 }
             }
         }
         if (!ruleToExceptions.isEmpty()) {
             System.out
-            .println("To fix the above, review the following, then replace in TestDigitPluralCompleteness");
+                .println("To fix the above, review the following, then replace in TestDigitPluralCompleteness");
             for (Entry<String, String> entry : ruleToExceptions.entrySet()) {
                 System.out.println(entry.getValue() + "\t// " + entry.getKey());
             }
@@ -703,8 +670,8 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     public void TestEquivalentLocales() {
-        Set<Set<String>> seen = new HashSet<>();
-        Set<String> toTest = new TreeSet<>(testInfo.getCldrFactory()
+        Set<Set<String>> seen = new HashSet<Set<String>>();
+        Set<String> toTest = new TreeSet<String>(testInfo.getCldrFactory()
             .getAvailable());
         toTest.addAll(SUPPLEMENTAL.getLikelySubtags().keySet());
         toTest.addAll(SUPPLEMENTAL.getLikelySubtags().values());
@@ -720,7 +687,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             }
             // System.out.println(s + " => " + VettingViewer.gatherCodes(s));
 
-            List<String> ss = new ArrayList<>(s);
+            List<String> ss = new ArrayList<String>(s);
             String last = ss.get(ss.size() - 1);
             ltp.set(last);
             if (!ltp.getVariants().isEmpty() || !ltp.getExtensions().isEmpty()) {
@@ -769,14 +736,14 @@ public class TestSupplementalInfo extends TestFmwkPlus {
 
     private String showLocaleParts(Set<String> s) {
         LanguageTagParser ltp = new LanguageTagParser();
-        Set<String> b = new LinkedHashSet<>();
+        Set<String> b = new LinkedHashSet<String>();
         for (String ss : s) {
             ltp.set(ss);
             addName(CLDRFile.LANGUAGE_NAME, ltp.getLanguage(), b);
             addName(CLDRFile.SCRIPT_NAME, ltp.getScript(), b);
             addName(CLDRFile.TERRITORY_NAME, ltp.getRegion(), b);
         }
-        return Joiner.on("; ").join(b);
+        return CollectionUtilities.join(b, "; ");
     }
 
     private void addName(int languageName, String code, Set<String> b) {
@@ -825,14 +792,14 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     public void TestTimeData() {
         Map<String, PreferredAndAllowedHour> timeData = SUPPLEMENTAL
             .getTimeData();
-        Set<String> regionsSoFar = new HashSet<>();
-        Set<String> current24only = new HashSet<>();
-        Set<String> current12preferred = new HashSet<>();
+        Set<String> regionsSoFar = new HashSet<String>();
+        Set<String> current24only = new HashSet<String>();
+        Set<String> current12preferred = new HashSet<String>();
 
         boolean haveWorld = false;
-
+        
         ImmutableSet<HourStyle> oldSchool = ImmutableSet.copyOf(EnumSet.of(HourStyle.H, HourStyle.h, HourStyle.K, HourStyle.k));
-
+        
         for (Entry<String, PreferredAndAllowedHour> e : timeData.entrySet()) {
             String region = e.getKey();
             if (region.equals("001")) {
@@ -841,10 +808,10 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             regionsSoFar.add(region);
             PreferredAndAllowedHour preferredAndAllowedHour = e.getValue();
             assertNotNull("Preferred must not be null", preferredAndAllowedHour.preferred);
-
+            
             // find first h or H
             HourStyle found = null;
-
+            
             for (HourStyle item : preferredAndAllowedHour.allowed) {
                 if (oldSchool.contains(item)) {
                     found = item;
@@ -852,7 +819,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                         String message = "Inconsistent values for " + region + ": preferred=" + preferredAndAllowedHour.preferred
                             + " but that isn't the first " + oldSchool + " in allowed: " + preferredAndAllowedHour.allowed;
                         //if (!logKnownIssue("cldrbug:11448", message)) {
-                        errln(message);
+                            errln(message);
                         //}
                     }
                     break;
@@ -887,7 +854,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 current12preferred.add(region);
             }
         }
-        Set<String> missing = new TreeSet<>(
+        Set<String> missing = new TreeSet<String>(
             STANDARD_CODES.getGoodAvailableCodes(CodeType.territory));
         missing.removeAll(regionsSoFar);
         for (Iterator<String> it = missing.iterator(); it.hasNext();) {
@@ -907,13 +874,13 @@ public class TestSupplementalInfo extends TestFmwkPlus {
 
         // The feedback gathered from our translators is that the following use
         // 24 hour time ONLY:
-        Set<String> only24lang = new TreeSet<>(
+        Set<String> only24lang = new TreeSet<String>(
             Arrays.asList(("sq, br, bu, ca, hr, cs, da, de, nl, et, eu, fi, "
                 + "fr, gl, he, is, id, it, nb, pt, ro, ru, sr, sk, sl, sv, tr, hy")
-                .split(",\\s*")));
-        // With the new preferences, this is changed
-        Set<String> only24region = new TreeSet<>();
-        Set<String> either24or12region = new TreeSet<>();
+                    .split(",\\s*")));
+        // With the new preferences, this is changed 
+        Set<String> only24region = new TreeSet<String>();
+        Set<String> either24or12region = new TreeSet<String>();
 
         // get all countries where official or de-facto official
         // add them two one of two lists, based on the above list of languages
@@ -946,7 +913,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         only24region.removeAll(current12preferred);
         // now verify
         if (!current24only.containsAll(only24region)) {
-            Set<String> missing24only = new TreeSet<>(only24region);
+            Set<String> missing24only = new TreeSet<String>(only24region);
             missing24only.removeAll(current24only);
 
             errln("24-hour-only doesn't include needed items:\n"
@@ -1011,8 +978,8 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 }
             }
 
-            Set<R3<String, List<String>, List<String>>> failures = new LinkedHashSet<>();
-            Set<String> nullReplacements = new TreeSet<>();
+            Set<R3<String, List<String>, List<String>>> failures = new LinkedHashSet<R3<String, List<String>, List<String>>>();
+            Set<String> nullReplacements = new TreeSet<String>();
             for (Entry<String, R2<List<String>, String>> codeRep : codeReplacement
                 .entrySet()) {
                 String code = codeRep.getKey();
@@ -1021,7 +988,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     nullReplacements.add(code);
                     continue;
                 }
-                Set<String> fixedReplacements = new LinkedHashSet<>();
+                Set<String> fixedReplacements = new LinkedHashSet<String>();
                 for (String replacement : replacements) {
                     R2<List<String>, String> newReplacement = codeReplacement
                         .get(replacement);
@@ -1034,7 +1001,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                         fixedReplacements.add(replacement);
                     }
                 }
-                List<String> fixedList = new ArrayList<>(
+                List<String> fixedList = new ArrayList<String>(
                     fixedReplacements);
                 if (!replacements.equals(fixedList)) {
                     R3<String, List<String>, List<String>> row = Row.of(code,
@@ -1053,7 +1020,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     errln(code + "\t=>\t" + oldReplacement + "\tshould be:\n\t"
                         + "<" + type + "Alias type=\"" + code
                         + "\" replacement=\""
-                        + Joiner.on(" ").join(newReplacement)
+                        + CollectionUtilities.join(newReplacement, " ")
                         + "\" reason=\"XXX\"/> <!-- YYY -->\n");
                 }
             }
@@ -1071,7 +1038,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         Relation<String, String> map = SUPPLEMENTAL
             .getTerritoryToContained(ContainmentStyle.all);
         Relation<String, String> mapCore = SUPPLEMENTAL.getContainmentCore();
-        Set<String> mapItems = new LinkedHashSet<>();
+        Set<String> mapItems = new LinkedHashSet<String>();
         // get all the items
         for (String item : map.keySet()) {
             mapItems.add(item);
@@ -1081,7 +1048,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             .getLStreg().get("region");
 
         // verify that all regions are covered
-        Set<String> bcp47Regions = new LinkedHashSet<>(
+        Set<String> bcp47Regions = new LinkedHashSet<String>(
             bcp47RegionData.keySet());
         bcp47Regions.remove("ZZ"); // We don't care about ZZ since it is the
         // unknown region...
@@ -1133,7 +1100,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
 
     private void errlnDiff(String title, Set<String> mapItems,
         Set<String> keySet) {
-        Set<String> diff = new LinkedHashSet<>(mapItems);
+        Set<String> diff = new LinkedHashSet<String>(mapItems);
         diff.removeAll(keySet);
         if (diff.size() != 0) {
             errln(title + diff);
@@ -1346,11 +1313,11 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     // these are settings for exceptional cases we want to allow
-    private static final Set<String> EXCEPTION_CURRENCIES_WITH_NEW = new TreeSet<>(
+    private static final Set<String> EXCEPTION_CURRENCIES_WITH_NEW = new TreeSet<String>(
         Arrays.asList("ILS", "NZD", "PGK", "TWD"));
 
     // ok since there is no problem with confusion
-    private static final Set<String> OK_TO_NOT_HAVE_OLD = new TreeSet<>(
+    private static final Set<String> OK_TO_NOT_HAVE_OLD = new TreeSet<String>(
         Arrays.asList("ADP", "ATS", "BEF", "CYP", "DEM", "ESP", "FIM",
             "FRF", "GRD", "IEP", "ITL", "LUF", "MTL", "MTP", "NLG",
             "PTE", "YUM", "ARA", "BAD", "BGL", "BOP", "BRC", "BRN",
@@ -1362,7 +1329,6 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     private static final Date LIMIT_FOR_NEW_CURRENCY = new Date(
         new Date().getYear() - 5, 1, 1);
     private static final Date NOW = new Date();
-
     private Matcher oldMatcher = Pattern.compile(
         "\\bold\\b|\\([0-9]{4}-[0-9]{4}\\)", Pattern.CASE_INSENSITIVE)
         .matcher("");
@@ -1385,10 +1351,10 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         Relation<String, Pair<String, CurrencyDateInfo>> modernCurrencyCodes = Relation
             .of(new TreeMap<String, Set<Pair<String, CurrencyDateInfo>>>(),
                 TreeSet.class);
-        Set<String> territoriesWithoutModernCurrencies = new TreeSet<>(
+        Set<String> territoriesWithoutModernCurrencies = new TreeSet<String>(
             STANDARD_CODES.getGoodAvailableCodes("territory"));
-        Map<String, Date> currencyFirstValid = new TreeMap<>();
-        Map<String, Date> currencyLastValid = new TreeMap<>();
+        Map<String, Date> currencyFirstValid = new TreeMap<String, Date>();
+        Map<String, Date> currencyLastValid = new TreeMap<String, Date>();
         territoriesWithoutModernCurrencies.remove("ZZ");
 
         for (String territory : STANDARD_CODES
@@ -1410,7 +1376,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 final Date end = dateInfo.getEnd();
                 if (dateInfo.getErrors().length() != 0) {
                     logln("parsing " + territory + "\t" + dateInfo.toString()
-                    + "\t" + dateInfo.getErrors());
+                        + "\t" + dateInfo.getErrors());
                 }
                 Date firstValue = currencyFirstValid.get(currency);
                 if (firstValue == null || firstValue.compareTo(start) < 0) {
@@ -1424,12 +1390,12 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     // is
                     // OK...
                     modernCurrencyCodes.put(currency,
-                        new Pair<>(territory,
+                        new Pair<String, CurrencyDateInfo>(territory,
                             dateInfo));
                     territoriesWithoutModernCurrencies.remove(territory);
                 } else {
                     nonModernCurrencyCodes.put(currency,
-                        new Pair<>(territory,
+                        new Pair<String, CurrencyDateInfo>(territory,
                             dateInfo));
                 }
                 logln(territory
@@ -1448,7 +1414,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         // now print error messages
         logln("Modern Codes: " + modernCurrencyCodes.size() + "\t"
             + modernCurrencyCodes);
-        Set<String> missing = new TreeSet<>(
+        Set<String> missing = new TreeSet<String>(
             isoCurrenciesToCountries.keySet());
         missing.removeAll(modernCurrencyCodes.keySet());
         if (missing.size() != 0) {
@@ -1464,10 +1430,10 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             Set<String> isoCountries = isoCurrenciesToCountries
                 .getAll(currency);
             if (isoCountries == null) {
-                isoCountries = new TreeSet<>();
+                isoCountries = new TreeSet<String>();
             }
 
-            TreeSet<String> cldrCountries = new TreeSet<>();
+            TreeSet<String> cldrCountries = new TreeSet<String>();
             for (Pair<String, CurrencyDateInfo> x : data) {
                 cldrCountries.add(x.getFirst());
             }
@@ -1506,7 +1472,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             }
         }
         logln("Non-Modern Codes (with dates): " + nonModernCurrencyCodes.size()
-        + "\t" + nonModernCurrencyCodes);
+            + "\t" + nonModernCurrencyCodes);
         for (String currency : nonModernCurrencyCodes.keySet()) {
             final String name = testInfo.getEnglish().getName(
                 CLDRFile.CURRENCY_NAME, currency);
@@ -1550,7 +1516,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
 
             }
         }
-        Set<String> remainder = new TreeSet<>();
+        Set<String> remainder = new TreeSet<String>();
         remainder.addAll(currencyCodes);
         remainder.removeAll(nonModernCurrencyCodes.keySet());
         // TODO make this an error, except for allowed exceptions.
@@ -1598,7 +1564,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     public void TestDefaultScripts() {
         SupplementalDataInfo supp = SUPPLEMENTAL;
         Map<String, String> likelyData = supp.getLikelySubtags();
-        Map<String, String> baseToDefaultContentScript = new HashMap<>();
+        Map<String, String> baseToDefaultContentScript = new HashMap<String, String>();
         for (CLDRLocale locale : supp.getDefaultContentCLDRLocales()) {
             String script = locale.getScript();
             if (!script.isEmpty() && locale.getCountry().isEmpty()) {
@@ -1689,7 +1655,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             }
             CoverageIssue needsCoverage = testLocales.contains(locale)
                 ? CoverageIssue.error
-                    : CoverageIssue.log;
+                : CoverageIssue.log;
             CoverageIssue needsCoverage2 = needsCoverage == CoverageIssue.error ? CoverageIssue.warn : needsCoverage;
 
             //            if (logKnownIssue("Cldrbug:8809", "Missing plural rules/samples be and ga locales")) {
@@ -1712,7 +1678,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 // if (counts.size() == 1) {
                 // continue; // skip checking samples
                 // }
-                HashSet<String> samples = new HashSet<>();
+                HashSet<String> samples = new HashSet<String>();
                 EnumSet<Count> countsWithNoSamples = EnumSet
                     .noneOf(Count.class);
                 Relation<String, Count> samplesToCounts = Relation.of(
@@ -1721,7 +1687,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     type.standardType);
                 StringBuilder failureCases = new StringBuilder();
                 for (Count count : counts) {
-                    String pattern = PluralRulesFactory.getSamplePattern(locale, type.standardType, count);
+                    String pattern = prf.getSamplePattern(locale, type.standardType, count);
                     final String rangeLine = getRangeLine(count, pluralInfo.getPluralRules(), pattern);
                     failureCases.append('\n').append(locale).append('\t').append(type).append('\t').append(rangeLine);
                     if (countsFound == null || !countsFound.contains(count)) {
@@ -1741,7 +1707,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     .keyValuesSet()) {
                     if (entry.getValue().size() != 1) {
                         errOrLog(needsCoverage, locale + "\t" + type + "\t duplicate samples: " + entry.getValue()
-                        + " => «" + entry.getKey() + "»", "cldrbug:7119", "Some duplicate minimal pairs");
+                            + " => «" + entry.getKey() + "»", "cldrbug:7119", "Some duplicate minimal pairs");
                         errOrLog(needsCoverage2, failureCases.toString());
                     }
                 }
@@ -1804,7 +1770,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     public void TestNumberingSystemDigitCompleteness() {
-        List<Integer> unicodeDigits = new ArrayList<>();
+        List<Integer> unicodeDigits = new ArrayList<Integer>();
         for (int cp = UCharacter.MIN_CODE_POINT; cp <= UCharacter.MAX_CODE_POINT; cp++) {
             if (UCharacter.getType(cp) == UCharacterEnums.ECharacterCategory.DECIMAL_DIGIT_NUMBER) {
                 unicodeDigits.add(Integer.valueOf(cp));
@@ -1872,7 +1838,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
         assertTrue("yue*10 < zh", yueCNData.getPopulation() < zhCNData.getPopulation());
     }
 
-    public void Test10765() { //
+    public void Test10765() { // 
         Set<String> surveyToolLanguages = SUPPLEMENTAL.getCLDRLanguageCodes(); // codes that show up in Survey Tool
         Set<String> mainLanguages = new TreeSet<>();
         LanguageTagParser ltp = new LanguageTagParser();
@@ -1914,36 +1880,5 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             tempNames.add(testInfo.getEnglish().getName(CLDRFile.LANGUAGE_NAME, langCode) + " (" + langCode + ")");
         }
         return tempNames;
-    }
-
-    public void TestGrammarInfo() {
-        Multimap<String,String> allValues = TreeMultimap.create();
-        for (String locale : SUPPLEMENTAL.hasGrammarInfo()) {
-            if (locale.contentEquals("tr")) {
-                int debug = 0;
-            }
-            GrammarInfo grammarInfo = SUPPLEMENTAL.getGrammarInfo(locale);
-            for (GrammaticalTarget target : GrammaticalTarget.values()) {
-                for (GrammaticalFeature feature : GrammaticalFeature.values()) {
-                    Collection<String> general = grammarInfo.get(target, feature, GrammaticalScope.general);
-                    for (GrammaticalScope scope : GrammaticalScope.values()) {
-                        Collection<String> units = grammarInfo.get(target, feature, scope);
-                        allValues.putAll(target + "/" + feature + "/" + scope, units);
-                        if (scope != GrammaticalScope.general) {
-                            assertTrue(general + " > " + scope + " " + units, general.containsAll(units));
-                        }
-                    }
-                }
-            }
-            if (DEBUG) {
-                System.out.println(grammarInfo.toString("\n" + locale + "\t"));
-            }
-        }
-        if (DEBUG) {
-            System.out.println();
-            for (Entry<String, Collection<String>> entry : allValues.asMap().entrySet()) {
-                System.out.println(entry.getKey() + "\t" + Joiner.on(", ").join(entry.getValue()));
-            }
-        }
     }
 }

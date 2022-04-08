@@ -20,11 +20,11 @@ public class CheckWidths extends CheckCLDR {
     private Level requiredLevel;
 
     /**
-     * Controls for the warning about too many components, and for when to cause error.
+     * Controls for the warning about too many components, and for when to cause error. 
      */
     public static final int WARN_COMPONENTS_PER_ANNOTATION = 7;
     public static final int MAX_COMPONENTS_PER_ANNOTATION = 16;
-
+    
     SupplementalDataInfo supplementalData;
 
     private static final double EM = ApproximateWidth.getWidth("月");
@@ -86,7 +86,7 @@ public class CheckWidths extends CheckCLDR {
                     this.message = "Too wide by about {2}% (with common fonts).";
                     this.subtype = Subtype.valueTooWide;
                     break;
-                case SET_ELEMENTS:
+                case SET_ELEMENTS: 
                     this.message = "Expected no more than {0} items(s), but was {1}.";
                     this.subtype = Subtype.tooManyValues;
                     break;
@@ -176,19 +176,19 @@ public class CheckWidths extends CheckCLDR {
         + "|mass-ounce"
         + "|mass-pound"
         + "|power-horsepower"
-        + "|pressure-inch-ofhg"
-        + "|pressure-millimeter-ofhg"
+        + "|pressure-inch-hg"
+        + "|pressure-millimeter-of-mercury"
         + "|speed-mile-per-hour"
         + "|temperature-fahrenheit"
         + "|volume-cubic-mile"
         + "|acceleration-g-force"
         + "|speed-kilometer-per-hour"
         + "|speed-meter-per-second"
-        + "|pressure-pound-force-per-square-inch"
+        + "|pressure-pound-per-square-inch"
         + "|energy-therm-us"
         + ")";
 
-    static final String ALLOW_LONGEST = "consumption-liter-per-100-kilometer";
+    static final String ALLOW_LONGEST = "consumption-liter-per-100kilometers";
 
     static RegexLookup<Limit[]> lookup = new RegexLookup<Limit[]>()
         .setPatternTransform(RegexLookup.RegexFinderTransformPath)
@@ -321,7 +321,7 @@ public class CheckWidths extends CheckCLDR {
         System.out.println("EMs: " + ApproximateWidth.getWidth("grinning cat face with smiling eyes"));
     }
 
-    Set<Limit> found = new LinkedHashSet<>();
+    Set<Limit> found = new LinkedHashSet<Limit>();
 
     @Override
     public CheckCLDR handleCheck(String path, String fullPath, String value, Options options, List<CheckStatus> result) {
@@ -358,7 +358,6 @@ public class CheckWidths extends CheckCLDR {
         return this;
     }
 
-    @Override
     public CheckCLDR setCldrFileToCheck(CLDRFile cldrFileToCheck, Options options,
         List<CheckStatus> possibleErrors) {
         final String localeID = cldrFileToCheck.getLocaleID();

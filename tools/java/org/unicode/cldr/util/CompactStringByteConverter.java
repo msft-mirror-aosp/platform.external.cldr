@@ -30,7 +30,6 @@ public class CompactStringByteConverter extends StringByteConverter {
      *
      * @see org.unicode.cldr.util.StringByteConverter#clear()
      */
-    @Override
     public void clear() {
         last = 0x40;
     }
@@ -40,7 +39,6 @@ public class CompactStringByteConverter extends StringByteConverter {
      *
      * @see org.unicode.cldr.util.StringByteConverter#toBytes(char, byte[])
      */
-    @Override
     public int toBytes(char cp, byte[] output, int bytePosition) {
         if (deltaEncoded) {
             // get the delta from the previous
@@ -59,7 +57,6 @@ public class CompactStringByteConverter extends StringByteConverter {
      *
      * @see org.unicode.cldr.util.StringByteConverter#toBytes(java.lang.CharSequence, int, byte[])
      */
-    @Override
     public int toBytes(CharSequence source, byte[] output, int bytePosition) {
         if (deltaEncoded) {
             int last = 0x40;
@@ -85,7 +82,6 @@ public class CompactStringByteConverter extends StringByteConverter {
      *
      * @see org.unicode.cldr.util.StringByteConverter#fromBytes(byte[], int, int, java.lang.Appendable)
      */
-    @Override
     public Appendable fromBytes(byte[] input, int byteStart, int byteLength, Appendable result) {
         try {
             int[] ioBytePosition = new int[1];

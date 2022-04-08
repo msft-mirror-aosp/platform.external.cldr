@@ -20,12 +20,10 @@ public final class TestLogWriter extends Writer {
     this.level = level;
     }
 
-    @Override
     public void write(char cbuf[], int off, int len) throws IOException {
         write(new String(cbuf, off, len));
     }
 
-    @Override
     public void write(String str) throws IOException {
         if (closed) {
             throw new IOException("stream closed");
@@ -37,11 +35,9 @@ public final class TestLogWriter extends Writer {
         }
     }
 
-    @Override
     public void flush() throws IOException {
     }
 
-    @Override
     public void close() throws IOException {
         closed = true;
     }

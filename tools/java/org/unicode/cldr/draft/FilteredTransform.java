@@ -4,9 +4,9 @@ import com.ibm.icu.text.StringTransform;
 
 /**
  * Immutable filtered transform
- *
+ * 
  * @author markdavis
- *
+ * 
  */
 public abstract class FilteredTransform implements StringTransform {
     private final StringTransform transform;
@@ -15,7 +15,6 @@ public abstract class FilteredTransform implements StringTransform {
         transform = result;
     }
 
-    @Override
     public String transform(String source) {
         int last = 0;
         // TODO optimize later
@@ -39,7 +38,6 @@ public abstract class FilteredTransform implements StringTransform {
     /**
      * Subclasses will modify
      */
-    @Override
     public String toString() {
         return transform.toString();
     }

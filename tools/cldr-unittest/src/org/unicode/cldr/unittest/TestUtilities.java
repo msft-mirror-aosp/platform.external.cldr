@@ -108,7 +108,6 @@ public class TestUtilities extends TestFmwkPlus {
             id = i;
         }
 
-        @Override
         public void run() {
             logln("Starting thread: " + this);
             for (int i = 0; i < STRING_ID_TEST_COUNT; ++i) {
@@ -122,7 +121,6 @@ public class TestUtilities extends TestFmwkPlus {
             logln("Ending thread: " + this);
         }
 
-        @Override
         public String toString() {
             return "StringIdThread " + id;
         }
@@ -232,7 +230,6 @@ public class TestUtilities extends TestFmwkPlus {
         Comparator<String> uca = new Comparator<String>() {
             Collator col = Collator.getInstance(ULocale.ENGLISH);
 
-            @Override
             public int compare(String o1, String o2) {
                 return col.compare(o1, o2);
             }
@@ -912,10 +909,8 @@ public class TestUtilities extends TestFmwkPlus {
 
     public void TestSpecialLocales() {
         assertSpecialLocale("sr", null);
-        assertSpecialLocale("ha_NE", SpecialLocales.Type.readonly);
         assertSpecialLocale("sr_Latn", SpecialLocales.Type.readonly);
         assertSpecialLocale("sr_Latn_BA", SpecialLocales.Type.readonly);
-        assertSpecialLocale("yue_Hans", null); // not readonly, because it is not policy DISCARD
         assertSpecialLocale("en", SpecialLocales.Type.readonly);
         assertSpecialLocale("en_ZZ", SpecialLocales.Type.readonly);
         assertSpecialLocale("en_ZZ_PROGRAMMERESE", null); // not defined

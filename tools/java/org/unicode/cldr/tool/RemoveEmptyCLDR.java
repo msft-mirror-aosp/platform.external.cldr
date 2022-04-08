@@ -12,7 +12,6 @@ import java.util.Set;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Pair;
-import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.XMLFileReader;
 
 import com.google.common.collect.BiMap;
@@ -40,18 +39,18 @@ public class RemoveEmptyCLDR {
                 }
                 main: for (File f : dirFile.listFiles()) {
                     List<Pair<String, String>> data = new ArrayList<>();
-                    String normalizedPath = PathUtilities.getNormalizedPathString(f);
-                    if (!normalizedPath.endsWith(".xml") || normalizedPath.endsWith("root.xml")) {
+                    String canonicalPath = f.getCanonicalPath();
+                    if (!canonicalPath.endsWith(".xml") || canonicalPath.endsWith("root.xml")) {
                         continue;
                     }
                     String name = f.getName();
                     name = name.substring(0,name.length()-4); // remove .xml
-                    XMLFileReader.loadPathValues(normalizedPath, data, false);
+                    XMLFileReader.loadPathValues(canonicalPath, data, false);
                     for (Pair<String, String> item : data) {
                         if (item.getFirst().contains("/identity")) {
                             continue;
                         }
-                        System.out.println(++counter + ") NOT-EMPTY: " + normalizedPath);
+                        System.out.println(++counter + ") NOT-EMPTY: " + canonicalPath);
                         addNameAndParents(nonEmpty, name);
                         continue main;
                     }
@@ -67,7 +66,7 @@ public class RemoveEmptyCLDR {
                 continue;
             }
             File file = entry.getValue();
-            System.out.println(++counter + ") Deleting: " + PathUtilities.getNormalizedPathString(file));
+            System.out.println(++counter + ") Deleting: " + file.getCanonicalPath());
             if (!PREFLIGHT) {
                 file.delete();
             }

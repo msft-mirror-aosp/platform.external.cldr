@@ -15,7 +15,7 @@ import java.util.TreeSet;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 
-import com.google.common.base.Joiner;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.NumberFormat;
@@ -48,7 +48,7 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
 
     static final int LEN = 128;
 
-    static Set<Double> zeroOne = new TreeSet<>();
+    static Set<Double> zeroOne = new TreeSet<Double>();
     static {
         zeroOne.add(0.0d);
         zeroOne.add(1.0d);
@@ -77,7 +77,7 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
         private SnapshotInfo(PluralType pluralType, Integral integral) {
             this.integral = integral;
             SupplementalDataInfo supplementalDataInfo = SupplementalDataInfo.getInstance();
-            Map<String, PluralSnapshot> rulesToSnapshot = new HashMap<>();
+            Map<String, PluralSnapshot> rulesToSnapshot = new HashMap<String, PluralSnapshot>();
             for (String locale : supplementalDataInfo.getPluralLocales(pluralType)) {
                 PluralInfo plurals = supplementalDataInfo.getPlurals(pluralType, locale);
                 String rules = plurals.getRules();
@@ -91,7 +91,6 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
             }
         }
 
-        @Override
         public Iterator<Entry<PluralSnapshot, Set<String>>> iterator() {
             return snapshotToLocales.keyValuesSet().iterator();
         }
@@ -127,7 +126,7 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
         }
     }
 
-    private static final EnumMap<PluralType, EnumMap<Integral, SnapshotInfo>> SINGLETONS = new EnumMap<>(
+    private static final EnumMap<PluralType, EnumMap<Integral, SnapshotInfo>> SINGLETONS = new EnumMap<PluralType, EnumMap<Integral, SnapshotInfo>>(
         PluralType.class);
     static {
         SINGLETONS.put(PluralType.cardinal, new EnumMap<Integral, SnapshotInfo>(Integral.class));
@@ -187,20 +186,17 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
         return 0;
     }
 
-    @Override
     public boolean equals(Object other) {
         return compareTo((PluralSnapshot) other) == 0;
     }
 
-    @Override
     public int hashCode() {
         return count; // brain dead but we don't care.
     }
 
-    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Plurals: 0, 1, ").append(Joiner.on(", ").join(not01));
+        result.append("Plurals: 0, 1, ").append(CollectionUtilities.join(not01, ", "));
         if (coveredBy01.size() != 0) {
             result.append("\nCovered by {0,1}:\t").append(coveredBy01);
         }
@@ -264,7 +260,7 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
     }
 
     public static String getDefaultStyles() {
-        return "<style>\n"
+        return "<style type='text/css'>\n"
             +
             "td.l, td.z, td.o, td.t, td.f, td.m, td.x, th.h, table.pluralComp {border: 1px solid #666; font-size: 8pt}\n"
             +
@@ -314,7 +310,7 @@ public class PluralSnapshot implements Comparable<PluralSnapshot> {
                     // lastCount = ss.count;
                     // lastCount01 = ss.count01;
                     // }
-                    Map<String, String> fullLocales = new TreeMap<>();
+                    Map<String, String> fullLocales = new TreeMap<String, String>();
                     for (String localeId : locales) {
                         String name = english.getName(localeId);
                         fullLocales.put(name, localeId);

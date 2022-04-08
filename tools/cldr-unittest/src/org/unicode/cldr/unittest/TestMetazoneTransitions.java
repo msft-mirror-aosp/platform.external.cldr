@@ -90,13 +90,11 @@ public class TestMetazoneTransitions {
 
         int offset;
 
-        @Override
         public boolean equals(Object that) {
             ZoneTransition other = (ZoneTransition) that;
             return date == other.date && offset == other.offset;
         }
 
-        @Override
         public int hashCode() {
             return (int) (date ^ (date >>> 32) ^ offset);
         }
@@ -113,7 +111,6 @@ public class TestMetazoneTransitions {
          * @param o
          * @return
          */
-        @Override
         public int compareTo(ZoneTransition o) {
             int delta = offset - o.offset;
             if (delta != 0)
@@ -136,13 +133,11 @@ public class TestMetazoneTransitions {
     private static class ZoneTransitions implements Comparable<ZoneTransitions> {
         List<ZoneTransition> chronologicalList = new ArrayList<ZoneTransition>();
 
-        @Override
         public boolean equals(Object that) {
             ZoneTransitions other = (ZoneTransitions) that;
             return chronologicalList.equals(other.chronologicalList);
         }
 
-        @Override
         public int hashCode() {
             return chronologicalList.hashCode();
         }
@@ -178,7 +173,6 @@ public class TestMetazoneTransitions {
             chronologicalList.add(new ZoneTransition(date, offset));
         }
 
-        @Override
         public int compareTo(ZoneTransitions other) {
             int minSize = Math.min(chronologicalList.size(),
                 other.chronologicalList.size());
@@ -210,7 +204,6 @@ public class TestMetazoneTransitions {
             return CldrUtility.join(chronologicalList, separator);
         }
 
-        @Override
         public String toString() {
             return toString("; ", -1);
         }

@@ -114,7 +114,7 @@ public class BagFormatter {
         UnicodeSet set1,
         String name2,
         UnicodeSet set2,
-        int flags)
+        int flags) 
     {
         if (pw == null) pw = FileUtilities.CONSOLE;
         String[] names = { name1, name2 };
@@ -231,7 +231,6 @@ public class BagFormatter {
     }
 
     static class NullRelation extends Relation {
-        @Override
         public String getRelation(String a, String b) { return ""; }
     }
 
@@ -324,7 +323,6 @@ public class BagFormatter {
             noncharacter = source.getSet("noncharactercodepoint=yes");
         }
 
-        @Override
         public String getValue(int codePoint, boolean isShort) {
             String hcp = !isShort
                 ? "U+" + Utility.hex(codePoint, 4) + " "
@@ -567,18 +565,15 @@ public class BagFormatter {
             return result;
         }
 
-        @Override
         protected void doBefore(Object container, Object o) {
             if (showSetAlso && container instanceof UnicodeSet) {
                 toOutput("#" + container);
             }
         }
 
-        @Override
         protected void doBetween(Object container, Object lastItem, Object nextItem) {
         }
 
-        @Override
         protected void doAfter(Object container, Object o) {
             if (fullTotal != -1 && fullTotal != counter) {
                 if (showTotal) {
@@ -593,7 +588,6 @@ public class BagFormatter {
             }
         }
 
-        @Override
         protected void doSimpleAt(Object o) {
             if (o instanceof Map.Entry) {
                 Map.Entry oo = (Map.Entry)o;
@@ -771,8 +765,8 @@ public class BagFormatter {
                 if (DEBUG && limit > 0x9FD4) {
                     System.out.println(Utility.hex(limit) + ", *Label: " + s + ", Value: " + v + ", Break: " + b);
                 }
-                if (!equalTo(s, label)
-                    || !equalTo(v, value)
+                if (!equalTo(s, label) 
+                    || !equalTo(v, value) 
                     || !equalTo(b, breaker)) {
                     break;
                 }
@@ -837,7 +831,6 @@ public class BagFormatter {
     /**
      * @deprecated
      */
-    @Deprecated
     public static void addAll(UnicodeSet source, Collection target) {
         source.addAllTo(target);
     }
@@ -872,21 +865,17 @@ public class BagFormatter {
             doAt(o);
             return output.toString();
         }
-        @Override
         protected void doBefore(Object container, Object item) {
             ++depth;
             output.append(prefix);
         }
-        @Override
         protected void doAfter(Object container, Object item) {
             output.append(suffix);
             --depth;
         }
-        @Override
         protected void doBetween(Object container, Object lastItem, Object nextItem) {
             output.append(separator);
         }
-        @Override
         protected void doSimpleAt(Object o) {
             if (o != null) output.append(o.toString());
         }

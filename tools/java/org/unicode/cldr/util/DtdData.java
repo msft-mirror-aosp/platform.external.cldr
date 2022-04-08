@@ -23,13 +23,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.text.Transform;
 
@@ -46,7 +46,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     private static final Pattern FILLER = PatternCache.get("[^-a-zA-Z0-9#_:]");
 
     private final Relation<String, Attribute> nameToAttributes = Relation.of(new TreeMap<String, Set<Attribute>>(), LinkedHashSet.class);
-    private Map<String, Element> nameToElement = new HashMap<>();
+    private Map<String, Element> nameToElement = new HashMap<String, Element>();
     private MapComparator<String> elementComparator;
     private MapComparator<String> attributeComparator;
 
@@ -61,8 +61,8 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     private DtdComparator dtdComparator;
 
     public enum AttributeStatus {
-        distinguished ("§d"),
-        value ("§v"),
+        distinguished ("§d"), 
+        value ("§v"), 
         metadata ("§m︎");
         public final String shortName;
         AttributeStatus(String shortName) {
@@ -99,15 +99,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         CDATA, ID, IDREF, IDREFS, ENTITY, ENTITIES, NMTOKEN, NMTOKENS, ENUMERATED_TYPE
     }
 
-    static final Set<String> DRAFT_ON_NON_LEAF_ALLOWED = ImmutableSet.of("collation", "transform", "unitPreferenceData", "rulesetGrouping");
-
     public static class Attribute implements Named {
-        private static final Joiner JOINER_COMMA_SPACE = Joiner.on(", ");
-        public static final String AUG_TRAIL = "⟫";
-        public static final String AUG_LEAD = "⟪";
-        public static final String ENUM_TRAIL = "⟩";
-        public static final String ENUM_LEAD = "⟨";
-        public static final Pattern LEAD_TRAIL = Pattern.compile("(.*[" + AUG_LEAD + ENUM_LEAD + "])(.*)([" + AUG_TRAIL + ENUM_TRAIL + "].*)");
         public final String name;
         public final Element element;
         public final Mode mode;
@@ -127,7 +119,8 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             element = element2;
             name = aName.intern();
             if (name.equals("draft") // normally never permitted on elements with children, but special cases...
-                && !DRAFT_ON_NON_LEAF_ALLOWED.contains(element.getName())) {
+                && !element.getName().equals("collation")
+                && !element.getName().equals("transform")) {
                 int elementChildrenCount = element.getChildren().size();
                 if (elementChildrenCount > 1
                     || elementChildrenCount == 1 && !element.getChildren().keySet().iterator().next().getName().equals("cp")) {
@@ -151,7 +144,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             type = _type;
 
             if (_type == AttributeType.ENUMERATED_TYPE) {
-                LinkedHashMap<String, Integer> temp = new LinkedHashMap<>();
+                LinkedHashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
                 for (String part : split) {
                     if (part.length() != 0) {
                         temp.put(part.intern(), temp.size());
@@ -166,12 +159,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         @Override
         public String toString() {
             return element.name + ":" + name;
-        }
-
-        public String getSampleValue() {
-            return type == AttributeType.ENUMERATED_TYPE  ? (values.containsKey("year") ? "year" : values.keySet().iterator().next())
-                : matchValue != null ? matchValue.getSample()
-                    : MatchValue.DEFAULT_SAMPLE;
         }
 
         public StringBuilder appendDtdString(StringBuilder b) {
@@ -307,17 +294,25 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         }
 
         public ValueStatus getValueStatus(String value) {
-            return deprecatedValues.contains(value) ? ValueStatus.invalid
-                : type == AttributeType.ENUMERATED_TYPE  ? (values.containsKey(value) ? ValueStatus.valid  : ValueStatus.invalid)
-                    : matchValue == null ? ValueStatus.unknown
-                        : matchValue.is(value) ? ValueStatus.valid
-                            : ValueStatus.invalid;
+            return deprecatedValues.contains(value) 
+                ? ValueStatus.invalid
+                    : type == AttributeType.ENUMERATED_TYPE 
+                    ? (values.containsKey(value) 
+                        ? ValueStatus.valid 
+                            : ValueStatus.invalid)
+                        : matchValue == null 
+                        ? ValueStatus.unknown :
+                            matchValue.is(value) 
+                            ? ValueStatus.valid 
+                                : ValueStatus.invalid;
         }
 
         public String getMatchString() {
-            return type == AttributeType.ENUMERATED_TYPE ? ENUM_LEAD + JOINER_COMMA_SPACE.join(values.keySet()) + ENUM_TRAIL
-                : matchValue != null ? AUG_LEAD + matchValue.toString() + AUG_TRAIL
-                    : "";
+            return type == AttributeType.ENUMERATED_TYPE 
+                ? "⟨" + CollectionUtilities.join(values.keySet(), ", ") + "⟩" 
+                    : matchValue != null 
+                    ? "⟪" + matchValue.toString() + "⟫"
+                        : "";
         }
 
         public Attribute getMatchingName(Map<Attribute, Integer> attributes) {
@@ -373,8 +368,8 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         public final String name;
         private String rawModel;
         private ElementType type;
-        private final Map<Element, Integer> children = new LinkedHashMap<>();
-        private final Map<Attribute, Integer> attributes = new LinkedHashMap<>();
+        private final Map<Element, Integer> children = new LinkedHashMap<Element, Integer>();
+        private final Map<Attribute, Integer> attributes = new LinkedHashMap<Attribute, Integer>();
         private Set<String> commentsPre;
         private Set<String> commentsPost;
         private String model;
@@ -591,7 +586,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     /**
      * @deprecated
      */
-    @Deprecated
     @Override
     public void handleElementDecl(String name, String model) {
         if (SHOW_ALL) {
@@ -605,19 +599,17 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     /**
      * @deprecated
      */
-    @Deprecated
     @Override
     public void handleStartDtd(String name, String publicId, String systemId) {
         DtdType explicitDtdType = DtdType.valueOf(name);
         if (explicitDtdType != dtdType && explicitDtdType != dtdType.rootType) {
             throw new IllegalArgumentException("Mismatch in dtdTypes");
         }
-    }
+    };
 
     /**
      * @deprecated
      */
-    @Deprecated
     @Override
     public void handleAttributeDecl(String eName, String aName, String type, String mode, String value) {
         if (SHOW_ALL) {
@@ -642,7 +634,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     /**
      * @deprecated
      */
-    @Deprecated
     @Override
     public void handleComment(String path, String comment) {
         if (SHOW_ALL) {
@@ -656,7 +647,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     /**
      * @deprecated
      */
-    @Deprecated
     @Override
     public void handleEndDtd() {
         throw new XMLFileReader.AbortException();
@@ -666,11 +656,10 @@ public class DtdData extends XMLFileReader.SimpleHandler {
      * Note that it always gets the trunk version
      * @deprecated depends on static config, use {@link DtdData#getInstance(DtdType, File)} instead
      */
-    @Deprecated
     public static DtdData getInstance(DtdType type) {
         return getInstance(type, CLDRConfig.getInstance().getCldrBaseDirectory());
     }
-
+    
     /**
      * Special form using version, used only by tests, etc.
      */
@@ -695,7 +684,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         DtdData data = CACHE.computeIfAbsent(key, k -> getInstance(type, null, directory));
         return data;
     }
-
+ 
     private static DtdData getInstance(DtdType type, String version, File directory) {
         DtdData simpleHandler = new DtdData(type, version);
         XMLFileReader xfr = new XMLFileReader().setHandler(simpleHandler);
@@ -743,9 +732,9 @@ public class DtdData extends XMLFileReader.SimpleHandler {
 
     private void freeze() {
         if (version == null) { // only generate for new versions
-            MergeLists<String> elementMergeList = new MergeLists<>();
+            MergeLists<String> elementMergeList = new MergeLists<String>();
             elementMergeList.add(dtdType.toString());
-            MergeLists<String> attributeMergeList = new MergeLists<>();
+            MergeLists<String> attributeMergeList = new MergeLists<String>();
             attributeMergeList.add("_q");
 
             for (Element element : nameToElement.values()) {
@@ -770,15 +759,15 @@ public class DtdData extends XMLFileReader.SimpleHandler {
                 System.out.println("Element Ordering:\t" + elementList);
                 System.out.println("Attribute Ordering:\t" + attributeList);
             }
-            elementComparator = new MapComparator<>(elementList).setErrorOnMissing(true).freeze();
-            attributeComparator = new MapComparator<>(attributeList).setErrorOnMissing(true).freeze();
+            elementComparator = new MapComparator<String>(elementList).setErrorOnMissing(true).freeze();
+            attributeComparator = new MapComparator<String>(attributeList).setErrorOnMissing(true).freeze();
         }
         nameToAttributes.freeze();
         nameToElement = Collections.unmodifiableMap(nameToElement);
     }
 
     private Collection<String> getNames(Collection<? extends Named> keySet) {
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
         for (Named e : keySet) {
             result.add(e.getName());
         }
@@ -797,19 +786,11 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         return dtdComparator;
     }
 
-    public DtdComparator getDtdComparator() {
-        return dtdComparator;
-    }
-
-    public class DtdComparator implements Comparator<String> {
+    private class DtdComparator implements Comparator<String> {
         @Override
         public int compare(String path1, String path2) {
             XPathParts a = XPathParts.getFrozenInstance(path1);
             XPathParts b = XPathParts.getFrozenInstance(path2);
-            return xpathComparator(a, b);
-        }
-
-        public int xpathComparator(XPathParts a, XPathParts b) {
             // there must always be at least one element
             String baseA = a.getElement(0);
             String baseB = b.getElement(0);
@@ -899,7 +880,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         return attributeComparator;
     }
 
-
     public MapComparator<String> getElementComparator() {
         return elementComparator;
     }
@@ -912,7 +892,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         return nameToElement;
     }
 
-    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         // <!ELEMENT ldml (identity, (alias | (fallback*, localeDisplayNames?, layout?, contextTransforms?, characters?, delimiters?, measurement?, dates?, numbers?, units?, listPatterns?, collations?, posix?, segmentations?, rbnf?, metadata?, references?, special*))) >
@@ -937,8 +916,8 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     }
 
     static final class Seen {
-        Set<Element> seenElements = new HashSet<>();
-        Set<Attribute> seenAttributes = new HashSet<>();
+        Set<Element> seenElements = new HashSet<Element>();
+        Set<Attribute> seenAttributes = new HashSet<Attribute>();
 
         public Seen(DtdType dtdType) {
             if (dtdType.rootType == dtdType) {
@@ -982,7 +961,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             Element aliasElement = getElementFromName().get("alias");
             //b.append(current.rawChildren);
             if (!current.children.isEmpty()) {
-                LinkedHashSet<Element> elements = new LinkedHashSet<>(current.children.keySet());
+                LinkedHashSet<Element> elements = new LinkedHashSet<Element>(current.children.keySet());
                 boolean hasAlias = aliasElement != null && elements.remove(aliasElement);
                 //boolean hasSpecial = specialElement != null && elements.remove(specialElement);
                 if (hasAlias) {
@@ -1078,8 +1057,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             if (attributeDeprecated) {
                 b.append(COMMENT_PREFIX + "<!--@DEPRECATED-->");
             } else if (!deprecatedValues.isEmpty()) {
-                b.append(COMMENT_PREFIX + "<!--@DEPRECATED:" + Joiner.on(", ")
-                    .join(deprecatedValues) + "-->");
+                b.append(COMMENT_PREFIX + "<!--@DEPRECATED:" + CollectionUtilities.join(deprecatedValues, ", ") + "-->");
             }
         }
         if (current.children.size() > 0) {
@@ -1130,11 +1108,11 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     }
 
     public Set<Element> getElements() {
-        return new LinkedHashSet<>(nameToElement.values());
+        return new LinkedHashSet<Element>(nameToElement.values());
     }
 
     public Set<Attribute> getAttributes() {
-        return new LinkedHashSet<>(nameToAttributes.values());
+        return new LinkedHashSet<Attribute>(nameToAttributes.values());
     }
 
     public boolean isDistinguishing(String elementName, String attribute) {
@@ -1266,22 +1244,17 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         "minute", "minute-short", "minute-narrow",
         "second", "second-short", "second-narrow",
         "zone", "zone-short", "zone-narrow").freeze();
-
-    /* TODO: change this to be data-file driven. Can do with new Unit preferences info; also put them in a more meaningful order (metric vs other; size) */
-
-    public static final MapComparator<String> unitOrder = new MapComparator<String>().add(
-        "acceleration-g-force", "acceleration-meter-per-square-second",
+    static MapComparator<String> unitOrder = new MapComparator<String>().add(
+        "acceleration-g-force", "acceleration-meter-per-second-squared",
         "angle-revolution", "angle-radian", "angle-degree", "angle-arc-minute", "angle-arc-second",
         "area-square-kilometer", "area-hectare", "area-square-meter", "area-square-centimeter",
         "area-square-mile", "area-acre", "area-square-yard", "area-square-foot", "area-square-inch",
         "area-dunam",
         "concentr-karat",
         "concentr-milligram-per-deciliter", "concentr-millimole-per-liter",
-        "concentr-item",
-        "concentr-portion",
-        "concentr-permillion", "concentr-percent", "concentr-permille", "concentr-permyriad",
+        "concentr-part-per-million", "concentr-percent", "concentr-permille", "concentr-permyriad",
         "concentr-mole",
-        "consumption-liter-per-kilometer", "consumption-liter-per-100-kilometer",
+        "consumption-liter-per-kilometer", "consumption-liter-per-100kilometers",
         "consumption-mile-per-gallon", "consumption-mile-per-gallon-imperial",
         "digital-petabyte", "digital-terabyte", "digital-terabit", "digital-gigabyte", "digital-gigabit",
         "digital-megabyte", "digital-megabit", "digital-kilobyte", "digital-kilobit",
@@ -1303,10 +1276,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         "frequency-gigahertz", "frequency-megahertz", "frequency-kilohertz", "frequency-hertz",
         "graphics-em", "graphics-pixel", "graphics-megapixel",
         "graphics-pixel-per-centimeter", "graphics-pixel-per-inch",
-        "graphics-dot-per-centimeter", "graphics-dot-per-inch",
-        "graphics-dot",
-        "length-earth-radius",
-        "length-100-kilometer",
+        "graphics-dot-per-centimeter", "graphics-dot-per-inch", 
         "length-kilometer", "length-meter", "length-decimeter", "length-centimeter",
         "length-millimeter", "length-micrometer", "length-nanometer", "length-picometer",
         "length-mile", "length-yard", "length-foot", "length-inch",
@@ -1316,8 +1286,6 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         "length-point",
         "length-solar-radius",
         "light-lux",
-        "light-candela",
-        "light-lumen",
         "light-solar-luminosity",
         "mass-metric-ton", "mass-kilogram", "mass-gram", "mass-milligram", "mass-microgram",
         "mass-ton", "mass-stone", "mass-pound", "mass-ounce",
@@ -1325,21 +1293,17 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         "mass-dalton",
         "mass-earth-mass",
         "mass-solar-mass",
-
-        "mass-grain",
-
         "power-gigawatt", "power-megawatt", "power-kilowatt", "power-watt", "power-milliwatt",
         "power-horsepower",
-        "pressure-millimeter-ofhg",
-         "pressure-ofhg",
-        "pressure-pound-force-per-square-inch", "pressure-inch-ofhg", "pressure-bar", "pressure-millibar", "pressure-atmosphere",
+        "pressure-millimeter-of-mercury",
+        "pressure-pound-per-square-inch", "pressure-inch-hg", "pressure-bar", "pressure-millibar", "pressure-atmosphere",
         "pressure-pascal",
-        "pressure-hectopascal",
+        "pressure-hectopascal", 
         "pressure-kilopascal",
         "pressure-megapascal",
         "speed-kilometer-per-hour", "speed-meter-per-second", "speed-mile-per-hour", "speed-knot",
         "temperature-generic", "temperature-celsius", "temperature-fahrenheit", "temperature-kelvin",
-        "torque-pound-force-foot",
+        "torque-pound-foot",
         "torque-newton-meter",
         "volume-cubic-kilometer", "volume-cubic-meter", "volume-cubic-centimeter",
         "volume-cubic-mile", "volume-cubic-yard", "volume-cubic-foot", "volume-cubic-inch",
@@ -1348,17 +1312,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         "volume-acre-foot",
         "volume-bushel", "volume-gallon", "volume-gallon-imperial", "volume-quart", "volume-pint", "volume-cup",
         "volume-fluid-ounce", "volume-fluid-ounce-imperial", "volume-tablespoon", "volume-teaspoon",
-        "volume-barrel",
-
-        "volume-dessert-spoon",
-        "volume-dessert-spoon-imperial",
-        "volume-drop",
-        "volume-dram",
-        "volume-jigger",
-        "volume-pinch",
-        "volume-quart-imperial"
-       // "volume-pint-imperial"
-        ).freeze();
+        "volume-barrel").freeze();
 
     static MapComparator<String> countValueOrder = new MapComparator<String>().add(
         "0", "1", "zero", "one", "two", "few", "many", "other").freeze();
@@ -1552,7 +1506,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             if (attributeValues.size() == 1) {
                 addAttribute(attribute, attributeValues.iterator().next());
             } else {
-                // duplicate all the items in the list with the given values
+                // duplicate all the items in the list with the given values 
                 Set<XPathParts> newList = new LinkedHashSet<>();
                 for (XPathParts item : list) {
                     for (String attributeValue : attributeValues) {
@@ -1613,7 +1567,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
                 boolean hasValue = hasValue(element);
                 // if it doesn't have a value, we construct new child elements, with _ prefix
                 // if it does have a value, we have to play a further trick, since
-                // we can't have a value and child elements at the same level.
+                // we can't have a value and child elements at the same level. 
                 // So we use a _ suffix on the element.
                 if (hasValue) {
                     pathResult.setElement(i, element + "_");

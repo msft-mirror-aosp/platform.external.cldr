@@ -65,10 +65,10 @@ public class DateOrder implements Comparable<DateOrder> {
 
     public static Map<String, Map<DateOrder, String>> getOrderingInfo(CLDRFile plain, CLDRFile resolved,
         DateTimePatternGenerator.FormatParser fp) {
-        Map<String, Map<DateOrder, String>> pathsWithConflictingOrder2sample = new HashMap<>();
+        Map<String, Map<DateOrder, String>> pathsWithConflictingOrder2sample = new HashMap<String, Map<DateOrder, String>>();
         Status status = new Status();
         try {
-            Map<String, Map<DateOrder, Set<String>>> type2order2set = new HashMap<>();
+            Map<String, Map<DateOrder, Set<String>>> type2order2set = new HashMap<String, Map<DateOrder, Set<String>>>();
             Matcher typeMatcher = PatternCache.get("\\[@type=\"([^\"]*)\"]").matcher("");
             int[] soFar = new int[50];
             int lenSoFar = 0;
@@ -84,7 +84,7 @@ public class DateOrder implements Comparable<DateOrder> {
                     String type = typeMatcher.group(1);
                     Map<DateOrder, Set<String>> pairCount = type2order2set.get(type);
                     if (pairCount == null) {
-                        type2order2set.put(type, pairCount = new HashMap<>());
+                        type2order2set.put(type, pairCount = new HashMap<DateOrder, Set<String>>());
                     }
                     boolean isInterval = path.contains("intervalFormatItem");
                     lenSoFar = 0;
@@ -103,7 +103,7 @@ public class DateOrder implements Comparable<DateOrder> {
                                 DateOrder order = new DateOrder(soFar[i], eType);
                                 Set<String> paths = pairCount.get(order);
                                 if (paths == null) {
-                                    pairCount.put(order, paths = new HashSet<>());
+                                    pairCount.put(order, paths = new HashSet<String>());
                                 }
                                 paths.add(path);
                             }
@@ -115,7 +115,7 @@ public class DateOrder implements Comparable<DateOrder> {
             // determine conflicts, and mark
             for (Entry<String, Map<DateOrder, Set<String>>> typeAndOrder2set : type2order2set.entrySet()) {
                 Map<DateOrder, Set<String>> pairCount = typeAndOrder2set.getValue();
-                HashSet<DateOrder> alreadySeen = new HashSet<>();
+                HashSet<DateOrder> alreadySeen = new HashSet<DateOrder>();
                 for (Entry<DateOrder, Set<String>> entry : pairCount.entrySet()) {
                     DateOrder thisOrder = entry.getKey();
                     if (alreadySeen.contains(thisOrder)) {
@@ -200,7 +200,7 @@ public class DateOrder implements Comparable<DateOrder> {
         }
         Map<DateOrder, String> order2path = pathsWithConflictingOrder2sample.get(path);
         if (order2path == null) {
-            pathsWithConflictingOrder2sample.put(path, order2path = new TreeMap<>());
+            pathsWithConflictingOrder2sample.put(path, order2path = new TreeMap<DateOrder, String>());
         }
         order2path.put(sample, conflictingPath);
     }

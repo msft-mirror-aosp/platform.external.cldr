@@ -33,7 +33,6 @@ public class MatchStrings {
             this.fixedIpa = fixedIpa.equals(ipa) ? ipa : fixedIpa; // make ==
         }
 
-        @Override
         public String toString() {
             return "{" + english + "/" + ipa + (fixedIpa == ipa ? "" : "/" + fixedIpa) + "}";
         }
@@ -86,7 +85,7 @@ public class MatchStrings {
     String ipa;
     List<Info> output;
     int highWater = 0;
-    List<Info> highWaterList = new ArrayList<>();
+    List<Info> highWaterList = new ArrayList<Info>();
     private int longestEnglish;
     private int longestIpa;
 
@@ -203,7 +202,7 @@ public class MatchStrings {
         return -1;
     }
 
-    List<Info> current = new ArrayList<>();
+    List<Info> current = new ArrayList<Info>();
 
     /**
      * Fix the IPA in a string

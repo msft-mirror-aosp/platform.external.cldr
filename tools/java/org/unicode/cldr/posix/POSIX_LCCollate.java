@@ -173,9 +173,9 @@ public class POSIX_LCCollate {
         }
     }
 
-    Set<Weights> nonUniqueWeights = new HashSet<>();
-    Set<Weights> allWeights = new HashSet<>();
-    Map<String, Weights> stringToWeights = new HashMap<>();
+    Set<Weights> nonUniqueWeights = new HashSet<Weights>();
+    Set<Weights> allWeights = new HashSet<Weights>();
+    Map<String, Weights> stringToWeights = new HashMap<String, Weights>();
 
     private void writeList(PrintWriter out) {
         // BitSet alreadySeen = new BitSet();
@@ -287,7 +287,6 @@ public class POSIX_LCCollate {
             }
         }
 
-        @Override
         public boolean equals(Object other) {
             Weights that = (Weights) other;
             return primaries.equals(that.primaries)
@@ -295,7 +294,6 @@ public class POSIX_LCCollate {
                 && tertiaries.equals(that.tertiaries);
         }
 
-        @Override
         public int hashCode() {
             return (primaries.hashCode() * 37
                 + secondaries.hashCode()) * 37
@@ -322,7 +320,6 @@ public class POSIX_LCCollate {
                 s.set(weights[j]);
         }
 
-        @Override
         public String toString() {
             if (count == 0) return "IGNORE";
             if (count == 1) return getID('X', weights[0]);
@@ -333,7 +330,6 @@ public class POSIX_LCCollate {
             return result + "\"";
         }
 
-        @Override
         public boolean equals(Object other) {
             WeightList that = (WeightList) other;
             for (int j = 0; j < count; ++j) {
@@ -342,7 +338,6 @@ public class POSIX_LCCollate {
             return true;
         }
 
-        @Override
         public int hashCode() {
             int result = count;
             for (int j = 0; j < count; ++j)

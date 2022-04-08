@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
-<!-- Copyright © 1991-2020 Unicode, Inc.
+<!-- Copyright © 1991-2019 Unicode, Inc.
 For terms of use, see http://www.unicode.org/copyright.html
 Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
 CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
@@ -2850,6 +2850,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<zone type="Europe/Malta">
 				<exemplarCity draft="unconfirmed">Malta</exemplarCity>
 			</zone>
+			<zone type="Indian/Mauritius">
+				<exemplarCity draft="unconfirmed">Mauritius</exemplarCity>
+			</zone>
 			<zone type="Indian/Maldives">
 				<exemplarCity draft="unconfirmed">Malediwy</exemplarCity>
 			</zone>
@@ -3014,6 +3017,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</zone>
 			<zone type="Europe/Kaliningrad">
 				<exemplarCity draft="unconfirmed">Kaliningrad</exemplarCity>
+			</zone>
+			<zone type="Europe/Simferopol">
+				<exemplarCity draft="unconfirmed">Symferopol</exemplarCity>
 			</zone>
 			<zone type="Europe/Moscow">
 				<exemplarCity draft="unconfirmed">Moskwa</exemplarCity>
@@ -3210,9 +3216,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<zone type="Europe/Kiev">
 				<exemplarCity draft="unconfirmed">Kijōw</exemplarCity>
 			</zone>
-			<zone type="Europe/Simferopol">
-				<exemplarCity draft="unconfirmed">Symferopol</exemplarCity>
-			</zone>
 			<zone type="Europe/Zaporozhye">
 				<exemplarCity draft="unconfirmed">Zaporoże</exemplarCity>
 			</zone>
@@ -3390,6 +3393,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">czas zachodnioafrykański latowy</daylight>
 				</long>
 			</metazone>
+			<metazone type="Alaska">
+				<long>
+					<generic draft="unconfirmed">Alaska</generic>
+					<standard draft="unconfirmed">Alaska (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Alaska (latowy czas)</daylight>
+				</long>
+			</metazone>
 			<metazone type="Almaty">
 				<long>
 					<generic draft="unconfirmed">czas ałmacki</generic>
@@ -3437,6 +3447,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">czas Anadyr</generic>
 					<standard draft="unconfirmed">sztandardowy czas Anadyr</standard>
 					<daylight draft="unconfirmed">latowy czas Anadyr</daylight>
+				</long>
+			</metazone>
+			<metazone type="Apia">
+				<long>
+					<generic draft="unconfirmed">Apia</generic>
+					<standard draft="unconfirmed">Apia (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Apia (latowy czas)</daylight>
 				</long>
 			</metazone>
 			<metazone type="Aqtau">
@@ -3537,6 +3554,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Bangladesz (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Bhutan">
+				<long>
+					<standard draft="unconfirmed">Bhutan</standard>
+				</long>
+			</metazone>
 			<metazone type="Bolivia">
 				<long>
 					<standard draft="unconfirmed">Boliwia</standard>
@@ -3549,6 +3571,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Brasília (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Brunei">
+				<long>
+					<standard draft="unconfirmed">Brunei</standard>
+				</long>
+			</metazone>
 			<metazone type="Cape_Verde">
 				<long>
 					<generic draft="unconfirmed">Wyspy Zielōnego Przilōndka</generic>
@@ -3559,6 +3586,20 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<metazone type="Chamorro">
 				<long>
 					<standard draft="unconfirmed">Czamorro</standard>
+				</long>
+			</metazone>
+			<metazone type="Chatham">
+				<long>
+					<generic draft="unconfirmed">Chatham</generic>
+					<standard draft="unconfirmed">Chatham (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Chatham (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Chile">
+				<long>
+					<generic draft="unconfirmed">Chile</generic>
+					<standard draft="unconfirmed">Chile (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Chile (latowy czas)</daylight>
 				</long>
 			</metazone>
 			<metazone type="China">
@@ -3604,6 +3645,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">Kuba</generic>
 					<standard draft="unconfirmed">Kuba (sztandardowy czas)</standard>
 					<daylight draft="unconfirmed">Kuba (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Davis">
+				<long>
+					<standard draft="unconfirmed">Davis</standard>
 				</long>
 			</metazone>
 			<metazone type="DumontDUrville">
@@ -3691,6 +3737,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<metazone type="French_Southern">
 				<long>
 					<standard draft="unconfirmed">Francuske Terytoria Połedniowe i Antarktyczne</standard>
+				</long>
+			</metazone>
+			<metazone type="Galapagos">
+				<long>
+					<standard draft="unconfirmed">Galapagos</standard>
 				</long>
 			</metazone>
 			<metazone type="Gambier">
@@ -3790,6 +3841,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<standard draft="unconfirmed">Indōnezyjo Zachodnio</standard>
 				</long>
 			</metazone>
+			<metazone type="Iran">
+				<long>
+					<generic draft="unconfirmed">Iran</generic>
+					<standard draft="unconfirmed">Iran (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Iran (latowy czas)</daylight>
+				</long>
+			</metazone>
 			<metazone type="Irkutsk">
 				<long>
 					<generic draft="unconfirmed">Irkuck</generic>
@@ -3828,6 +3886,18 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<standard draft="unconfirmed">Kazachstan Zachodni</standard>
 				</long>
 			</metazone>
+			<metazone type="Korea">
+				<long>
+					<generic draft="unconfirmed">Korea</generic>
+					<standard draft="unconfirmed">Korea (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Korea (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Kosrae">
+				<long>
+					<standard draft="unconfirmed">Kosrae</standard>
+				</long>
+			</metazone>
 			<metazone type="Krasnoyarsk">
 				<long>
 					<generic draft="unconfirmed">Krasnojarsk</generic>
@@ -3852,6 +3922,18 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Lord Howe (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Macquarie">
+				<long>
+					<standard draft="unconfirmed">Macquarie</standard>
+				</long>
+			</metazone>
+			<metazone type="Magadan">
+				<long>
+					<generic draft="unconfirmed">Magadan</generic>
+					<standard draft="unconfirmed">Magadan (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Magadan (latowy czas)</daylight>
+				</long>
+			</metazone>
 			<metazone type="Malaysia">
 				<long>
 					<standard draft="unconfirmed">Malezyjo</standard>
@@ -3870,6 +3952,18 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<metazone type="Marshall_Islands">
 				<long>
 					<standard draft="unconfirmed">Wyspy Marshalla</standard>
+				</long>
+			</metazone>
+			<metazone type="Mauritius">
+				<long>
+					<generic draft="unconfirmed">Mauritius</generic>
+					<standard draft="unconfirmed">Mauritius (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Mauritius (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Mawson">
+				<long>
+					<standard draft="unconfirmed">Mawson</standard>
 				</long>
 			</metazone>
 			<metazone type="Mexico_Northwest">
@@ -3905,6 +3999,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<standard draft="unconfirmed">Mjanma</standard>
 				</long>
 			</metazone>
+			<metazone type="Nauru">
+				<long>
+					<standard draft="unconfirmed">Nauru</standard>
+				</long>
+			</metazone>
+			<metazone type="Nepal">
+				<long>
+					<standard draft="unconfirmed">Nepal</standard>
+				</long>
+			</metazone>
 			<metazone type="New_Caledonia">
 				<long>
 					<generic draft="unconfirmed">Nowo Kaledōnijo</generic>
@@ -3924,6 +4028,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">Nowo Fundlandyjo</generic>
 					<standard draft="unconfirmed">Nowo Fundlandyjo (sztandardowy czas)</standard>
 					<daylight draft="unconfirmed">Nowo Fundlandyjo (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Niue">
+				<long>
+					<standard draft="unconfirmed">Niue</standard>
+				</long>
+			</metazone>
+			<metazone type="Norfolk">
+				<long>
+					<standard draft="unconfirmed">Norfolk</standard>
 				</long>
 			</metazone>
 			<metazone type="Noronha">
@@ -3947,6 +4061,18 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Ômsk (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Pakistan">
+				<long>
+					<generic draft="unconfirmed">Pakistan</generic>
+					<standard draft="unconfirmed">Pakistan (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Pakistan (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Palau">
+				<long>
+					<standard draft="unconfirmed">Palau</standard>
+				</long>
+			</metazone>
 			<metazone type="Papua_New_Guinea">
 				<long>
 					<standard draft="unconfirmed">Papua-Nowo Gwinea</standard>
@@ -3957,6 +4083,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">Paragwaj</generic>
 					<standard draft="unconfirmed">Paragwaj (sztandardowy czas)</standard>
 					<daylight draft="unconfirmed">Paragwaj (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Peru">
+				<long>
+					<generic draft="unconfirmed">Peru</generic>
+					<standard draft="unconfirmed">Peru (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Peru (latowy czas)</daylight>
 				</long>
 			</metazone>
 			<metazone type="Philippines">
@@ -3978,6 +4111,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Saint-Pierre i Miquelon (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Pitcairn">
+				<long>
+					<standard draft="unconfirmed">Pitcairn</standard>
+				</long>
+			</metazone>
 			<metazone type="Ponape">
 				<long>
 					<standard draft="unconfirmed">Pohnpei</standard>
@@ -3995,6 +4133,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">czas kyzyłordzki latowy</daylight>
 				</long>
 			</metazone>
+			<metazone type="Reunion">
+				<long>
+					<standard draft="unconfirmed">Reunion</standard>
+				</long>
+			</metazone>
+			<metazone type="Rothera">
+				<long>
+					<standard draft="unconfirmed">Rothera</standard>
+				</long>
+			</metazone>
 			<metazone type="Sakhalin">
 				<long>
 					<generic draft="unconfirmed">Sachalin</generic>
@@ -4007,6 +4155,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">czas Samara</generic>
 					<standard draft="unconfirmed">sztandardowy czas Samara</standard>
 					<daylight draft="unconfirmed">czas Samara latowy</daylight>
+				</long>
+			</metazone>
+			<metazone type="Samoa">
+				<long>
+					<generic draft="unconfirmed">Samoa</generic>
+					<standard draft="unconfirmed">Samoa (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Samoa (latowy czas)</daylight>
 				</long>
 			</metazone>
 			<metazone type="Seychelles">
@@ -4034,6 +4189,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<standard draft="unconfirmed">Surinam</standard>
 				</long>
 			</metazone>
+			<metazone type="Syowa">
+				<long>
+					<standard draft="unconfirmed">Syowa</standard>
+				</long>
+			</metazone>
+			<metazone type="Tahiti">
+				<long>
+					<standard draft="unconfirmed">Tahiti</standard>
+				</long>
+			</metazone>
 			<metazone type="Taipei">
 				<long>
 					<generic draft="unconfirmed">Tajpej</generic>
@@ -4044,6 +4209,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<metazone type="Tajikistan">
 				<long>
 					<standard draft="unconfirmed">Tadżykistan</standard>
+				</long>
+			</metazone>
+			<metazone type="Tokelau">
+				<long>
+					<standard draft="unconfirmed">Tokelau</standard>
 				</long>
 			</metazone>
 			<metazone type="Tonga">
@@ -4065,11 +4235,30 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<daylight draft="unconfirmed">Turkmynistan (latowy czas)</daylight>
 				</long>
 			</metazone>
+			<metazone type="Tuvalu">
+				<long>
+					<standard draft="unconfirmed">Tuvalu</standard>
+				</long>
+			</metazone>
 			<metazone type="Uruguay">
 				<long>
 					<generic draft="unconfirmed">Urugwaj</generic>
 					<standard draft="unconfirmed">Urugwaj (sztandardowy czas)</standard>
 					<daylight draft="unconfirmed">Urugwaj (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Uzbekistan">
+				<long>
+					<generic draft="unconfirmed">Uzbekistan</generic>
+					<standard draft="unconfirmed">Uzbekistan (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Uzbekistan (latowy czas)</daylight>
+				</long>
+			</metazone>
+			<metazone type="Vanuatu">
+				<long>
+					<generic draft="unconfirmed">Vanuatu</generic>
+					<standard draft="unconfirmed">Vanuatu (sztandardowy czas)</standard>
+					<daylight draft="unconfirmed">Vanuatu (latowy czas)</daylight>
 				</long>
 			</metazone>
 			<metazone type="Venezuela">
@@ -4094,6 +4283,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<metazone type="Vostok">
 				<long>
 					<standard draft="unconfirmed">Wostok</standard>
+				</long>
+			</metazone>
+			<metazone type="Wake">
+				<long>
+					<standard draft="unconfirmed">Wake</standard>
 				</long>
 			</metazone>
 			<metazone type="Wallis">
@@ -4195,7 +4389,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">stało grawitacyje</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} stałyj grawitacyje</unitPattern>
 			</unit>
-			<unit type="acceleration-meter-per-square-second">
+			<unit type="acceleration-meter-per-second-squared">
 				<displayName draft="unconfirmed">metry na sekunda do kwadratu</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} metra na sekunda do kwadratu</unitPattern>
 			</unit>
@@ -4276,7 +4470,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">milimole na liter</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} milimola na liter</unitPattern>
 			</unit>
-			<unit type="concentr-permillion">
+			<unit type="concentr-part-per-million">
 				<displayName draft="unconfirmed">czyńści na milijōn</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} czyńści na milijōn</unitPattern>
 			</unit>
@@ -4300,7 +4494,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">litry na kilōmeter</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} litra na kilōmeter</unitPattern>
 			</unit>
-			<unit type="consumption-liter-per-100-kilometer">
+			<unit type="consumption-liter-per-100kilometers">
 				<displayName draft="unconfirmed">litry na 100 kilōmetrōw</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} litra na 100 kilōmetrōw</unitPattern>
 			</unit>
@@ -4684,15 +4878,15 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">kōnie mechaniczne</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} kōnia mechanicznego</unitPattern>
 			</unit>
-			<unit type="pressure-millimeter-ofhg">
+			<unit type="pressure-millimeter-of-mercury">
 				<displayName draft="unconfirmed">milimetry supa rtyńci</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} milimetra supa rtyńci</unitPattern>
 			</unit>
-			<unit type="pressure-pound-force-per-square-inch">
+			<unit type="pressure-pound-per-square-inch">
 				<displayName draft="unconfirmed">fōnty na col kwadratowy</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} fōnta na col kwadratowy</unitPattern>
 			</unit>
-			<unit type="pressure-inch-ofhg">
+			<unit type="pressure-inch-hg">
 				<displayName draft="unconfirmed">cole supa rtyńci</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} cola supa rtyńci</unitPattern>
 			</unit>
@@ -4756,7 +4950,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">kelwiny</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} kelwina</unitPattern>
 			</unit>
-			<unit type="torque-pound-force-foot">
+			<unit type="torque-pound-foot">
 				<displayName draft="unconfirmed">stopofunty</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} stopofunt</unitPattern>
 			</unit>
@@ -4892,7 +5086,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">G</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} G</unitPattern>
 			</unit>
-			<unit type="acceleration-meter-per-square-second">
+			<unit type="acceleration-meter-per-second-squared">
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
@@ -4973,7 +5167,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">milimole/liter</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} mmol/l</unitPattern>
 			</unit>
-			<unit type="concentr-permillion">
+			<unit type="concentr-part-per-million">
 				<displayName draft="unconfirmed">czyńści/miliōn</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} cz/mln</unitPattern>
 			</unit>
@@ -4997,7 +5191,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">l/km</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} l/km</unitPattern>
 			</unit>
-			<unit type="consumption-liter-per-100-kilometer">
+			<unit type="consumption-liter-per-100kilometers">
 				<displayName draft="unconfirmed">l/100 km</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} l/100 km</unitPattern>
 			</unit>
@@ -5381,15 +5575,15 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">KM</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} KM</unitPattern>
 			</unit>
-			<unit type="pressure-millimeter-ofhg">
+			<unit type="pressure-millimeter-of-mercury">
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
-			<unit type="pressure-pound-force-per-square-inch">
+			<unit type="pressure-pound-per-square-inch">
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
-			<unit type="pressure-inch-ofhg">
+			<unit type="pressure-inch-hg">
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
@@ -5453,7 +5647,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
-			<unit type="torque-pound-force-foot">
+			<unit type="torque-pound-foot">
 				<displayName draft="unconfirmed">lbf⋅ft</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} lbf⋅ft</unitPattern>
 			</unit>
@@ -5598,7 +5792,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName draft="unconfirmed">↑↑↑</displayName>
 				<unitPattern count="other" draft="unconfirmed">↑↑↑</unitPattern>
 			</unit>
-			<unit type="consumption-liter-per-100-kilometer">
+			<unit type="consumption-liter-per-100kilometers">
 				<displayName draft="unconfirmed">l/100 km</displayName>
 				<unitPattern count="other" draft="unconfirmed">{0} l/100 km</unitPattern>
 			</unit>

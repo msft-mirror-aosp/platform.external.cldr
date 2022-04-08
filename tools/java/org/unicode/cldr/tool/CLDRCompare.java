@@ -9,15 +9,16 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.PatternCache;
+
+import com.ibm.icu.dev.util.CollectionUtilities;
 
 public class CLDRCompare {
     public static void main(String[] args) throws Exception {
         String filter = CldrUtility.getProperty("filter", ".*");
         Matcher matcher = PatternCache.get(filter).matcher("");
-        File oldVersion = new File(CldrUtility.getProperty("old", PathUtilities.getNormalizedPathString(CLDRPaths.COMMON_DIRECTORY
-    + "../../../common-cldr1.6")));
+        File oldVersion = new File(CldrUtility.getProperty("old", new File(CLDRPaths.COMMON_DIRECTORY
+            + "../../../common-cldr1.6").getCanonicalPath()));
         if (!oldVersion.exists()) {
             throw new IllegalArgumentException("Directory not found");
         }
@@ -33,13 +34,13 @@ public class CLDRCompare {
         for (String subDir : newVersion.list()) {
             if (subDir.equals("CVS") || subDir.equals("posix") || subDir.equals("test")) continue;
 
-            final String newSubDir = PathUtilities.getNormalizedPathString(newVersion) + "/" + subDir;
+            final String newSubDir = newVersion.getCanonicalPath() + "/" + subDir;
             final File srcDir = new File(newSubDir);
             if (!srcDir.isDirectory()) continue;
 
-            final String oldSubDir = PathUtilities.getNormalizedPathString(oldVersion) + "/" + subDir;
+            final String oldSubDir = oldVersion.getCanonicalPath() + "/" + subDir;
 
-            TreeSet<String> files = new TreeSet<>();
+            TreeSet<String> files = new TreeSet<String>();
 
             Factory cldrFactory = Factory.make(newSubDir, ".*");
             files.addAll(cldrFactory.getAvailable());
@@ -57,17 +58,17 @@ public class CLDRCompare {
                     continue;
                 }
 
-                HashSet<String> paths = new HashSet<>();
+                HashSet<String> paths = new HashSet<String>();
                 CLDRFile newCldrFile = null;
                 try {
                     newCldrFile = cldrFactory.make(file, false);
-                    newCldrFile.forEach(paths::add);
+                    CollectionUtilities.addAll(newCldrFile.iterator(), paths);
                 } catch (Exception e) {
                 }
                 CLDRFile oldCldrFile = null;
                 try {
                     oldCldrFile = oldFactory.make(file, false);
-                    oldCldrFile.forEach(paths::add);
+                    CollectionUtilities.addAll(oldCldrFile.iterator(), paths);
                 } catch (Exception e1) {
                 }
 

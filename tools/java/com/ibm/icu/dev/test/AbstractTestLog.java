@@ -45,7 +45,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Add a message.
      */
-    @Override
     public final void log(String message) {
         msg(message, LOG, true, false);
     }
@@ -53,7 +52,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Add a message and newline.
      */
-    @Override
     public final void logln(String message) {
         msg(message, LOG, true, true);
     }
@@ -61,7 +59,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Report an error.
      */
-    @Override
     public final void err(String message) {
         msg(message, ERR, true, false);
     }
@@ -69,7 +66,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Report an error and newline.
      */
-    @Override
     public final void errln(String message) {
         msg(message, ERR, true, true);
     }
@@ -77,7 +73,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Report a warning (generally missing tests or data).
      */
-    @Override
     public final void warn(String message) {
         msg(message, WARN, true, false);
     }
@@ -85,7 +80,6 @@ public abstract class AbstractTestLog implements TestLog {
     /**
      * Report a warning (generally missing tests or data) and newline.
      */
-    @Override
     public final void warnln(String message) {
         msg(message, WARN, true, true);
     }
@@ -99,7 +93,6 @@ public abstract class AbstractTestLog implements TestLog {
      * @param incCount if true, increments the warning or error count
      * @param newln if true, forces a newline after the message
      */
-    @Override
     public abstract void msg(String message, int level, boolean incCount, boolean newln);
 
     /**
@@ -114,7 +107,6 @@ public abstract class AbstractTestLog implements TestLog {
             this.delegate = delegate;
         }
 
-        @Override
         public void msg(String message, int level, boolean incCount, boolean newln) {
             if (delegate != null) {
                 delegate.msg(message, level, incCount, newln);

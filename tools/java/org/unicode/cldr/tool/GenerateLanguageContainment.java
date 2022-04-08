@@ -33,7 +33,6 @@ import org.unicode.cldr.util.StandardCodes.LstrType;
 import org.unicode.cldr.util.Validity;
 import org.unicode.cldr.util.Validity.Status;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
@@ -43,6 +42,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.util.ICUUncheckedIOException;
 
@@ -242,7 +242,7 @@ public class GenerateLanguageContainment {
         System.out.println("Checking " + "he" + "\t" + Containment.getAllDirected(childToParent, "he"));
 
         PrintWriter out = new PrintWriter(System.out);
-        print(out, parentToChild, new ArrayList<>(Arrays.asList("mul")));
+        print(out, parentToChild, new ArrayList<String>(Arrays.asList("mul")));
         System.out.println(out);
         SimpleXMLSource xmlSource = new SimpleXMLSource("languageGroup");
         xmlSource.setNonInheriting(true); // should be gotten from DtdType...
@@ -291,8 +291,10 @@ public class GenerateLanguageContainment {
         if (base.equals("und")) {
             // skip, no good info
         } else {
-            newFile.add("//" + DtdType.supplementalData + "/languageGroups/languageGroup[@parent=\"" + base + "\"]",
-                Joiner.on(" ").join(children));
+            newFile.add("//" + DtdType.supplementalData + "/languageGroups/languageGroup[@parent=\"" + base + "\"]", CollectionUtilities.join(children, " "));
+//            System.out.println("\t<languageGroup parent='" 
+//                + base + "'>" 
+//                + CollectionUtilities.join(children, " ") + "</languageGroup>");
         }
         for (String child : children) {
             printXML(newFile, parentToChild, child);
@@ -388,9 +390,9 @@ public class GenerateLanguageContainment {
 //        }
 //        String last = chain.get(0);
 //        for (int i = 1; i < chain.size(); ++i) {
-//            String item = chain.get(i);
+//            String item = chain.get(i); 
 //            if (!COLLECTIONS.contains(item)) {
-//                chain.set(i, item.equals("zh") ? "zhx" : "");
+//                chain.set(i, item.equals("zh") ? "zhx" : ""); 
 //                DROPPED_PARENTS_TO_CHILDREN.put(item, last);
 //            } else {
 //                last = item;

@@ -50,11 +50,7 @@ public class LanguageTagCanonicalizer implements StringTransform {
      * <br>TODO: map invalid language tags to <unknown>, eg ZZ; drop invalid U or T extensions, convert ICU locale extensions to BCP47
      */
     // TODO, handle variants
-    @Override
     public synchronized String transform(String locale) {
-        return transform (locale, OutputOption.ICU_LCVARIANT);
-    }
-    public synchronized String transform(String locale, OutputOption oo) {
         ltp1.set(locale);
 
         copyFields2(LanguageTagField.language, getReplacement(LanguageTagField.language, LanguageTagField.language.get(ltp1), locale));
@@ -65,7 +61,7 @@ public class LanguageTagCanonicalizer implements StringTransform {
 
         List<String> originalVariants = ltp1.getVariants();
         if (originalVariants.size() != 0) {
-            Set<String> newVariants = new TreeSet<>();
+            Set<String> newVariants = new TreeSet<String>();
             for (String item : originalVariants) {
                 String replacement = getReplacement(LanguageTagField.variant, item, locale);
                 if (replacement == null) {
@@ -78,13 +74,13 @@ public class LanguageTagCanonicalizer implements StringTransform {
             }
             ltp1.setVariants(newVariants);
         }
-        final String result = ltp1.toString(oo);
+        final String result = ltp1.toString();
         if ("und".equals(ltp1.getLanguage())) return result;
         if (likely == null) {
             return result;
         }
         // TODO: make more efficient, since likely will do the parsing again.
-        String likelyMin = likely.minimize(result, oo);
+        String likelyMin = likely.minimize(result);
         return likelyMin == null ? result : likelyMin;
     }
 
@@ -177,7 +173,7 @@ public class LanguageTagCanonicalizer implements StringTransform {
 
         List<String> originalVariants = ltp1.getVariants();
         if (originalVariants.size() != 0) {
-            Set<String> newVariants = new TreeSet<>();
+            Set<String> newVariants = new TreeSet<String>();
             for (String item : originalVariants) {
                 String replacement = getReplacement(LanguageTagField.variant, item, locale);
                 if (replacement == null) {
@@ -189,6 +185,6 @@ public class LanguageTagCanonicalizer implements StringTransform {
                 }
             }
             ltp1.setVariants(newVariants);
-        }
+        }        
     }
 }

@@ -1,7 +1,5 @@
 package org.unicode.cldr.test;
 
-import static java.util.Collections.disjoint;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +20,7 @@ import org.unicode.cldr.util.SupplementalDataInfo.CoverageLevelInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.CoverageVariableInfo;
 import org.unicode.cldr.util.Timer;
 
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.util.Output;
 import com.ibm.icu.util.ULocale;
 
@@ -62,10 +61,8 @@ public class CoverageLevel2 {
         public MyRegexFinder(String pattern, String additionalMatch, CoverageLevelInfo ci) {
             super(pattern);
             // remove the ${ and the }, and change - to _.
-            this.additionalMatch = additionalMatch == null
-                ? null
-                : SetMatchType.valueOf(
-                    additionalMatch.substring(2, additionalMatch.length() - 1).replace('-', '_'));
+            this.additionalMatch = additionalMatch == null ? null : SetMatchType.valueOf(additionalMatch.substring(2,
+                additionalMatch.length() - 1).replace('-', '_'));
             this.ci = ci;
         }
 
@@ -81,10 +78,10 @@ public class CoverageLevel2 {
                 && ci.inLanguage.matcher(localeSpecificInfo.targetLanguage).matches()) {
                 lstOK = true;
             } else if (ci.inScriptSet != null
-                && !disjoint(ci.inScriptSet, localeSpecificInfo.cvi.targetScripts)) {
+                && CollectionUtilities.containsSome(ci.inScriptSet, localeSpecificInfo.cvi.targetScripts)) {
                 lstOK = true;
             } else if (ci.inTerritorySet != null
-                && !disjoint(ci.inTerritorySet, localeSpecificInfo.cvi.targetTerritories)) {
+                && CollectionUtilities.containsSome(ci.inTerritorySet, localeSpecificInfo.cvi.targetTerritories)) {
                 lstOK = true;
             }
 
@@ -145,7 +142,6 @@ public class CoverageLevel2 {
      * @see #getInstance(SupplementalDataInfo, String)
      * @see CLDRPaths#SUPPLEMENTAL_DIRECTORY
      */
-    @Deprecated
     public static CoverageLevel2 getInstance(String locale) {
         return new CoverageLevel2(SupplementalDataInfo.getInstance(), locale);
     }
@@ -161,9 +157,9 @@ public class CoverageLevel2 {
         synchronized (lookup) { // synchronize on the class, since the Matchers are changed during the matching process
             Level result;
             if (DEBUG_LOOKUP) { // for testing
-                Output<String[]> checkItems = new Output<>();
-                Output<Finder> matcherFound = new Output<>();
-                List<String> failures = new ArrayList<>();
+                Output<String[]> checkItems = new Output<String[]>();
+                Output<Finder> matcherFound = new Output<Finder>();
+                List<String> failures = new ArrayList<String>();
                 result = lookup.get(path, myInfo, checkItems, matcherFound, failures);
                 for (String s : failures) {
                     System.out.println(s);

@@ -19,7 +19,7 @@ import org.unicode.cldr.util.DtdData.AttributeType;
 import org.unicode.cldr.util.DtdData.Element;
 import org.unicode.cldr.util.DtdData.ElementType;
 
-import com.google.common.base.Joiner;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
@@ -29,20 +29,20 @@ public class DtdDataCheck {
 
     static SupplementalDataInfo SUPPLEMENTAL = SupplementalDataInfo.getInstance();
 
-    static final Set<Row.R4<DtdType, String, String, String>> DEPRECATED = new LinkedHashSet<>();
-    static final Map<Row.R2<DtdType, String>, Relation<Boolean, String>> TYPE_ATTRIBUTE_TO_DIST_ELEMENTS = new TreeMap<>();
+    static final Set<Row.R4<DtdType, String, String, String>> DEPRECATED = new LinkedHashSet<Row.R4<DtdType, String, String, String>>();
+    static final Map<Row.R2<DtdType, String>, Relation<Boolean, String>> TYPE_ATTRIBUTE_TO_DIST_ELEMENTS = new TreeMap<Row.R2<DtdType, String>, Relation<Boolean, String>>();
 
     private static final boolean CHECK_CORRECTNESS = false;
 
     private static class Walker {
-        HashSet<Element> seen = new HashSet<>();
-        Set<Element> elementsMissingDraft = new LinkedHashSet<>();
-        Set<Element> elementsMissingAlt = new LinkedHashSet<>();
-        static final Set<String> SKIP_ATTRIBUTES = new HashSet<>(Arrays.asList(
+        HashSet<Element> seen = new HashSet<Element>();
+        Set<Element> elementsMissingDraft = new LinkedHashSet<Element>();
+        Set<Element> elementsMissingAlt = new LinkedHashSet<Element>();
+        static final Set<String> SKIP_ATTRIBUTES = new HashSet<String>(Arrays.asList(
             "draft", "alt", "standard", "references"));
-        static final Set<String> SKIP_ELEMENTS = new HashSet<>(Arrays.asList(
+        static final Set<String> SKIP_ELEMENTS = new HashSet<String>(Arrays.asList(
             "alias", "special"));
-        Set<Attribute> attributesWithDefaultValues = new LinkedHashSet<>();
+        Set<Attribute> attributesWithDefaultValues = new LinkedHashSet<Attribute>();
 
         private DtdData dtdData;
 
@@ -184,7 +184,7 @@ public class DtdDataCheck {
             }
             new Walker(dtdData).show(dtdData.ROOT);
             if (CHECK_CORRECTNESS && type == DtdType.ldml) {
-                Set<String> errors = new LinkedHashSet<>();
+                Set<String> errors = new LinkedHashSet<String>();
                 //                checkOrder(dtdData.ROOT, errors);
                 //                for (String error : errors) {
                 //                    System.out.println("ERROR:\t" + error);
@@ -201,7 +201,7 @@ public class DtdDataCheck {
                 Comparator<String> comp = dtdData.getDtdComparator(null);
                 CLDRFile test = ToolConfig.getToolInstance().getEnglish();
                 Set<String> sorted = new TreeSet(test.getComparator());
-                test.forEach(sorted::add);
+                CollectionUtilities.addAll(test.iterator(), sorted);
                 String[] sortedArray = sorted.toArray(new String[sorted.size()]);
 
                 // compare for identity
@@ -240,7 +240,7 @@ public class DtdDataCheck {
         }
         int i = 0;
         System.out.println("        <distinguishing>");
-        Set<String> allElements = new TreeSet<>();
+        Set<String> allElements = new TreeSet<String>();
         allElements.add("_q");
         DtdType lastType = null;
 
@@ -266,12 +266,12 @@ public class DtdDataCheck {
             }
             System.out.println("            <distinguishingItems"
                 + " type=\"" + type
-                + "\" elements=\"" + Joiner.on(" ").join(areDisting)
+                + "\" elements=\"" + CollectionUtilities.join(areDisting, " ")
                 + "\" attributes=\"" + attribute
                 + "\"/>"
                 + "\n            <!-- NONDISTINGUISH."
                 + " TYPE=\"" + type
-                + "\" ELEMENTS=\"" + Joiner.on(" ").join(areNotDisting)
+                + "\" ELEMENTS=\"" + CollectionUtilities.join(areNotDisting, " ")
                 + "\" ATTRIBUTES=\"" + attribute
                 + "\" -->");
         }
@@ -294,7 +294,7 @@ public class DtdDataCheck {
         System.out.println("            <distinguishingItems"
             + " type=\"" + type
             + "\" elements=\"*"
-            + "\" attributes=\"" + Joiner.on(" ").join(allElements)
+            + "\" attributes=\"" + CollectionUtilities.join(allElements, " ")
             + "\"/>");
         allElements.clear();
         allElements.add("_q");

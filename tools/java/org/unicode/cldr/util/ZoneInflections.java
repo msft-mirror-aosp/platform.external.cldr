@@ -54,7 +54,7 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
     private int maxOffset;
 
     // ordered most recently first
-    List<InflectionPoint> inflectionPoints = new ArrayList<>();
+    List<InflectionPoint> inflectionPoints = new ArrayList<InflectionPoint>();
 
     public int getMaxOffset() {
         return maxOffset;
@@ -88,7 +88,6 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
         return (int) maxSoFar;
     }
 
-    @Override
     public String toString() {
         return inflectionPoints.toString();
     }
@@ -148,7 +147,7 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
             mostRecentDateTime.value = get(0).utcDateTime;
             return 1;
         }
-        ZoneInflections that = other;
+        ZoneInflections that = (ZoneInflections) other;
         int minLength = inflectionPoints.size();
         if (minLength < that.inflectionPoints.size())
             minLength = that.inflectionPoints.size();
@@ -178,7 +177,7 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
     }
 
     InflectionPoint get(int i) {
-        return inflectionPoints.get(i);
+        return (InflectionPoint) inflectionPoints.get(i);
     }
 
     int size() {
@@ -187,7 +186,6 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
 
     private transient OutputLong temp = new OutputLong(0);
 
-    @Override
     public int compareTo(ZoneInflections o) {
         return compareTo(o, temp);
     }
@@ -199,10 +197,9 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
 
         public int offset;
 
-        @Override
         public String toString() {
             return ICUServiceBuilder.isoDateFormat(new Date(utcDateTime)) + ";"
-                + formatHours(offset);
+                + formatHours((int) offset);
         }
 
         public InflectionPoint(long utcDateTime, int offset) {
@@ -216,7 +213,6 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
          * offset != that.offset) { return Math.max(utcDateTime, that.utcDateTime); }
          * return NONE; }
          */
-        @Override
         public int compareTo(InflectionPoint that) {
             if (utcDateTime < that.utcDateTime)
                 return -1;
@@ -249,7 +245,6 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
             this.value = value;
         }
 
-        @Override
         public int compareTo(Object o) {
             OutputLong that = (OutputLong) o;
             return value < that.value ? -1 : value > that.value ? 1 : 0;
@@ -266,7 +261,7 @@ public class ZoneInflections implements Comparable<ZoneInflections> {
      * @return
      */
     public List<InflectionPoint> getInflectionPoints(long start, long end) {
-        List<InflectionPoint> results = new ArrayList<>();
+        List<InflectionPoint> results = new ArrayList<InflectionPoint>();
         for (InflectionPoint inflectionPoint : inflectionPoints) {
             if (inflectionPoint.utcDateTime <= start) {
                 results.add(new InflectionPoint(start, inflectionPoint.offset));

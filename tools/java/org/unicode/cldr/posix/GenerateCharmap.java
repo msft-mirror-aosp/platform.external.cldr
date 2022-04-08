@@ -69,7 +69,6 @@ public class GenerateCharmap {
                 CharacterAltName = "";
         }
 
-        @Override
         public int compareTo(Object o) {
             CharmapLine c = (CharmapLine) o;
             return (CharacterValue.compareTo(c.CharacterValue));
@@ -137,7 +136,7 @@ public class GenerateCharmap {
         int LongestCharNameLength = 0;
         int LongestCharValueLength = 0;
         UnicodeSet us = new UnicodeSet("[^[:Noncharacter_Code_Point:][:Cn:][:Cs:]]").retainAll(chars);
-        List<CharmapLine> cml = new ArrayList<>();
+        List<CharmapLine> cml = new ArrayList<CharmapLine>();
         CharmapLine current;
         for (UnicodeSetIterator it = new UnicodeSetIterator(us); it.next();) {
             String Name = POSIXUtilities.POSIXCharFullName(it.getString());

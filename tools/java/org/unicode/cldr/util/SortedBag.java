@@ -33,7 +33,6 @@ public class SortedBag implements Collection {
         m = new TreeMap(c);
     }
 
-    @Override
     public boolean add(Object s) {
         Set o = (Set) m.get(s);
         if (o == null) {
@@ -45,7 +44,6 @@ public class SortedBag implements Collection {
         return result;
     }
 
-    @Override
     public Iterator iterator() {
         return new MyIterator();
     }
@@ -66,12 +64,10 @@ public class SortedBag implements Collection {
             return ((Set) m.get(mapIterator.next())).iterator();
         }
 
-        @Override
         public boolean hasNext() {
             return setIterator.hasNext() || mapIterator.hasNext();
         }
 
-        @Override
         public Object next() {
             if (!setIterator.hasNext()) {
                 setIterator = getSetIterator();
@@ -79,7 +75,6 @@ public class SortedBag implements Collection {
             return setIterator.next();
         }
 
-        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
@@ -88,34 +83,28 @@ public class SortedBag implements Collection {
     /**
      *
      */
-    @Override
     public void clear() {
         m.clear();
     }
 
-    @Override
     public int size() {
         return size;
     }
 
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     public boolean contains(Object o) {
         Set set = (Set) m.get(o);
         if (set == null) return false;
         return set.contains(o);
     }
 
-    @Override
     public Object[] toArray() {
         return toArray(new Object[size]);
     }
 
-    @Override
     public Object[] toArray(Object[] a) {
         int count = 0;
         for (Iterator it = iterator(); it.hasNext();) {
@@ -127,7 +116,6 @@ public class SortedBag implements Collection {
     /* (non-Javadoc)
      * @see java.util.Collection#remove(java.lang.Object)
      */
-    @Override
     public boolean remove(Object o) {
         Set set = (Set) m.get(o);
         if (set == null) return false;
@@ -137,7 +125,6 @@ public class SortedBag implements Collection {
         return true;
     }
 
-    @Override
     public boolean containsAll(Collection c) {
         for (Iterator it = c.iterator(); it.hasNext();) {
             if (!contains(it.next())) return false;
@@ -145,7 +132,6 @@ public class SortedBag implements Collection {
         return true;
     }
 
-    @Override
     public boolean addAll(Collection c) {
         boolean result = false;
         for (Iterator it = c.iterator(); it.hasNext();) {
@@ -154,7 +140,6 @@ public class SortedBag implements Collection {
         return result;
     }
 
-    @Override
     public boolean removeAll(Collection c) {
         boolean result = false;
         for (Iterator it = c.iterator(); it.hasNext();) {
@@ -163,7 +148,6 @@ public class SortedBag implements Collection {
         return result;
     }
 
-    @Override
     public boolean retainAll(Collection c) {
         // WARNING: this may not work if the comparator does not distinguish
         // all items that are equals().

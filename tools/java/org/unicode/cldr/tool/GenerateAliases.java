@@ -27,7 +27,7 @@ public class GenerateAliases {
     }
 
     static class Builder {
-        Map<String, String> aliasMap = new LinkedHashMap<>();
+        Map<String, String> aliasMap = new LinkedHashMap<String, String>();
         Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
 
         SupplementalDataInfo dataInfo = SupplementalDataInfo.getInstance();
@@ -57,7 +57,7 @@ public class GenerateAliases {
                 }
             }
 
-            Map<String, String> likely = new TreeMap<>();
+            Map<String, String> likely = new TreeMap<String, String>();
 
             // get all the combinations
             for (String max : likelySubtags.getToMaximized().values()) {
@@ -100,6 +100,8 @@ public class GenerateAliases {
                     System.out.println("missing" + "\t" + localeID);
                 }
             }
+
+            // System.out.println(CollectionUtilities.join(aliasMap.entrySet(), "\n"));
         }
 
         private void addToLikely(Map<String, String> likely) {
@@ -221,7 +223,7 @@ public class GenerateAliases {
          */
 
         private Set<String> addExtras(String language, Relation<String, String> goodToBadLanguages) {
-            Set<String> languages = new TreeSet<>();
+            Set<String> languages = new TreeSet<String>();
             languages.add(language);
             Set<String> badLanguages = goodToBadLanguages.get(language);
             if (badLanguages != null) {
@@ -230,7 +232,7 @@ public class GenerateAliases {
             return languages;
         }
 
-        Map<String, Boolean> wholeAliasCache = new HashMap<>();
+        Map<String, Boolean> wholeAliasCache = new HashMap<String, Boolean>();
 
         private boolean isWholeAlias(Factory factory, String localeID) {
             Boolean result = wholeAliasCache.get(localeID);

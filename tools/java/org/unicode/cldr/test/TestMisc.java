@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class TestMisc {
 
     static class Lists {
         public static <E extends Comparable> List<E> sortedCopy(Collection<E> iterable) {
-            List<E> list = new ArrayList<>();
+            List<E> list = new ArrayList<E>();
             list.addAll(iterable);
             Collections.sort(list);
             return list;
@@ -66,7 +67,7 @@ public class TestMisc {
 
     enum Foo {
         A, M, Z
-    }
+    };
 
     public static void main(String[] args) {
 
@@ -177,10 +178,10 @@ public class TestMisc {
         System.out.println(eg.getHelpHtml("/calendar/pattern", ""));
 
         if (true) return;
-        Set<String> s = new HashSet<>(Arrays.asList("a", "A", "c"));
+        Set<String> s = new HashSet<String>(Arrays.asList("a", "A", "c"));
         Collator caselessCompare = Collator.getInstance(Locale.ENGLISH);
         caselessCompare.setStrength(Collator.PRIMARY);
-        Set<String> t = new TreeSet<>(caselessCompare);
+        Set<String> t = new TreeSet<String>((Comparator) caselessCompare);
         t.addAll(Arrays.asList("a", "b", "c"));
         System.out.println("s equals t: " + s.equals(t));
         System.out.println("t equals s: " + t.equals(s));
@@ -189,7 +190,7 @@ public class TestMisc {
         System.out.println("s==t " + (s.equals(t)));
         System.out.println("s==u " + (s.equals(u)));
         UnicodeSet x = new UnicodeSet("[a-z]");
-        UnicodeSet y = new UnicodeSet("[a-z]").freeze();
+        UnicodeSet y = (UnicodeSet) new UnicodeSet("[a-z]").freeze();
         System.out.println("x==y " + (x.equals(y)));
         // showEnglish();
         // checkPrivateUse();
@@ -225,10 +226,10 @@ public class TestMisc {
     private static void testWeights() {
         Factory cldrFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
         CLDRFile english = cldrFactory.make("en", true);
-        Set<Pair<Integer, String>> rel = new TreeSet<>();
+        Set<Pair<Integer, String>> rel = new TreeSet<Pair<Integer, String>>();
         for (String desiredLocale : cldrFactory.getAvailable()) {
             int vote = Level.getDefaultWeight("google", desiredLocale);
-            rel.add(new Pair<>(vote, desiredLocale));
+            rel.add(new Pair<Integer, String>(vote, desiredLocale));
         }
         for (Pair<Integer, String> p : rel) {
             System.out.println(p + "\t" + english.getName(p.getSecond()));
@@ -252,14 +253,14 @@ public class TestMisc {
         caseFolded.freeze();
         simpleCaseFolded.freeze();
 
-        UnicodeSet functionalExceptCase = new UnicodeSet("[" +
+        UnicodeSet functionalExceptCase = (UnicodeSet) new UnicodeSet("[" +
             "[:L:][:Mc:][:Mn:][:Nd:]" +
             "&[:^NFKC_QuickCheck=No:]" +
             "&[:^default_ignorable_code_point:]]").freeze();
 
-        UnicodeSet asciiIdn = new UnicodeSet("[-A-Z0-9]").freeze();
+        UnicodeSet asciiIdn = (UnicodeSet) new UnicodeSet("[-A-Z0-9]").freeze();
 
-        UnicodeSet archaic = new UnicodeSet("[" +
+        UnicodeSet archaic = (UnicodeSet) new UnicodeSet("[" +
             "[:script=Bugi:]" +
             "[:script=Copt:]" +
             "[:script=Cprt:]" +
@@ -300,9 +301,9 @@ public class TestMisc {
                 .retainAll(functionalExceptCase)
                 .removeAll(archaic).removeAll(asciiIdn)));
 
-        UnicodeSet functional = new UnicodeSet(functionalExceptCase).retainAll(caseFolded).freeze();
+        UnicodeSet functional = (UnicodeSet) new UnicodeSet(functionalExceptCase).retainAll(caseFolded).freeze();
         System.out.println("functional: " + functional.size());
-        UnicodeSet functionalAndNotArchaic = new UnicodeSet(functional).removeAll(archaic).freeze();
+        UnicodeSet functionalAndNotArchaic = (UnicodeSet) new UnicodeSet(functional).removeAll(archaic).freeze();
         System.out.println("archaic: " + archaic.size());
         System.out.println("functionalAndNotArchaic: " + functionalAndNotArchaic.size());
 
@@ -347,7 +348,7 @@ public class TestMisc {
             }
             scripts.set(script);
         }
-        Set<String> toPrint = new TreeSet<>();
+        Set<String> toPrint = new TreeSet<String>();
         for (int script = 0; script < scripts.size(); ++script) {
             if (!scripts.get(script)) continue;
             String code = UScript.getShortName(script);
@@ -366,7 +367,6 @@ public class TestMisc {
     private static void checkCollections() {
         System.out.println("Collections");
         new org.unicode.cldr.util.CldrUtility.Apply<String>() {
-            @Override
             public void apply(String item) {
                 if (Iso639Data.getScope(item.toString()) != Scope.Collection) return;
                 System.out.println(item + "\t" + CldrUtility.join(Iso639Data.getNames(item), ", "));
@@ -374,7 +374,6 @@ public class TestMisc {
         }.applyTo(Iso639Data.getAvailable());
         System.out.println(CldrUtility.LINE_SEPARATOR + "Macrolanguages");
         new org.unicode.cldr.util.CldrUtility.Apply<String>() {
-            @Override
             public void apply(String item) {
                 if (Iso639Data.getScope(item.toString()) != Scope.Macrolanguage) return;
                 System.out.println(item + "\t" + CldrUtility.join(Iso639Data.getNames(item), ", "));
@@ -414,8 +413,8 @@ public class TestMisc {
     }
 
     static void checkEastAsianWidth() {
-        UnicodeSet dontCares = new UnicodeSet("[[:surrogate:][:unassigned:][:control:]]").freeze();
-        UnicodeSet dontCares2 = new UnicodeSet("[:^letter:]").freeze();
+        UnicodeSet dontCares = (UnicodeSet) new UnicodeSet("[[:surrogate:][:unassigned:][:control:]]").freeze();
+        UnicodeSet dontCares2 = (UnicodeSet) new UnicodeSet("[:^letter:]").freeze();
 
         // UnicodeSet wide = new UnicodeSet("[[:East_Asian_Width=wide:][:East_Asian_Width=fullwidth:][:Co:]]"); //
         // remove supplementaries
@@ -430,15 +429,15 @@ public class TestMisc {
         // Utility.addDontCareSpans(zeroWidth, dontCares));
 
         // P2. In each paragraph, find the first character of type L, AL, or R.
-        UnicodeSet strongL = new UnicodeSet("[[:BidiClass=L:]-[:unassigned:]]").freeze(); //
+        UnicodeSet strongL = (UnicodeSet) new UnicodeSet("[[:BidiClass=L:]-[:unassigned:]]").freeze(); //
         showSpans("Bidi L", strongL, dontCares);
         showSpans("Bidi L*", strongL, dontCares2);
 
-        UnicodeSet strongRAL = new UnicodeSet("[[:BidiClass=R:][:BidiClass=AL:]-[:unassigned:]]").freeze();
+        UnicodeSet strongRAL = (UnicodeSet) new UnicodeSet("[[:BidiClass=R:][:BidiClass=AL:]-[:unassigned:]]").freeze();
         showSpans("Bidi R,AL", strongRAL, dontCares);
         showSpans("Bidi R,AL*", strongRAL, dontCares2);
 
-        UnicodeSet strong = new UnicodeSet(
+        UnicodeSet strong = (UnicodeSet) new UnicodeSet(
             "[[:BidiClass=L:][:BidiClass=R:][:BidiClass=AL:]-[:unassigned:]]").freeze();
         showSpans("Strong", strong, dontCares);
         showSpans("Strong*", strong, dontCares2);
@@ -501,8 +500,8 @@ public class TestMisc {
     private static void checkDistinguishing() {
         Factory cldrFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
         Set<String> cldrFiles = cldrFactory.getAvailableLanguages();
-        Set<String> distinguishing = new TreeSet<>();
-        Set<String> nondistinguishing = new TreeSet<>();
+        Set<String> distinguishing = new TreeSet<String>();
+        Set<String> nondistinguishing = new TreeSet<String>();
         for (Iterator<String> it = cldrFiles.iterator(); it.hasNext();) {
             CLDRFile cldrFile = cldrFactory.make(it.next(), false);
             DtdType dtdType = null;
@@ -570,9 +569,9 @@ public class TestMisc {
         String requestedLocale = "en";
         CLDRFile cldrFile = cldrFactory.make(requestedLocale, true);
         StandardCodes sc = StandardCodes.make();
-        Set<String> careAbout = new HashSet<>(Arrays.asList(new String[] { "language", "script", "territory", "variant" }));
-        HashMap<String, Set<String>> foundItems = new HashMap<>();
-        TreeSet<String> problems = new TreeSet<>();
+        Set<String> careAbout = new HashSet<String>(Arrays.asList(new String[] { "language", "script", "territory", "variant" }));
+        HashMap<String, Set<String>> foundItems = new HashMap<String, Set<String>>();
+        TreeSet<String> problems = new TreeSet<String>();
         for (Iterator<String> it = cldrFile.iterator("", new UTF16.StringComparator(true, false, 0)); it.hasNext();) {
             String requestedPath = it.next();
             XPathParts parts = XPathParts.getFrozenInstance(requestedPath);
@@ -584,9 +583,9 @@ public class TestMisc {
             if (type == null) {
                 continue;
             }
-            Set<String> foundSet = foundItems.get(element);
+            Set<String> foundSet = (Set<String>) foundItems.get(element);
             if (foundSet == null) {
-                foundItems.put(element, foundSet = new TreeSet<>());
+                foundItems.put(element, foundSet = new TreeSet<String>());
             }
             foundSet.add(type);
 
@@ -606,10 +605,10 @@ public class TestMisc {
             System.out.println(it.next());
         }
         for (Iterator<String> it = careAbout.iterator(); it.hasNext();) {
-            String element = it.next();
+            String element = (String) it.next();
             Set<String> real = sc.getAvailableCodes(element);
-            Set<String> notFound = new TreeSet<>(real);
-            notFound.removeAll(foundItems.get(element));
+            Set<String> notFound = new TreeSet<String>(real);
+            notFound.removeAll((Set<String>) foundItems.get(element));
             for (Iterator<String> it2 = notFound.iterator(); it2.hasNext();) {
                 String type = it2.next();
                 List<String> data = sc.getFullData(element, type);
@@ -640,11 +639,10 @@ public class TestMisc {
             String path = it.next();
             String value = supp.getStringValue(path);
             String fullPath = supp.getFullXPath(path);
-            XPathParts parts = XPathParts.getFrozenInstance(fullPath);
+            XPathParts parts = XPathParts.getInstance(fullPath); // not frozen, for putAttributeValue
             String type = parts.getAttributeValue(-1, "type");
-            String pop = language_territory_hack_map.get(type);
+            String pop = (String) language_territory_hack_map.get(type);
             if (pop != null) {
-                parts = parts.cloneAsThawed();
                 parts.putAttributeValue(-1, "mostPopulousTerritory", pop);
                 fullPath = parts.toString();
             }
@@ -655,7 +653,7 @@ public class TestMisc {
         pw.close();
     }
 
-    private static final Map<String, String> language_territory_hack_map = new HashMap<>();
+    private static final Map<String, String> language_territory_hack_map = new HashMap<String, String>();
     private static final String[][] language_territory_hack = {
         { "af", "ZA" },
         { "am", "ET" },
@@ -822,7 +820,6 @@ public class TestMisc {
         static VariantFolder canonicalFolder = new VariantFolder(new CanonicalFolder());
         static VariantFolder compatibilityFolder = new VariantFolder(new CompatibilityFolder());
 
-        @Override
         public boolean applyPropertyAlias(String propertyName, String propertyValue, UnicodeSet result) {
             if (propertyName.equalsIgnoreCase("close")) {
                 if (propertyValue.equalsIgnoreCase("case")) {

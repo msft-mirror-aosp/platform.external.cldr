@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +24,6 @@ import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.PatternCache;
 import org.unicode.cldr.util.PatternPlaceholders;
-import org.unicode.cldr.util.PatternPlaceholders.PlaceholderInfo;
 import org.unicode.cldr.util.PatternPlaceholders.PlaceholderStatus;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
@@ -35,10 +33,6 @@ import org.unicode.cldr.util.UnicodeSetPrettyPrinter;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multiset.Entry;
-import com.google.common.collect.TreeMultiset;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.Collator;
@@ -140,7 +134,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         ")");
     private Matcher leadOrTrailWhitespaceOk = LEAD_OR_TRAIL_WHITESPACE_OK.matcher("");
 
-    private static UnicodeSet ASCII = new UnicodeSet("[\\u0020-\\u007F]").freeze();
+    private static UnicodeSet ASCII = (UnicodeSet) new UnicodeSet("[\\u0020-\\u007F]").freeze();
 
     private PatternPlaceholders patternPlaceholders = PatternPlaceholders.getInstance();
     private SupplementalDataInfo sdi;
@@ -162,7 +156,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     static class PlaceholderTransform implements Transform<String, Set<String>> {
         @Override
         public Set<String> transform(String source) {
-            Set<String> placeholders = new LinkedHashSet<>();
+            Set<String> placeholders = new LinkedHashSet<String>();
             String[] parts = source.split(";\\s+");
             for (String part : parts) {
                 int equalsPos = part.indexOf('=');
@@ -263,7 +257,6 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         return result;
     }
 
-    @Override
     public CheckCLDR handleCheck(String path, String fullPath, String value,
         Options options, List<CheckStatus> result) {
         if (fullPath == null) return this; // skip paths that we don't have
@@ -301,13 +294,13 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         if (path.startsWith("//ldml/numbers/miscPatterns") && path.contains("[@type=\"range\"]")) {
             if (DISALLOWED_IN_RANGE.containsSome(value)) {
                 result
-                .add(new CheckStatus()
-                    .setCause(this)
-                    .setMainType(CheckStatus.errorType)
-                    .setSubtype(Subtype.illegalCharactersInPattern)
-                    .setMessage(
-                        "Range patterns should not have letters.",
-                        new Object[] {}));
+                    .add(new CheckStatus()
+                        .setCause(this)
+                        .setMainType(CheckStatus.errorType)
+                        .setSubtype(Subtype.illegalCharactersInPattern)
+                        .setMessage(
+                            "Range patterns should not have letters.",
+                            new Object[] {}));
             }
         }
         // Now handle date patterns.
@@ -343,6 +336,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
                 disallowed.removeAll(ALL_CURRENCY_SYMBOLS);
                 disallowed.removeAll(LETTER); // Allow ASCII A-Z in currency symbols
+                // String currency = new XPathParts().set(path).getAttributeValue(-2, "type");
                 if (disallowed.size() > 0) {
                     // && asciiNotAllowed(getCldrFileToCheck().getLocaleID(), currency)) {
                     addMissingMessage(disallowed, errorOption,
@@ -420,7 +414,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                         if (localeID == null) {
                             throw new IllegalArgumentException(
                                 "A likely subtag for " + parser.getLanguage() +
-                                " is required to get its script.");
+                                    " is required to get its script.");
                         }
                     }
                     script = parser.set(localeID).getScript();
@@ -469,89 +463,88 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     }
 
     private String checkAndReplacePlaceholders(String path, String value, List<CheckStatus> result) {
-        CheckStatus.Type statusType = getPhase() == Phase.BUILD ? CheckStatus.warningType : CheckStatus.errorType; // new errors, so get past the tests.
-
-        // Get information about what should be there
-        PlaceholderStatus placeholderStatus = patternPlaceholders.getStatus(path);
-        Map<String, PlaceholderInfo> placeholderInfo = patternPlaceholders.get(path);
-
-        int minimum = placeholderInfo.size();
-        int maximum = placeholderInfo.size();
-
-        if (placeholderStatus == PlaceholderStatus.LOCALE_DEPENDENT || placeholderStatus == PlaceholderStatus.MULTIPLE) {
-            // if locale dependent, it is because of count= or ordinal=. Figure out what the values are, and whether we are allowed to have none or one
-            PluralRules rules = PluralRules.forLocale(new ULocale(getCldrFileToCheck().getLocaleID()));
-            if (rules != null) {
-                XPathParts parts = XPathParts.getFrozenInstance(path);
-                String keyword = parts.getAttributeValue(-1, "count");
-                if (keyword == null) {
-                    keyword = parts.getAttributeValue(-1, "ordinal");
-                }
-                try {
-                    if (rules.getUniqueKeywordValue(keyword) != PluralRules.NO_UNIQUE_VALUE) {
-                        minimum = 0;
-                    }
-                } catch (Exception e) {
-                    // internal error, skip
-                }
-            }
-        }
-
-        // TODO: move these tests to CheckPlaceholder
-
-        // Now see what is there, and see if they match
+        // add checks for patterns. Make sure that all and only the message format patterns have {n}
         Matcher matcher = patternMatcher.reset(value);
-        Multiset<String> matchList = TreeMultiset.create(); // Look for duplicate values.
+        Set<String> matchList = new HashSet<String>();
+        StringBuffer placeholderBuffer = new StringBuffer();
         while (matcher.find()) {
-            matchList.add(matcher.group());
-        }
-        final Set<String> distinctPlaceholders = matchList.elementSet();
-        int countDistinctPlaceholders = distinctPlaceholders.size();
-
-        if (countDistinctPlaceholders > 0) {
-            // Verify that all placeholders are monotonically increasing from zero.
-            int expected = 0;
-            for (String element : distinctPlaceholders) {
-                // int elementValue = Integer.parseInt(element, 1, element.length()-1, 10);
-                int elementValue = Integer.parseInt(element.substring(1, element.length()-1), 10);
-                if (elementValue != expected) {
-                    result.add(new CheckStatus().setCause(this).setMainType(statusType)
-                        .setSubtype(Subtype.gapsInPlaceholderNumbers)
-                        .setMessage("Placeholders {0} should be strictly increasing, starting at zero.", distinctPlaceholders));
-                    break;
-                }
-                ++expected;
+            // Look for duplicate values.
+            if (!matchList.add(matcher.group())) {
+                placeholderBuffer.append(", ").append(matcher.group());
             }
         }
-
-        // Check if duplicates are allowed
-        if (matchList.size() > countDistinctPlaceholders && placeholderStatus != PlaceholderStatus.MULTIPLE) {
-            Set<String> errors = new LinkedHashSet<>();
-            for (Entry<String> entry : matchList.entrySet()) {
-                if (entry.getCount() > 1) {
-                    errors.add(entry.getElement());
-                }
-            }
-            result.add(new CheckStatus().setCause(this).setMainType(statusType)
-                .setSubtype(Subtype.duplicatePlaceholders)
-                .setMessage("Duplicate placeholders: {0}.", Joiner.on(", ").join(errors)));
+        Set<String> placeholders = null;
+        PlaceholderStatus placeholderStatus = patternPlaceholders.getStatus(path);
+        if (placeholderStatus != PlaceholderStatus.DISALLOWED) {
+            placeholders = patternPlaceholders.get(path).keySet();
         }
 
-        // Now see if the number we have is within bounds
+        boolean supposedToHaveMessageFormatFields =
+            // supposedToBeMessageFormat.reset(path).find()
+            placeholders != null;
 
-        if (countDistinctPlaceholders < minimum) {
-            result.add(new CheckStatus().setCause(this).setMainType(statusType)
-                .setSubtype(Subtype.missingPlaceholders)
-                .setMessage("Need at least {0} placeholder(s), but only have {1}. Placeholders are: {2}", minimum, countDistinctPlaceholders, placeholderInfo));
-        } else {
-            if (countDistinctPlaceholders > maximum) {
-                result.add(new CheckStatus().setCause(this).setMainType(statusType)
+        if (supposedToHaveMessageFormatFields) {
+            if (placeholderBuffer.length() > 0) {
+                if (placeholderStatus != PlaceholderStatus.MULTIPLE) {
+                    result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
+                        .setSubtype(Subtype.extraPlaceholders)
+                        .setMessage("Remove duplicates of{0}",
+                            new Object[] { placeholderBuffer.substring(1) }));
+                }
+            }
+            placeholderBuffer.setLength(0);
+            // Check that the needed placeholders are there.
+            if (placeholders == null) placeholders = new HashSet<String>();
+            for (String placeholder : placeholders) {
+                if (!matchList.contains(placeholder)) {
+                    placeholderBuffer.append(", ").append(placeholder);
+                }
+            }
+            boolean placeholdersMissing = false;
+            if (placeholderBuffer.length() > 0) {
+                // Check
+                if (placeholderStatus == PlaceholderStatus.LOCALE_DEPENDENT && (path.contains("[@count=") || path.contains("[@ordinal="))) {
+                    PluralRules rules = PluralRules.forLocale(new ULocale(getCldrFileToCheck().getLocaleID()));
+                    XPathParts parts = XPathParts.getFrozenInstance(path);
+                    String keyword = parts.getAttributeValue(-1, "count");
+                    if (keyword == null) {
+                        keyword = parts.getAttributeValue(-1, "ordinal");
+                    }
+                    placeholdersMissing = rules.getUniqueKeywordValue(keyword) == PluralRules.NO_UNIQUE_VALUE;
+                } else {
+                    placeholdersMissing = placeholderStatus == PlaceholderStatus.REQUIRED;
+                }
+            }
+            if (placeholdersMissing) {
+                result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
+                    .setSubtype(Subtype.missingPlaceholders)
+                    .setMessage("This message pattern is missing placeholder(s){0}. See the English for an example.",
+                        new Object[] { placeholderBuffer.substring(1) }));
+            }
+            // Check for extra placeholders.
+            matchList.removeAll(placeholders);
+            if (matchList.size() > 0) {
+                String list = matchList.toString();
+                list = list.substring(1, list.length() - 1);
+                result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                     .setSubtype(Subtype.extraPlaceholders)
-                    .setMessage("Need no more than {0} placeholders, but have too many with {1}.", countDistinctPlaceholders, minimum));
+                    .setMessage("Extra placeholders {0} should be removed.",
+                        new Object[] { list }));
             }
+            // check the other characters in the message format patterns
+            value = patternMatcher.replaceAll(STAND_IN);
+        } else if (matchList.size() > 0 && placeholderStatus == PlaceholderStatus.DISALLOWED) { // non-message field has
+            // placeholder values
+            result.add(new CheckStatus()
+                .setCause(this)
+                .setMainType(CheckStatus.errorType)
+                .setSubtype(Subtype.shouldntHavePlaceholders)
+                .setMessage(
+                    "This field is not a message pattern, and should not have '{0}, {1},' etc. See the English for an example.",
+                    new Object[] {}));
+            // end checks for patterns
         }
-        // Return the pattern with placeholders replaced
-        return matchList.isEmpty() ? value : patternMatcher.replaceAll(STAND_IN);
+        return value;
     }
 
     /**
@@ -578,7 +571,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                 if (localeID == null) {
                     throw new IllegalArgumentException(
                         "A likely subtag for " + parser.getLanguage() +
-                        " is required to get its script.");
+                            " is required to get its script.");
                 }
             }
             script = parser.set(localeID).getScript();
@@ -616,7 +609,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         scriptToCurrencies = new Relation(new HashMap<String, Set<String>>(), HashSet.class);
         for (Object curScript : scriptToTerritories.keySet()) {
             Set<String> territories = scriptToTerritories.get(curScript);
-            Set<String> currencies = new HashSet<>();
+            Set<String> currencies = new HashSet<String>();
             for (String territory : territories) {
                 Set<CurrencyDateInfo> currencyInfo = sdi.getCurrencyDateInfo(territory);
                 for (CurrencyDateInfo info : currencyInfo) {
@@ -692,14 +685,14 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             scriptString.append("}");
         }
         result
-        .add(new CheckStatus()
-            .setCause(this)
-            .setMainType(warningVsError)
-            .setSubtype(ASCII.containsAll(missing) ? subtypeAscii : subtype)
-            .setMessage(
-                "The characters \u200E{0}\u200E {1} {2}. "
-                    +
-                    "For what to do, see <i>Handling Warnings</i> in <a target='CLDR-ST-DOCS' href='http://cldr.org/translation/characters#TOC-Handing-Warnings'>Characters</a>.",
+            .add(new CheckStatus()
+                .setCause(this)
+                .setMainType(warningVsError)
+                .setSubtype(ASCII.containsAll(missing) ? subtypeAscii : subtype)
+                .setMessage(
+                    "The characters \u200E{0}\u200E {1} {2}. "
+                        +
+                        "For what to do, see <i>Handling Warnings</i> in <a target='CLDR-ST-DOCS' href='http://cldr.org/translation/characters#TOC-Handing-Warnings'>Characters</a>.",
                     new Object[] { fixedMissing, scriptString, qualifier }));
     }
 

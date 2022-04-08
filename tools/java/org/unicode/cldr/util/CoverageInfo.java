@@ -25,12 +25,10 @@ public class CoverageInfo {
                 this.location);
         }
 
-        @Override
         public int hashCode() {
             return hashCode;
         }
 
-        @Override
         public boolean equals(Object other) {
             if (other == null) {
                 return false;

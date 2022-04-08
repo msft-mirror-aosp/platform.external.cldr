@@ -85,7 +85,6 @@ public class VerifyAttributeValues extends SimpleHandler {
         }
     }
 
-    @Override
     public void handlePathValue(String path, String value) {
         XPathParts parts = XPathParts.getFrozenInstance(path);
         if (dtdData == null) {
@@ -147,6 +146,7 @@ public class VerifyAttributeValues extends SimpleHandler {
         for (DayPeriod period : dayPeriods.getPeriods()) {
             result.add(period.toString());
         }
+        ;
         result.add("am");
         result.add("pm");
         return new LinkedHashSet<>(result);

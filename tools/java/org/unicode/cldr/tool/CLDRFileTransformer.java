@@ -29,17 +29,15 @@ import com.ibm.icu.util.ICUUncheckedIOException;
  * @author jchye
  */
 public class CLDRFileTransformer {
-    public enum PolicyIfExisting {
-        RETAIN,  // Do not transliterate if existing output has locale content
-        DISCARD, // Replace existing output locale content
-        MINIMIZE // RETAIN, plus drop values if translit is a no-op.
-    }
-
     /**
      * Contains all supported locale-to-locale conversions along with information
      * needed to convert each locale. Each enum value is named after the locale that results
      * from the conversion.
      */
+    enum PolicyIfExisting {
+        RETAIN, DISCARD, MINIMIZE
+    }
+
     public enum LocaleTransform {
         sr_Latn("sr", "Serbian-Latin-BGN.xml", Transliterator.FORWARD, "[:script=Cyrl:]", PolicyIfExisting.DISCARD), //
         sr_Latn_BA("sr_Cyrl_BA", "Serbian-Latin-BGN.xml", Transliterator.FORWARD, "[:script=Cyrl:]", PolicyIfExisting.DISCARD), //
@@ -49,7 +47,7 @@ public class CLDRFileTransformer {
         yo_BJ("yo", "yo-yo_BJ.xml", Transliterator.FORWARD, "[ẹ ọ ṣ Ẹ Ọ Ṣ]", PolicyIfExisting.DISCARD), //
         de_CH("de", "[ß] Casefold", Transliterator.FORWARD, "[ß]", PolicyIfExisting.MINIMIZE), //
         yue_Hans("yue", "Simplified-Traditional.xml", Transliterator.REVERSE, "[:script=Hant:]", PolicyIfExisting.RETAIN), //
-        // en_NZ("en_AU", "null", Transliterator.FORWARD, "[]", PolicyIfExisting.DISCARD),
+        // en_NZ("en_AU", "null", Transliterator.FORWARD, "[]", PolicyIfExisting.DISCARD), 
         // Needs work to fix currency symbols, handle Maori. See http://unicode.org/cldr/trac/ticket/9516#comment:6
         ;
 
@@ -62,7 +60,6 @@ public class CLDRFileTransformer {
         /**
          * @deprecated Use {@link #LocaleTransform(String,String,int,String,PolicyIfExisting)} instead
          */
-        @Deprecated
         private LocaleTransform(String inputLocale, String transformFilename, int direction, String inputCharPattern) {
             this(inputLocale, transformFilename, direction, inputCharPattern, PolicyIfExisting.DISCARD);
         }
@@ -73,13 +70,6 @@ public class CLDRFileTransformer {
             this.direction = direction;
             this.inputChars = new UnicodeSet(inputCharPattern);
             this.policy = policy;
-        }
-
-        /**
-         * @return the policy for existing content
-         */
-        public PolicyIfExisting getPolicyIfExisting() {
-            return policy;
         }
 
         /**
@@ -128,7 +118,7 @@ public class CLDRFileTransformer {
      * Use ConcurrentHashMap rather than HashMap to avoid concurrency problems.
      * Reference: https://unicode.org/cldr/trac/ticket/11657
      */
-    private static Map<LocaleTransform, Transliterator> transliterators = new ConcurrentHashMap<>();
+    private static Map<LocaleTransform, Transliterator> transliterators = new ConcurrentHashMap<LocaleTransform, Transliterator>();
     private String transformDir;
 
     /**
@@ -152,10 +142,10 @@ public class CLDRFileTransformer {
             String ruleString = CLDRTransforms.getIcuRulesFromXmlFile(transformDir, localeTransform.getTransformFilename(), directionInfo);
             transliterator = Transliterator.createFromRules(directionInfo.getId(),
                 ruleString, localeTransform.getDirection());
+            transliterators.put(localeTransform, transliterator);
         } else {
             transliterator = Transliterator.getInstance(localeTransform.getTransformFilename());
         }
-        transliterators.put(localeTransform, transliterator);
         return transliterator;
     }
 
@@ -214,7 +204,7 @@ public class CLDRFileTransformer {
 
     /**
      * Transforms a CLDRFile value into another form.
-     * @param parentValue
+     * @param parentValue 
      */
     private String transformValue(Transliterator transliterator, LocaleTransform localeTransform, String path, String value,
         String oldValue, String parentValue) {
@@ -263,13 +253,11 @@ public class CLDRFileTransformer {
             if (dir.equals("casing") // skip, field contents are keywords, not localizable content
                 || dir.equals("collation") // skip, field contents are complex, and can't be simply remapped
                 || dir.equals("annotationsDerived") // skip, derived later
-                ) {
+            ) {
                 continue;
             }
             System.out.println("\nDirectory: " + dir);
-            final String sourceDirectory = CLDRPaths.COMMON_DIRECTORY + dir + "/";
-            Factory factory = Factory.make(sourceDirectory, ".*");
-
+            Factory factory = Factory.make(CLDRPaths.COMMON_DIRECTORY + dir + "/", ".*");
             CLDRFileTransformer transformer = new CLDRFileTransformer(factory, CLDRPaths.COMMON_DIRECTORY + "transforms" + File.separator);
             for (LocaleTransform localeTransform : LocaleTransform.values()) {
                 CLDRFile output = transformer.transform(localeTransform);
@@ -279,15 +267,14 @@ public class CLDRFileTransformer {
                 }
                 String outputDir = CLDRPaths.GEN_DIRECTORY + "common/" + dir + File.separator;
                 String outputFile = output.getLocaleID() + ".xml";
-
-                try (PrintWriter out = FileUtilities.openUTF8Writer(outputDir, outputFile)) {
-                    System.out.println("Generating locale file: " + outputDir + outputFile);
-                    if (!transformer.unconverted.isEmpty()) {
-                        System.out.println("Untransformed characters: " + transformer.unconverted);
-                        transformer.unconverted.clear();
-                    }
-                    output.write(out);
+                PrintWriter out = FileUtilities.openUTF8Writer(outputDir, outputFile);
+                System.out.println("Generating locale file: " + outputDir + outputFile);
+                if (!transformer.unconverted.isEmpty()) {
+                    System.out.println("Untransformed characters: " + transformer.unconverted);
+                    transformer.unconverted.clear();
                 }
+                output.write(out);
+                out.close();
             }
         }
     }

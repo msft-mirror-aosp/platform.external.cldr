@@ -18,7 +18,6 @@ import org.unicode.cldr.tool.FormattedFileWriter.Anchors;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
-import org.unicode.cldr.util.CLDRFile.ExemplarType;
 import org.unicode.cldr.util.CLDRFile.NumberingSystem;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
 import org.unicode.cldr.util.CLDRPaths;
@@ -29,8 +28,8 @@ import org.unicode.cldr.util.PatternCache;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XPathParts;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.text.Transliterator;
@@ -41,8 +40,14 @@ public class ChartCollation extends Chart {
     static final String NOT_TAILORED = "notTailored";
     static final String NOT_EXEMPLARS = "notExemplars";
 
-    private static final String KNOWN_PROBLEMS =
-        "<ul>" + LS
+    private static final String KNOWN_PROBLEMS = "<p>Known issues:</p>"
+        + "<ul>" + LS
+        + "<li>The ordering is illustrated with a basic list:"
+        + "<ol>" + LS
+        + "<li>it doesn't show the strength differences</li>" + LS
+        + "<li>it does not yet take the settings or imports into account, so those are listed separately</li>" + LS
+        + "<li>consult the XML file for the exact details</li>" + LS
+        + "</ol>" + LS
         + "<li>The characters used in the illustration are:" + LS
         + "<ol>" + LS
         + "<li>those <span class='" + NOT_TAILORED + "'>not tailored</span> (added from standard exemplars for context)</li>" + LS
@@ -84,13 +89,16 @@ public class ChartCollation extends Chart {
 
     @Override
     public String getExplanation() {
-        return "<p>Collation tailorings provide language or locale-specific modifications of the standard Unicode CLDR collation order, "
+        return "<p>This is a <i>preliminary</i> set of charts for CLDR collation tailorings. "
+            + "Collation tailorings provide language or locale-specific modifications of the standard Unicode CLDR collation order, "
             + "which is based on <a target='_blank' href='http://unicode.org/charts/collation/'>Unicode default collation charts</a>. "
-            + "Locales that just use the standard CLDR order (<a href='root.html'>Root</a>) are not listed.</p>"
-            + dataScrapeMessage("/tr35-collation.html", "common/testData/units/unitsTest.txt", "common/collation")+ LS;
+            + "Locales that just use the standard CLDR order are not listed. "
+            + "For more information, see the "
+            + "<a target='_blank' href='http://unicode.org/reports/tr35/tr35-collation.html'>LDML Collation spec</a>. "
+            + "The complete data for these charts is in "
+            + "<a target='_blank' href='" + ToolConstants.CHART_SOURCE + "common/collation/'>collation/</a>.</p>" + LS;
     }
 
-    @Override
     public void writeContents(FormattedFileWriter pw) throws IOException {
         FileCopier.ensureDirectoryExists(DIR);
         FileCopier.copy(Chart.class, "index.css", DIR);
@@ -211,13 +219,11 @@ public class ChartCollation extends Chart {
         if (dataItem == null) {
             data.put(type, dataItem = new Data());
         }
-        dataItem.settings.add(leaf + ":" + Joiner.on(";").join(settings));
+        dataItem.settings.add(leaf + ":" + CollectionUtilities.join(settings, ";"));
     }
 
     private void addCollator(Map<String, Data> data, String type, RuleBasedCollator col) {
         if (type.startsWith("private-")) {
-            type = "\uFFFF\uFFFF" + type;
-        } else if (type.equals("search")) {
             type = "\uFFFF" + type;
         }
         Data dataItem = data.get(type);
@@ -263,31 +269,24 @@ public class ChartCollation extends Chart {
 
         @Override
         public String getExplanation() {
-            return "<p>The following illustrates the ordering for the " + title
-                + " collation tailorings. It does not show the <i>strength differences</i>, such as where case is ignored where there are letter differences. "
-                + " The <i>search</i> order is special: it only used for comparing characters for similarity, so the order among the characters does not matter. "
-                + " Where a type is not present, such as <i>emoji</i> or <i>search</i>, it defaults to the <a href='root.html'>Root</a> type.</p>" + LS
-                + KNOWN_PROBLEMS
-                + dataScrapeMessage("/tr35-collation.html", null, "common/collation") + LS
-                ;
+            return "<p>This is a <i>preliminary</i> chart for the " + title
+                + " collation tailorings. "
+                + "The complete data for this chart is found on "
+                + "<a target='_blank' href='" + ToolConstants.CHART_SOURCE + "common/collation/" + file + ".xml'>" + file + ".xml</a>.</p>"
+                + KNOWN_PROBLEMS;
         }
 
         @Override
         public void writeContents(FormattedFileWriter pw) throws IOException {
 
             CLDRFile cldrFile = CLDR_FACTORY.make(file, true);
-            UnicodeSet exemplars_all = new UnicodeSet();
-            for (ExemplarType ex : ExemplarType.values()) {
-                UnicodeSet possExemplars = cldrFile.getExemplarSet(ex, WinningChoice.WINNING).freeze();
-                exemplars_all.addAll(possExemplars);
-            }
-//            UnicodeSet exemplars = cldrFile.getExemplarSet("", WinningChoice.WINNING).freeze();
-//
-//            UnicodeSet exemplars_all = new UnicodeSet(exemplars);
-//            UnicodeSet exemplars_auxiliary = cldrFile.getExemplarSet("auxiliary", WinningChoice.WINNING);
-//            UnicodeSet exemplars_punctuation = cldrFile.getExemplarSet("punctuation", WinningChoice.WINNING);
-//            exemplars_all.addAll(exemplars_auxiliary)
-//                .addAll(exemplars_punctuation);
+            UnicodeSet exemplars = cldrFile.getExemplarSet("", WinningChoice.WINNING).freeze();
+
+            UnicodeSet exemplars_all = new UnicodeSet(exemplars);
+            UnicodeSet exemplars_auxiliary = cldrFile.getExemplarSet("auxiliary", WinningChoice.WINNING);
+            UnicodeSet exemplars_punctuation = cldrFile.getExemplarSet("punctuation", WinningChoice.WINNING);
+            exemplars_all.addAll(exemplars_auxiliary)
+                .addAll(exemplars_punctuation);
 
             for (NumberingSystem system : NumberingSystem.values()) {
                 UnicodeSet exemplars_numeric = cldrFile.getExemplarsNumeric(system);
@@ -312,7 +311,7 @@ public class ChartCollation extends Chart {
                 Set<String> settings = entry.getValue().settings;
                 StringBuilder list = new StringBuilder();
                 if (!settings.isEmpty()) {
-                    list.append(Joiner.on("<br>").join(settings));
+                    list.append(CollectionUtilities.join(settings, "<br>"));
                     list.append("<br><b><i>plus</i></b><br>");
                 }
                 if (col == null) {
@@ -320,7 +319,7 @@ public class ChartCollation extends Chart {
                 } else {
                     UnicodeSet tailored = new UnicodeSet(col.getTailoredSet());
                     Set<String> sorted = new TreeSet<>(col);
-                    exemplars_all.addAllTo(sorted);
+                    exemplars.addAllTo(sorted);
                     tailored.addAllTo(sorted);
                     boolean first = true;
                     for (String s : sorted) {
@@ -350,9 +349,9 @@ public class ChartCollation extends Chart {
                     }
                 }
                 tablePrinter
-                .addRow()
-                .addCell(type)
-                .addCell(list.toString());
+                    .addRow()
+                    .addCell(type)
+                    .addCell(list.toString());
                 tablePrinter.finishRow();
             }
             pw.write(tablePrinter.toTable());

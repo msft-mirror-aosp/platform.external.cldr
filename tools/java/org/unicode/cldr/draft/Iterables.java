@@ -9,7 +9,7 @@ import com.ibm.icu.text.Transform;
 
 public final class Iterables<T> implements Iterable<T>, Iterator<T> {
 
-    private List<Iterator<T>> iterators = new ArrayList<>();
+    private List<Iterator<T>> iterators = new ArrayList<Iterator<T>>();
     private Iterator<T> current = null;
     private int position = 0;
 
@@ -30,11 +30,11 @@ public final class Iterables<T> implements Iterable<T>, Iterator<T> {
     }
 
     public <S> Iterables<T> and(Transform<S, T> transform, Iterator<S> iteratorsIn) {
-        return and(new TransformIterator<>(transform, iteratorsIn));
+        return and(new TransformIterator<S, T>(transform, iteratorsIn));
     }
 
     public <S> Iterables<T> and(Transform<S, T> transform, Iterable<S> iteratorsIn) {
-        return and(new TransformIterator<>(transform, iteratorsIn.iterator()));
+        return and(new TransformIterator<S, T>(transform, iteratorsIn.iterator()));
     }
 
     public <S> Iterables<T> and(Transform<S, T> transform, S... iteratorsIn) {
@@ -67,12 +67,10 @@ public final class Iterables<T> implements Iterable<T>, Iterator<T> {
     // return new Iterables<T>().and(iteratorsIn);
     // }
 
-    @Override
     public Iterator<T> iterator() {
         return this;
     }
 
-    @Override
     public boolean hasNext() {
         while (current != null) {
             if (current.hasNext()) {
@@ -88,12 +86,10 @@ public final class Iterables<T> implements Iterable<T>, Iterator<T> {
         return false;
     }
 
-    @Override
     public T next() {
         return current.next();
     }
 
-    @Override
     public void remove() {
         current.remove();
     }
@@ -108,17 +104,14 @@ public final class Iterables<T> implements Iterable<T>, Iterator<T> {
             this.transform = transform;
         }
 
-        @Override
         public boolean hasNext() {
             return iterator.hasNext();
         }
 
-        @Override
         public T next() {
             return transform.transform(iterator.next());
         }
 
-        @Override
         public void remove() {
             iterator.remove();
         }

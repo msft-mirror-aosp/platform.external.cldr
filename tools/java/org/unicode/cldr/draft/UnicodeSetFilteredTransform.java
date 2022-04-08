@@ -5,7 +5,7 @@ import com.ibm.icu.text.UnicodeSet;
 
 /**
  * Immutable StringTransform using a UnicodeSet.
- *
+ * 
  * @author markdavis
  */
 public class UnicodeSetFilteredTransform extends FilteredTransform {
@@ -13,7 +13,7 @@ public class UnicodeSetFilteredTransform extends FilteredTransform {
 
     public UnicodeSetFilteredTransform(UnicodeSet filter, StringTransform result) {
         super(result);
-        unicodeSet = filter.freeze();
+        unicodeSet = (UnicodeSet) filter.freeze();
     }
 
     // TODO optimize scanning, add strings
@@ -51,7 +51,6 @@ public class UnicodeSetFilteredTransform extends FilteredTransform {
         return true;
     }
 
-    @Override
     public String toString() {
         return ":: " + unicodeSet.toPattern(false) + ";\n" + super.toString();
     }

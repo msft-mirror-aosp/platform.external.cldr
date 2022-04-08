@@ -56,7 +56,6 @@ public class TimezoneFormatter extends UFormat {
 
     public enum Location {
         GMT, LOCATION, NON_LOCATION;
-        @Override
         public String toString() {
             return this == GMT ? "gmt" : this == LOCATION ? "location" : "non-location";
         }
@@ -68,7 +67,6 @@ public class TimezoneFormatter extends UFormat {
             return this == GENERIC ? "generic" : daylight ? "daylight" : "standard";
         }
 
-        @Override
         public String toString() {
             return name().toLowerCase(Locale.ENGLISH);
         }
@@ -76,7 +74,6 @@ public class TimezoneFormatter extends UFormat {
 
     public enum Length {
         SHORT, LONG, OTHER;
-        @Override
         public String toString() {
             return this == SHORT ? "short" : this == LONG ? "long" : "other";
         }
@@ -95,7 +92,7 @@ public class TimezoneFormatter extends UFormat {
             this.location = location;
             this.length = length;
         }
-    }
+    };
 
     // /**
     // * Type parameter for formatting
@@ -176,12 +173,9 @@ public class TimezoneFormatter extends UFormat {
         String temp = desiredLocaleFile.getFullXPath("//ldml/dates/timeZoneNames/singleCountries");
         if (temp != null) {
             XPathParts xpp = XPathParts.getFrozenInstance(temp);
-            temp = xpp.findAttributeValue("singleCountries", "list");
-            if (temp != null) {
-                singleCountriesList = temp;
-            }
+            singleCountriesList = (String) xpp.findAttributeValue("singleCountries", "list");
         }
-        singleCountriesSet = new TreeSet<>(CldrUtility.splitList(singleCountriesList, ' '));
+        singleCountriesSet = new TreeSet<String>(CldrUtility.splitList(singleCountriesList, ' '));
     }
 
     /**
@@ -532,10 +526,10 @@ public class TimezoneFormatter extends UFormat {
     private transient Matcher m = PatternCache.get("([-+])([0-9][0-9])([0-9][0-9])").matcher("");
 
     private transient boolean parseInfoBuilt;
-    private transient final Map<String, String> localizedCountry_countryCode = new HashMap<>();
-    private transient final Map<String, String> exemplar_zone = new HashMap<>();
-    private transient final Map<Object, Object> localizedExplicit_zone = new HashMap<>();
-    private transient final Map<String, String> country_zone = new HashMap<>();
+    private transient final Map<String, String> localizedCountry_countryCode = new HashMap<String, String>();
+    private transient final Map<String, String> exemplar_zone = new HashMap<String, String>();
+    private transient final Map<Object, Object> localizedExplicit_zone = new HashMap<Object, Object>();
+    private transient final Map<String, String> country_zone = new HashMap<String, String>();
 
     /**
      * Returns zoneid. In case of an offset, returns "Etc/GMT+/-HH" or "Etc/GMT+/-HHmm".
@@ -630,13 +624,13 @@ public class TimezoneFormatter extends UFormat {
             // at this point, we don't really need the country, so ignore it
             // the city could be the last field of a zone, or could be an exemplar city
             // we have built the map so that both work
-            return exemplar_zone.get(city);
+            return (String) exemplar_zone.get(city);
         }
 
         // see if the string is a localized country
-        String countryCode = localizedCountry_countryCode.get(inputText);
+        String countryCode = (String) localizedCountry_countryCode.get(inputText);
         if (countryCode == null) countryCode = country; // if not, try raw code
-        return country_zone.get(countryCode);
+        return (String) country_zone.get(countryCode);
     }
 
     /**
@@ -662,8 +656,8 @@ public class TimezoneFormatter extends UFormat {
         // now add exemplar cities, AND pick up explicit strings, AND localized countries
         String prefix = "//ldml/dates/timeZoneNames/zone[@type=\"";
         String countryPrefix = "//ldml/localeDisplayNames/territories/territory[@type=\"";
-        Map<String, Comparable> localizedNonWall = new HashMap<>();
-        Set<String> skipDuplicates = new HashSet<>();
+        Map<String, Comparable> localizedNonWall = new HashMap<String, Comparable>();
+        Set<String> skipDuplicates = new HashSet<String>();
         for (Iterator<String> it = desiredLocaleFile.iterator(); it.hasNext();) {
             String path = it.next();
             // dumb, simple implementation
@@ -721,7 +715,7 @@ public class TimezoneFormatter extends UFormat {
             if (tzids.length == 1) {
                 country_zone.put(key, tzids[0]);
             } else {
-                Set<String> set = new LinkedHashSet<>(Arrays.asList(tzids)); // make modifyable
+                Set<String> set = new LinkedHashSet<String>(Arrays.asList(tzids)); // make modifyable
                 set.retainAll(singleCountriesSet);
                 if (set.size() == 1) {
                     country_zone.put(key, set.iterator().next());
@@ -766,7 +760,6 @@ public class TimezoneFormatter extends UFormat {
         return this;
     }
 
-    @Override
     public Object parseObject(String source, ParsePosition pos) {
         TimeZone foo;
         CurrencyAmount fii;
@@ -774,7 +767,6 @@ public class TimezoneFormatter extends UFormat {
         return null;
     }
 
-    @Override
     public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
         // TODO Auto-generated method stub
         return null;

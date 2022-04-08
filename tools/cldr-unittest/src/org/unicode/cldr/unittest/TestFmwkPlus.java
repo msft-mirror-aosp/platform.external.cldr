@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.unicode.cldr.util.CldrUtility;
 
-import com.google.common.base.Joiner;
 import com.ibm.icu.dev.test.TestFmwk;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.text.Transform;
 import com.ibm.icu.text.Transliterator;
 import com.ibm.icu.text.UnicodeSet;
@@ -160,7 +160,7 @@ public class TestFmwkPlus extends TestFmwk {
 
         @Override
         public String toString() {
-            return Joiner.on(" and ").join(others);
+            return CollectionUtilities.join(others, " and ");
         }
     }
 
@@ -185,7 +185,7 @@ public class TestFmwkPlus extends TestFmwk {
 
         @Override
         public String toString() {
-            return Joiner.on(" or ").join(others);
+            return CollectionUtilities.join(others, " or ");
         }
     }
 
@@ -336,7 +336,6 @@ public class TestFmwkPlus extends TestFmwk {
             return true;
         }
 
-        @Override
         public String showFirst(UnicodeSet a) {
             return show(a.toPattern(false));
         }

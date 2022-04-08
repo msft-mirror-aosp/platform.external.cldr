@@ -28,9 +28,10 @@ import java.util.regex.Matcher;
 
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.test.ExampleGenerator;
+import org.unicode.cldr.test.ExampleGenerator.ExampleType;
 import org.unicode.cldr.tool.GenerateAttributeList;
 
-import com.google.common.base.Joiner;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UProperty;
@@ -55,7 +56,7 @@ public class TestUtilities {
     enum State {
         a, b, c;
         public static State cc = c;
-    }
+    };
 
     String s;
 
@@ -132,7 +133,7 @@ public class TestUtilities {
         for (String path : english) {
             String value = english.getStringValue(path);
             result.setLength(0);
-            String examples = englishExampleGenerator.getExampleHtml(path, value);
+            String examples = englishExampleGenerator.getExampleHtml(path, value, ExampleType.NATIVE);
             if (examples != null) {
                 result.append(examples).append("<hr>");
             }
@@ -166,8 +167,8 @@ public class TestUtilities {
     private static void checkNumericTimezone() throws IOException {
         String[] map_integer_zones = new String[1000];
         StandardCodes sc = StandardCodes.make();
-        Set<String> timezones = new TreeSet<>(sc.getGoodAvailableCodes("tzid"));
-        Map<String, Integer> map_timezone_integer = new TreeMap<>();
+        Set<String> timezones = new TreeSet<String>(sc.getGoodAvailableCodes("tzid"));
+        Map<String, Integer> map_timezone_integer = new TreeMap<String, Integer>();
         BufferedReader input = CldrUtility.getUTF8Data("timezone_numeric.txt");
         int maxNumeric = -1;
         Map<String, String> fixOld = sc.zoneParser.getZoneLinkold_new();
@@ -206,11 +207,11 @@ public class TestUtilities {
         RuleBasedCollator eng = (RuleBasedCollator) Collator.getInstance();
         eng.setNumericCollation(true);
 
-        Set<String> extra = new TreeSet<>(eng);
+        Set<String> extra = new TreeSet<String>(eng);
         extra.addAll(map_timezone_integer.keySet());
         extra.removeAll(timezones);
         System.out.println("Extra: " + extra);
-        Set<String> needed = new TreeSet<>(eng);
+        Set<String> needed = new TreeSet<String>(eng);
         needed.addAll(timezones);
         needed.removeAll(map_timezone_integer.keySet());
         System.out.println("Needed: " + needed);
@@ -218,7 +219,7 @@ public class TestUtilities {
         // fill in the slots with the missing items
         // make Etc/GMT go first
         int numeric = 1;
-        List<String> ordered = new ArrayList<>(needed);
+        List<String> ordered = new ArrayList<String>(needed);
         // if (ordered.contains("Etc/GMT")) {
         // ordered.remove("Etc/GMT");
         // ordered.add(0,"Etc/GMT");
@@ -235,7 +236,7 @@ public class TestUtilities {
 
         // print it out
         Map<String, Set<String>> equiv = sc.zoneParser.getZoneLinkNew_OldSet();
-        Set<String> old = new TreeSet<>();
+        Set<String> old = new TreeSet<String>();
         for (int i = 1; i <= maxNumeric; ++i) {
             Set<String> s = equiv.get(map_integer_zones[i]);
             if (s != null) {
@@ -303,7 +304,7 @@ public class TestUtilities {
             "comment",
             // collation
             "base", "settings", "suppress_contractions", "optimize", "rules" };
-        String list = String.join(" ", elements);
+        String list = CollectionUtilities.join(elements, " ");
         String prefix = "//supplementalData[@version=\"1.4\"]/metaData/";
         meta.add(prefix + "elementOrder", list);
 
@@ -320,7 +321,7 @@ public class TestUtilities {
             "validSubLocales", "standard", "references", "elements", "element", "attributes", "attribute",
             // these are always at the end
             "alt", "draft", };
-        meta.add(prefix + "attributeOrder", String.join(" ", attOrder));
+        meta.add(prefix + "attributeOrder", CollectionUtilities.join(attOrder, " "));
 
         String[] serialElements = new String[] { "variable", "comment",
             "tRule",
@@ -329,7 +330,7 @@ public class TestUtilities {
             "first_tertiary_ignorable", "last_tertiary_ignorable",
             "first_secondary_ignorable", "last_secondary_ignorable", "first_primary_ignorable",
             "last_primary_ignorable", "first_non_ignorable", "last_non_ignorable", "first_trailing", "last_trailing" };
-        meta.add(prefix + "serialElements", String.join(" ", serialElements));
+        meta.add(prefix + "serialElements", CollectionUtilities.join(serialElements, " "));
         /*
          *
          * <attributeValues elements="weekendStart weekendEnd" attributes="day"
@@ -356,33 +357,33 @@ public class TestUtilities {
                 Set<String>[] valueSets = attribute_valueSet.get(attribute);
                 for (int i = 0; i < 2; ++i) {
                     meta.add(prefix + "valid/attributeValues" + "[@elements=\"" + element + "\"]" + "[@attributes=\""
-                        + attribute + "\"]" + (i == 1 ? "[@x=\"true\"]" : ""),
-                        Joiner.on(" ").join(valueSets[i]));
+                        + attribute + "\"]" + (i == 1 ? "[@x=\"true\"]" : ""), CollectionUtilities.join(
+                            valueSets[i], " "));
                 }
             }
         }
 
         String[] dayValueOrder = new String[] { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
         meta.add(prefix + "valid/attributeValues[@order=\"given\"][@attributes=\"type\"][@elements=\"" + "day" + "\"]",
-            String.join(" ", dayValueOrder));
+            CollectionUtilities.join(dayValueOrder, " "));
         meta.add(prefix + "valid/attributeValues[@order=\"given\"][@attributes=\"" + "day" + "\"][@elements=\""
-            + "firstDay weekendEnd weekendStart" + "\"]", String.join(" ", dayValueOrder));
+            + "firstDay weekendEnd weekendStart" + "\"]", CollectionUtilities.join(dayValueOrder, " "));
 
         String[] widths = { "monthWidth", "dayWidth", "quarterWidth" };
         String[] widthOrder = new String[] { "abbreviated", "narrow", "wide" };
         meta.add(prefix + "valid/attributeValues[@order=\"given\"][@attributes=\"type\"][@elements=\""
-            + String.join(" ", widths) + "\"]", String.join(" ", widthOrder));
+            + CollectionUtilities.join(widths, " ") + "\"]", CollectionUtilities.join(widthOrder, " "));
 
         String[] formatLengths = { "dateFormatLength", "timeFormatLength", "dateTimeFormatLength",
             "decimalFormatLength", "scientificFormatLength", "percentFormatLength", "currencyFormatLength" };
         String[] lengthOrder = new String[] { "full", "long", "medium", "short" };
         meta.add(prefix + "valid/attributeValues[@order=\"given\"][@attributes=\"type\"][@elements=\""
-            + String.join(" ", formatLengths) + "\"]", String.join(" ", lengthOrder));
+            + CollectionUtilities.join(formatLengths, " ") + "\"]", CollectionUtilities.join(lengthOrder, " "));
 
         String[] dateFieldOrder = new String[] { "era", "year", "month", "week", "day", "weekday", "dayperiod", "hour",
             "minute", "second", "zone" };
         meta.add(prefix + "valid/attributeValues[@order=\"given\"][@attributes=\"type\"][@elements=\"field\"]",
-            String.join(" ", dateFieldOrder));
+            CollectionUtilities.join(dateFieldOrder, " "));
 
         String[][] suppressData = { { "ldml", "version", "*" }, { "orientation", "characters", "left-to-right" },
             { "orientation", "lines", "top-to-bottom" }, { "weekendStart", "time", "00:00" },
@@ -412,23 +413,19 @@ public class TestUtilities {
 
     static class MyHandler extends XMLFileReader.SimpleHandler {
 
-        @Override
         public void handleAttributeDecl(String eName, String aName, String type, String mode, String value) {
             System.out.println("eName: " + eName + ",\t aName: " + aName + ",\t type: " + type + ",\t mode: " + mode
                 + ",\t value: " + value);
         }
 
-        @Override
         public void handleElementDecl(String name, String model) {
             System.out.println("name: " + name + ",\t model: " + model);
         }
 
-        @Override
         public void handlePathValue(String path, String value) {
             System.out.println("path: " + path + ",\t value: " + value);
         }
 
-        @Override
         public void handleComment(String path, String comment) {
             System.out.println("path: " + path + ",\t comment: " + comment);
         }
@@ -519,11 +516,11 @@ public class TestUtilities {
 
             String oldType = type.equals("region") ? "territory" : type;
             Set<String> allCodes = sc.getAvailableCodes(oldType);
-            Set<String> temp = new TreeSet<>(subtagData.keySet());
+            Set<String> temp = new TreeSet<String>(subtagData.keySet());
             temp.removeAll(allCodes);
             System.out.println(type + "\t in new but not old\t" + temp);
 
-            temp = new TreeSet<>(allCodes);
+            temp = new TreeSet<String>(allCodes);
             temp.removeAll(subtagData.keySet());
             System.out.println(type + "\t in old but not new\t" + temp);
         }
@@ -568,9 +565,9 @@ public class TestUtilities {
             Map<String, Map<String, String>> subtagData = m.get(type);
             String oldType = type.equals("region") ? "territory" : type;
 
-            String aliasType =oldType.equals("legacy") ? "language" : oldType;
-            Set<String> allCodes = new TreeSet<>();
-            Set<String> deprecatedCodes = new TreeSet<>();
+            String aliasType = oldType.equals("grandfathered") ? "language" : oldType;
+            Set<String> allCodes = new TreeSet<String>();
+            Set<String> deprecatedCodes = new TreeSet<String>();
 
             for (Iterator<String> it2 = subtagData.keySet().iterator(); it2.hasNext();) {
                 String tag = it2.next();
@@ -589,7 +586,7 @@ public class TestUtilities {
             }
             // get old ones
             Set<String> goodCodes = sc.getAvailableCodes(oldType);
-            TreeSet<String> oldAndNotNew = new TreeSet<>(goodCodes);
+            TreeSet<String> oldAndNotNew = new TreeSet<String>(goodCodes);
             oldAndNotNew.removeAll(allCodes);
             oldAndNotNew.removeAll(deprecatedCodes);
             for (Iterator<String> it2 = oldAndNotNew.iterator(); it2.hasNext();) {
@@ -599,7 +596,7 @@ public class TestUtilities {
                 System.out.println("\t\t\t<" + aliasType + "Alias type=\"" + tag + "\" replacement=\"" + preferred
                     + "\"/> <!-- CLDR:" + sdata.get(0) + " -->");
             }
-            String allCodeString = Joiner.on(" ").join(allCodes);
+            String allCodeString = CollectionUtilities.join(allCodes, " ");
             System.out
                 .println("\t\t\t<variable id=\"$" + oldType + "\" type=\"list\">" + allCodeString + "</variable>");
         }
@@ -618,12 +615,12 @@ public class TestUtilities {
 
         Factory mainCldrFactory = Factory.make(CLDRPaths.COMMON_DIRECTORY + "main" + File.separator, ".*");
         Set<String> availableLocales = mainCldrFactory.getAvailable();
-        Set<String> available = new TreeSet<>();
+        Set<String> available = new TreeSet<String>();
         LocaleIDParser lip = new LocaleIDParser();
         for (Iterator<String> it = availableLocales.iterator(); it.hasNext();) {
             available.add(lip.set(it.next()).getLanguage());
         }
-        Set<String> langHack = new TreeSet<>();
+        Set<String> langHack = new TreeSet<String>();
         for (int i = 0; i < language_territory_hack.length; ++i) {
             String lang = language_territory_hack[i][0];
             langHack.add(lang);

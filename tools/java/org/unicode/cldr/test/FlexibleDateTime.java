@@ -81,20 +81,20 @@ public class FlexibleDateTime {
 
     static class LocaleIDFixer {
         LocaleIDParser lip = new LocaleIDParser();
-        static final Set<String> mainLocales = new HashSet<>(
+        static final Set<String> mainLocales = new HashSet<String>(
             Arrays.asList(new String[] { "ar_EG", "bn_IN", "de_DE", "en_US", "es_ES", "fr_FR", "it_IT", "nl_NL", "pt_BR", "sv_SE", "zh_TW" }));
         DeprecatedCodeFixer dcf = new DeprecatedCodeFixer();
 
         Map<String, String> fixLocales(Collection<String> available, Map<String, String> result) {
             // find the multi-country locales
-            Map<String, Set<String>> language_locales = new HashMap<>();
+            Map<String, Set<String>> language_locales = new HashMap<String, Set<String>>();
             for (String locale : available) {
                 String fixedLocale = dcf.fixLocale(locale);
                 result.put(locale, fixedLocale);
                 String language = lip.set(fixedLocale).getLanguageScript();
                 Set<String> locales = language_locales.get(language);
                 if (locales == null) {
-                    language_locales.put(language, locales = new HashSet<>());
+                    language_locales.put(language, locales = new HashSet<String>());
                 }
                 locales.add(locale);
             }
@@ -106,7 +106,7 @@ public class FlexibleDateTime {
                     result.put(locales.iterator().next(), language);
                     continue;
                 }
-                Set<String> intersect = new HashSet<>(mainLocales);
+                Set<String> intersect = new HashSet<String>(mainLocales);
                 intersect.retainAll(locales);
                 if (intersect.size() == 1) {
                     // the intersection is the parent, so overwrite it
@@ -124,8 +124,8 @@ public class FlexibleDateTime {
     }
 
     static class DeprecatedCodeFixer {
-        Map<String, String> languageAlias = new HashMap<>();
-        Map<String, String> territoryAlias = new HashMap<>();
+        Map<String, String> languageAlias = new HashMap<String, String>();
+        Map<String, String> territoryAlias = new HashMap<String, String>();
         {
             Factory cldrFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
             CLDRFile supp = cldrFactory.make(CLDRFile.SUPPLEMENTAL_NAME, false);
@@ -139,7 +139,7 @@ public class FlexibleDateTime {
                 } else if (parts.getElement(3).equals("territoryAlias")) {
                     territoryAlias.put(type, replacement);
                 } else {
-                    throw new IllegalArgumentException("Unexpected type: " + path);
+                    throw new IllegalArgumentException("Unexpected type: " + path);                    
                 }
             }
             // special hack for OpenOffice
@@ -151,7 +151,7 @@ public class FlexibleDateTime {
         String fixLocale(String locale) {
             lip.set(locale);
             String territory = lip.getRegion();
-            String replacement = territoryAlias.get(territory);
+            String replacement = (String) territoryAlias.get(territory);
             if (replacement != null) {
                 lip.setRegion(replacement);
             }
@@ -349,7 +349,6 @@ public class FlexibleDateTime {
     static Date TEST_DATE = new Date(104, 8, 13, 23, 58, 59);
 
     static Comparator<Collection<String>> VariableFieldComparator = new Comparator<Collection<String>>() {
-        @Override
         public int compare(Collection<String> a, Collection<String> b) {
             if (a.size() != b.size()) {
                 if (a.size() < b.size()) return 1;
@@ -370,7 +369,7 @@ public class FlexibleDateTime {
         "[A a c D d E e F G g h H K k L m M q Q s S u v W w Y y z Z]");
 
     static Collection<String> getOOData(Factory cldrFactory, String locale) {
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
         OOConverter ooConverter = new OOConverter();
         {
             if (SHOW_OO) {

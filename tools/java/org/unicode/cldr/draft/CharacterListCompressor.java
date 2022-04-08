@@ -14,13 +14,13 @@ import com.ibm.icu.text.UCharacterIterator;
 /**
  * Compresses list of Unicode character ranges given as starting and ending char
  * into a Base88 string.
- *
+ * 
  * Compression usage:
  * String encodedStr = base88EncodeList(List<Interval>);
- *
+ * 
  * Decompression usage:
  * List<Interval> decodedStrList = base88DecodeList(encodedStr);
- *
+ * 
  * Interval has two integers - first, last - to represent the range.
  */
 
@@ -35,7 +35,6 @@ public class CharacterListCompressor {
             this.last = last;
         }
 
-        @Override
         public String toString() {
             return "«" + first + "-" + last + "»";
         }
@@ -55,7 +54,7 @@ public class CharacterListCompressor {
 
     public static List<Integer> unicode2Base88(int code) {
 
-        List<Integer> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<Integer>();
         int rem = code % 88;
         list.add(rem);
         code = code / 88;
@@ -104,7 +103,7 @@ public class CharacterListCompressor {
         List<Integer> list = str2list(str);
 
         int metawindowsize = 8;
-        List<List<Integer>> result = new ArrayList<>();
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
         int i = 0;
 
         while (i < list.size()) {
@@ -134,14 +133,14 @@ public class CharacterListCompressor {
     }
 
     public static void addPair(List<List<Integer>> pairs, int value, int type) {
-        List<Integer> pair = new ArrayList<>();
+        List<Integer> pair = new ArrayList<Integer>();
         pair.add(value);
         pair.add(type);
         pairs.add(pair);
     }
 
     public static String encodeValueTypePairs2Base88(List<List<Integer>> pairs) {
-        List<Integer> result = new ArrayList<>();
+        List<Integer> result = new ArrayList<Integer>();
         for (int i = 0; i < pairs.size(); i++) {
             List<Integer> pair = pairs.get(i);
             result.addAll(compressPair2Base88(pair));
@@ -162,7 +161,7 @@ public class CharacterListCompressor {
     }
 
     public static List<Integer> str2list(String str) {
-        List<Integer> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
             int code = ascii.indexOf(ch);
@@ -190,7 +189,7 @@ public class CharacterListCompressor {
 
     // Value Type pairs -- Str Range List
     public static List<List<Integer>> getValueTypePairsFromStrRangeList(List<Interval> ilist) {
-        List<List<Integer>> result = new ArrayList<>();
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
         int lastCode = 0;
 
         for (int i = 0; i < ilist.size(); i++) {
@@ -226,7 +225,7 @@ public class CharacterListCompressor {
     }
 
     public static List<Interval> getStrRangeListFromValueTypePairs(List<List<Integer>> pairs) {
-        ArrayList<Interval> result = new ArrayList<>();
+        ArrayList<Interval> result = new ArrayList<Interval>();
 
         int lastCode = 0;
         for (int i = 0; i < pairs.size(); i++) {
@@ -259,7 +258,7 @@ public class CharacterListCompressor {
     // Str Range List -- Range Str
 
     public static List<Interval> getStrRangeListFromRangeStr(String str) {
-        ArrayList<Interval> result = new ArrayList<>();
+        ArrayList<Interval> result = new ArrayList<Interval>();
         final UCharacterIterator it = UCharacterIterator.getInstance(str);
 
         int first;

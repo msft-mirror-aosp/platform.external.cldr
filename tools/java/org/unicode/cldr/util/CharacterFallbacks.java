@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CharacterFallbacks {
     private static CharacterFallbacks SINGLETON = new CharacterFallbacks();
-    private HashMap<Integer, List<String>> data = new HashMap<>();
+    private HashMap<Integer, List<String>> data = new HashMap<Integer, List<String>>();
 
     static public CharacterFallbacks make() {
         return SINGLETON;
@@ -41,7 +41,7 @@ public class CharacterFallbacks {
 
             List<String> substitutes = data.get(cp);
             if (substitutes == null) {
-                data.put(cp, substitutes = new ArrayList<>());
+                data.put(cp, substitutes = new ArrayList<String>());
             }
             substitutes.add(substitute);
         }

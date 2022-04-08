@@ -170,7 +170,6 @@ public final class TestUtil {
             lock.inc();
         }
 
-        @Override
         public void run() {
             try {
                 synchronized (lock) {

@@ -129,7 +129,6 @@ public class RegexModify {
             return count;
         }
 
-        @Override
         public String apply(String line) {
             if (lineMatcher.reset(line).matches()) {
                 String oldLine = line;

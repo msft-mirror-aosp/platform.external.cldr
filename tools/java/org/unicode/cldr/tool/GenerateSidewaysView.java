@@ -143,7 +143,7 @@ public class GenerateSidewaysView {
         UCA = new org.unicode.cldr.util.MultiComparator(UCA2, new UTF16.StringComparator(true, false, 0));
     }
 
-    private static Map<PathHeader, Map<String, Set<String>>> path_value_locales = new TreeMap<>();
+    private static Map<PathHeader, Map<String, Set<String>>> path_value_locales = new TreeMap<PathHeader, Map<String, Set<String>>>();
     private static long startTime = System.currentTimeMillis();
 
     static RuleBasedCollator standardCollation = (RuleBasedCollator) Collator.getInstance(ULocale.ENGLISH);
@@ -309,6 +309,14 @@ public class GenerateSidewaysView {
             .format((System.currentTimeMillis() - startTime) / 1000.0));
     }
 
+    // static Comparator UCA;
+    // static {
+    // RuleBasedCollator UCA2 = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
+    // UCA2.setNumericCollation(true);
+    // UCA2.setStrength(UCA2.IDENTICAL);
+    // UCA = new CollectionUtilities.MultiComparator(UCA2, new UTF16.StringComparator(true, false, 0) );
+    // }
+
     static final String[][] EXEMPLARS = {
         { "//ldml/characters/exemplarCharacters", "main", "Main Exemplars" },
         { "//ldml/characters/exemplarCharacters[@type=\"punctuation\"]", "punctuation", "Punctuation Exemplars" },
@@ -326,7 +334,7 @@ public class GenerateSidewaysView {
 
         // TODO change logic so that aux characters characters work well.
 
-        Map<String, UnicodeMap<Set<String>>> script_UnicodeMap = new TreeMap<>();
+        Map<String, UnicodeMap<Set<String>>> script_UnicodeMap = new TreeMap<String, UnicodeMap<Set<String>>>();
         // UnicodeMap mapping = new UnicodeMap();
         UnicodeSet stuffToSkip = new UnicodeSet("[:Han:]");
 
@@ -363,12 +371,12 @@ public class GenerateSidewaysView {
                 if (script == null) {
                     script = UScript.getName(UScript.UNKNOWN);
                 }
-                Set<String> temp = new HashSet<>();
+                Set<String> temp = new HashSet<String>();
                 temp.add(locale);
                 checkTr(script_UnicodeMap);
                 UnicodeMap<Set<String>> mapping = script_UnicodeMap.get(script);
                 if (mapping == null) {
-                    script_UnicodeMap.put(script, mapping = new UnicodeMap<>());
+                    script_UnicodeMap.put(script, mapping = new UnicodeMap<Set<String>>());
                 }
                 checkTr(script_UnicodeMap);
                 mapping.composeWith(exemplars, temp, setComposer);
@@ -405,9 +413,9 @@ public class GenerateSidewaysView {
             return; // skip these
         }
         // find out all the locales and all the characters
-        Set<String> allLocales = new TreeSet<>(UCA);
-        Set<String> allChars = new TreeSet<>(UCA);
-        Set<String> allStrings = new TreeSet<>(UCA);
+        Set<String> allLocales = new TreeSet<String>(UCA);
+        Set<String> allChars = new TreeSet<String>(UCA);
+        Set<String> allStrings = new TreeSet<String>(UCA);
         for (Set<String> locales : mapping.getAvailableValues()) {
             allLocales.addAll(locales);
             UnicodeSet unicodeSet = mapping.keySet(locales);
@@ -594,21 +602,20 @@ public class GenerateSidewaysView {
     // }
 
     static UnicodeMap.Composer<Set<String>> setComposer = new UnicodeMap.Composer<Set<String>>() {
-        @Override
         public Set<String> compose(int codepoint, String string, Set<String> a, Set<String> b) {
             if (a == null) {
                 return b;
             } else if (b == null) {
                 return a;
             } else {
-                TreeSet<String> result = new TreeSet<>(a);
+                TreeSet<String> result = new TreeSet<String>(a);
                 result.addAll(b);
                 return result;
             }
         }
     };
 
-    static Map<String, String> LOCALE_TO_SCRIPT = new HashMap<>();
+    static Map<String, String> LOCALE_TO_SCRIPT = new HashMap<String, String>();
 
     private static void loadInformation(Factory cldrFactory) {
         Set<String> alllocales = cldrFactory.getAvailable();
@@ -664,12 +671,12 @@ public class GenerateSidewaysView {
                 }
                 Map<String, Set<String>> value_locales = path_value_locales.get(cleanPath);
                 if (value_locales == null) {
-                    path_value_locales.put(cleanPath, value_locales = new TreeMap<>(
+                    path_value_locales.put(cleanPath, value_locales = new TreeMap<String, Set<String>>(
                         standardCollation));
                 }
                 Set<String> locales = value_locales.get(value);
                 if (locales == null) {
-                    value_locales.put(value, locales = new TreeSet<>());
+                    value_locales.put(value, locales = new TreeSet<String>());
                 }
                 locales.add(localeID + postFix[0]);
             }
@@ -686,7 +693,7 @@ public class GenerateSidewaysView {
     static PathHeader.Factory pathHeaderFactory;
 
     /**
-     *
+     * 
      * @param path
      * @param localePrefix
      * @return
@@ -699,13 +706,13 @@ public class GenerateSidewaysView {
     }
 
     private static String removeAttributes(String xpath, Set<String> skipAttributes) {
-        XPathParts parts = XPathParts.getFrozenInstance(xpath).cloneAsThawed(); // not frozen, for removeAttributes
+        XPathParts parts = XPathParts.getInstance(xpath); // not frozen, for removeAttributes
         removeAttributes(parts, skipAttributes);
         return parts.toString();
     }
 
     /**
-     *
+     * 
      * @param parts
      * @param skipAttributes
      */
@@ -720,7 +727,7 @@ public class GenerateSidewaysView {
         }
     }
 
-    static Set<String> skipSet = new HashSet<>(Arrays.asList("draft", "alt"));
+    static Set<String> skipSet = new HashSet<String>(Arrays.asList("draft", "alt"));
 
     static Status status = new Status();
 
@@ -740,7 +747,7 @@ public class GenerateSidewaysView {
             return value;
         }
         if (value.length() == 0) {
-            XPathParts parts = XPathParts.getFrozenInstance(fullPath).cloneAsThawed(); // not frozen, for removeAttributes
+            XPathParts parts = XPathParts.getInstance(fullPath); // not frozen, for removeAttributes
             removeAttributes(parts, skipSet);
             int limit = parts.size();
             value = parts.toString(limit - 1, limit);
@@ -822,6 +829,10 @@ public class GenerateSidewaysView {
         ShowData.getChartTemplate("By-Type Chart: " + title,
             ToolConstants.CHART_DISPLAY_VERSION,
             "",
+            // "<link rel='stylesheet' type='text/css' href='by_type.css'>" +
+            // "<style type='text/css'>" + Utility.LINE_SEPARATOR +
+            // "h1 {margin-bottom:1em}" + Utility.LINE_SEPARATOR +
+            // "</style>" + Utility.LINE_SEPARATOR,
             headerAndFooter, null, false);
         out.println(headerAndFooter[0]);
         return out;
@@ -840,7 +851,7 @@ public class GenerateSidewaysView {
 
     private static void finishAll(PrintWriter out, PrintWriter tsvFile) {
         // TODO Auto-generated method stub
-        //tsvFile.println("# EOF");
+        tsvFile.println("# EOF");
         tsvFile.close();
     }
 }

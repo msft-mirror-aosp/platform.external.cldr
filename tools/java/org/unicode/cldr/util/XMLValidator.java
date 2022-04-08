@@ -90,7 +90,7 @@ public class XMLValidator {
             }
         })) {
             if (!quiet) System.out.println("Processing file " + s.getPath());
-            new fileParserThread(PathUtilities.getNormalizedPathString(s)).run();
+            new fileParserThread(s.getCanonicalPath()).run();
         }
     }
 
@@ -134,7 +134,15 @@ public class XMLValidator {
             return filename;
 
         File f = new File(filename);
-        String tmp = PathUtilities.getNormalizedPathString(f);
+        String tmp = null;
+        try {
+            // This normally gives a better path
+            tmp = f.getCanonicalPath();
+        } catch (IOException ioe) {
+            // But this can be used as a backup, for cases
+            // where the file does not exist, etc.
+            tmp = f.getAbsolutePath();
+        }
 
         // URLs must explicitly use only forward slashes
         if (File.separatorChar == '\\') {
@@ -158,7 +166,6 @@ public class XMLValidator {
             filename = _filename;
         }
 
-        @Override
         public void run() {
             // Force filerefs to be URI's if needed: note this is independent of any
             // other files
@@ -202,13 +209,11 @@ public class XMLValidator {
         // This is used to suppress validation warnings
         final String filename2 = filename;
         ErrorHandler nullHandler = new ErrorHandler() {
-            @Override
             public void warning(SAXParseException e) throws SAXException {
                 System.err.println(filename2 + ": Warning: " + e.getMessage());
 
             }
 
-            @Override
             public void error(SAXParseException e) throws SAXException {
                 int col = e.getColumnNumber();
                 System.err.println(filename2 + ":" + e.getLineNumber() + (col >= 0 ? ":" + col : "")
@@ -216,7 +221,6 @@ public class XMLValidator {
                     + " is not valid because " + e.getMessage());
             }
 
-            @Override
             public void fatalError(SAXParseException e) throws SAXException {
                 System.err.println(filename2 + ": ERROR ");
                 throw e;

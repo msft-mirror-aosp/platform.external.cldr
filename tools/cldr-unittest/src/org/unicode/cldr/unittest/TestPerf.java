@@ -15,6 +15,7 @@ import org.unicode.cldr.util.DtdType;
 import org.unicode.cldr.util.Timer;
 import org.unicode.cldr.util.XPathParts;
 
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.util.Output;
 
 public class TestPerf extends TestFmwkPlus {
@@ -32,8 +33,8 @@ public class TestPerf extends TestFmwkPlus {
 
     static {
         Set<String> testPaths_ = new HashSet<String>();
-        CLDRConfig.getInstance().getEnglish()
-            .forEach(testPaths_::add);
+        CollectionUtilities.addAll(CLDRConfig.getInstance().getEnglish()
+            .iterator(), testPaths_);
         testPaths = Collections.unmodifiableSet(testPaths_);
         Set<String> sorted = new TreeSet<String>(
             CLDRFile.getComparator(DtdType.ldml));
@@ -123,7 +124,7 @@ public class TestPerf extends TestFmwkPlus {
         int size = 0;
         for (String p : testPaths) {
             for (int i = 0; i < ITERATIONS; ++i) {
-                XPathParts xpp = XPathParts.getFrozenInstance(p);
+                XPathParts xpp = XPathParts.getInstance(p);
                 size += xpp.size();
             }
         }

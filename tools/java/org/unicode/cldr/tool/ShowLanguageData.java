@@ -18,7 +18,7 @@ public class ShowLanguageData {
 
     public static void main(String[] args) {
 
-        Map<String, Counter<String>> map = new TreeMap<>();
+        Map<String, Counter<String>> map = new TreeMap<String, Counter<String>>();
 
         for (String language : data.getLanguagesForTerritoriesPopulationData()) {
             if (language.equals("und")) {
@@ -27,7 +27,7 @@ public class ShowLanguageData {
             for (String territory : data.getTerritoriesForPopulationData(language)) {
                 Counter<String> langCounter = map.get(territory);
                 if (langCounter == null) {
-                    map.put(territory, langCounter = new Counter<>());
+                    map.put(territory, langCounter = new Counter<String>());
                 }
                 PopulationData popData = data.getLanguageAndTerritoryPopulationData(language, territory);
                 OfficialStatus status = popData.getOfficialStatus();

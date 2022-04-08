@@ -108,7 +108,7 @@ abstract public class Pick {
     static public Pick.Alternation or(int[] itemWeights, Object[] items) {
         return new Alternation().or2(itemWeights, items);
     }
-
+    
     static public Pick maybe(int percent, Object item) {
         return new Repeat(0, 1, new int[]{100-percent, percent}, item);
         //return Pick.or(1.0-percent, NOTHING).or2(percent, item);
@@ -116,7 +116,7 @@ abstract public class Pick {
     static public Pick repeat(int minCount, int maxCount, int itemWeights, Object item) {
         return new Repeat(minCount, maxCount, itemWeights, item);
     }
-
+    
     static public Pick codePoint(String source) {
         return new CodePoint(new UnicodeSet(source));
     }
@@ -162,14 +162,12 @@ abstract public class Pick {
             return this; // for chaining
         }
 
-        @Override
         protected void addTo(Target target) {
             for (int i = 0; i < items.length; ++i) {
                 items[i].addTo(target);
             }
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -186,7 +184,6 @@ abstract public class Pick {
         private Sequence() {
         }
 
-        @Override
         public boolean match(String input, Position p) {
             int originalIndex = p.index;
             for (int i = 0; i < items.length; ++i) {
@@ -234,12 +231,10 @@ abstract public class Pick {
             return this; // for chaining
         }
 
-        @Override
         protected void addTo(Target target) {
             items[weightedIndex.toIndex(target.nextDouble())].addTo(target);
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -256,7 +251,6 @@ abstract public class Pick {
         }
 
         // take first matching option
-        @Override
         public boolean match(String input, Position p) {
             for (int i = 0; i < weightedIndex.weights.length; ++i) {
                 if (p.isFailure(this, i)) continue;
@@ -294,7 +288,6 @@ abstract public class Pick {
             weightedIndex = new WeightedIndex(minCount).add(maxCount-minCount+1, 1);
         }
         */
-        @Override
         protected void addTo(Target target) {
             //int count ;
             for (int i = weightedIndex.toIndex(target.nextDouble()); i > 0; --i) {
@@ -302,7 +295,6 @@ abstract public class Pick {
             }
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -313,7 +305,6 @@ abstract public class Pick {
         }
 
         // match longest, e.g. up to just before a failure
-        @Override
         public boolean match(String input, Position p) {
             //int bestMatch = p.index;
             int count = 0;
@@ -341,12 +332,10 @@ abstract public class Pick {
             this.source = source;
         }
 
-        @Override
         protected void addTo(Target target) {
             target.append(source.charAt(pick(target.random, 0, source.size() - 1)));
         }
 
-        @Override
         public boolean match(String s, Position p) {
             int cp = UTF16.charAt(s, p.index);
             if (source.contains(cp)) {
@@ -357,7 +346,6 @@ abstract public class Pick {
             return false;
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -380,7 +368,6 @@ abstract public class Pick {
         private static final WeightedIndex choice = new WeightedIndex(0)
             .add(new int[] { 10, 10, 100, 10 });
 
-        @Override
         protected void addTo(Target target) {
             // get contents into separate buffer
             addBuffer.copyState(target);
@@ -395,7 +382,7 @@ abstract public class Pick {
                 int lastIndex = 0;
                 int newIndex = 0;
                 // the new length is a random value between old and new.
-                int newLenLimit = pick(target.random, lastValue.length(), newValue.length());
+                int newLenLimit = (int) pick(target.random, lastValue.length(), newValue.length());
 
                 while (mergeBuffer.length() < newLenLimit
                     && newIndex < newValue.length()
@@ -416,7 +403,6 @@ abstract public class Pick {
             if (DEBUG) System.out.println("Result: " + newValue);
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -428,7 +414,6 @@ abstract public class Pick {
         /* (non-Javadoc)
          * @see Pick#match(java.lang.String, Pick.Position)
          */
-        @Override
         public boolean match(String input, Position p) {
             // TODO Auto-generated method stub
             return false;
@@ -444,7 +429,7 @@ abstract public class Pick {
         return newIndex + UTF16.getCharCount(cp);
     }
 
-    /*
+    /*   
             // quoted add
             appendQuoted(target, addBuffer.toString(), quoteBuffer);
             // fix buffers
@@ -460,19 +445,16 @@ abstract public class Pick {
             super(item);
         }
 
-        @Override
         protected void addTo(Target target) {
             target.quoter.setQuoting(true);
             item.addTo(target);
             target.quoter.setQuoting(false);
         }
 
-        @Override
         public boolean match(String s, Position p) {
             return false;
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             String result = checkName(name, alreadySeen);
             if (result.startsWith("$")) return result;
@@ -482,7 +464,6 @@ abstract public class Pick {
     }
 
     private static class Literal extends FinalPick {
-        @Override
         public String toString() {
             return name;
         }
@@ -491,12 +472,10 @@ abstract public class Pick {
             this.name = source;
         }
 
-        @Override
         protected void addTo(Target target) {
             target.append(name);
         }
 
-        @Override
         public boolean match(String input, Position p) {
             int len = name.length();
             if (input.regionMatches(p.index, name, 0, len)) {
@@ -507,7 +486,6 @@ abstract public class Pick {
             return false;
         }
 
-        @Override
         public String getInternal(int depth, Set alreadySeen) {
             return "'" + name + "'";
         }
@@ -525,7 +503,6 @@ abstract public class Pick {
             }
         }
 
-        @Override
         public String toString() {
             return "index; " + index
                 + ", maxInt:" + maxInt
@@ -559,8 +536,8 @@ abstract public class Pick {
 
     /*
     public static final Pick NOTHING = new Nothing();
-
-
+    
+    
     private static class Nothing extends FinalPick {
         protected void addTo(Target target) {}
         protected boolean match(String input, Position p) {
@@ -602,7 +579,6 @@ abstract public class Pick {
             this.replacement = replacement;
         }
 
-        @Override
         public Pick handle(Pick a) {
             if (toReplace.equals(a.name)) {
                 a = replacement;
@@ -612,7 +588,6 @@ abstract public class Pick {
     }
 
     abstract private static class FinalPick extends Pick {
-        @Override
         public Pick visit(Visitor visitor) {
             return visitor.handle(this);
         }
@@ -625,7 +600,6 @@ abstract public class Pick {
             this.item = item;
         }
 
-        @Override
         public Pick visit(Visitor visitor) {
             Pick result = visitor.handle(this);
             if (visitor.alreadyEntered(this)) return result;
@@ -663,7 +637,6 @@ abstract public class Pick {
             }
         }
 
-        @Override
         public Pick visit(Visitor visitor) {
             Pick result = visitor.handle(this);
             if (visitor.alreadyEntered(this)) return result;
@@ -708,7 +681,7 @@ abstract public class Pick {
             if (newWeights == null) newWeights = new int[] { 1 };
             int oldLen = weights.length;
             if (maxCount < newWeights.length) maxCount = newWeights.length;
-            weights = realloc(weights, weights.length + maxCount);
+            weights = (int[]) realloc(weights, weights.length + maxCount);
             System.arraycopy(newWeights, 0, weights, oldLen, newWeights.length);
             int lastWeight = weights[oldLen + newWeights.length - 1];
             for (int i = oldLen + newWeights.length; i < maxCount; ++i) {
@@ -735,7 +708,6 @@ abstract public class Pick {
             return i + minCount;
         }
 
-        @Override
         public String toString() {
             String result = "";
             for (int i = 0; i < minCount; ++i) {
@@ -806,7 +778,7 @@ abstract public class Pick {
         if (DEBUG) System.out.println("\"" + toAdd + "\"");
         target.append(toAdd);
     }
-
+    
     private static void appendQuoted(StringBuffer target, String toAdd, StringBuffer quoteBuffer) {
         if (DEBUG) System.out.println("\"" + toAdd + "\"");
         Utility.appendToRule(target, toAdd, false, false, quoteBuffer);
@@ -817,7 +789,7 @@ abstract public class Pick {
         public abstract void handleString(String source, int start, int limit);
         public abstract void handleSequence(String source, int start, int limit);
         public abstract void handleAlternation(String source, int start, int limit);
-
+            
     }
     */
     /*
@@ -826,22 +798,22 @@ abstract public class Pick {
     public interface Spread {
         public double spread(double value);
     }
-
+    
     // give the weight for the high end.
     // values are linearly scaled according to the weight.
     static public class SimpleSpread implements Spread {
         static final Spread FLAT = new SimpleSpread(1.0);
         boolean flat = false;
         double aa, bb, cc;
-        public SimpleSpread(double maxWeight) {
+        public SimpleSpread(double maxWeight) {   
             if (maxWeight > 0.999 && maxWeight < 1.001) {
                 flat = true;
-            } else {
+            } else { 
                 double q = (maxWeight - 1.0);
                 aa = -1/q;
                 bb = 1/(q*q);
                 cc = (2.0+q)/q;
-           }
+           }                 
         }
         public double spread(double value) {
             if (flat) return value;
@@ -854,7 +826,7 @@ abstract public class Pick {
     static public int pick(Spread spread, Random random, int start, int end) {
         return start + (int)(spread.spread(random.nextDouble()) * (end + 1 - start));
     }
-
+    
     */
 
 }

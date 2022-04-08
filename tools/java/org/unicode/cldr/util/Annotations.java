@@ -18,11 +18,11 @@ import org.unicode.cldr.tool.ChartAnnotations;
 import org.unicode.cldr.tool.SubdivisionNames;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.lang.CharSequences;
@@ -56,14 +56,21 @@ public class Annotations {
 
     static {
         File directory = new File(CLDRPaths.COMMON_DIRECTORY, "annotations");
-        DIR = PathUtilities.getNormalizedPathString(directory);
+        try {
+            DIR = directory.getCanonicalPath();
+        } catch (IOException e) {
+            throw new ICUUncheckedIOException(e);
+        }
         if (DEBUG) {
             System.out.println(DIR);
         }
         Builder<String> temp = ImmutableSet.builder();
         for (File file : directory.listFiles()) {
             if (DEBUG) {
-                System.out.println(PathUtilities.getNormalizedPathString(file));
+                try {
+                    System.out.println(file.getCanonicalPath());
+                } catch (IOException e) {
+                }
             }
             String name = file.toString();
             String shortName = file.getName();
@@ -119,7 +126,7 @@ public class Annotations {
         }
 
         static final Pattern SPACES = Pattern.compile("\\s+");
-
+        
         @Override
         public void handlePathValue(String path, String value) {
             if (value.contains(CldrUtility.INHERITANCE_MARKER)) {
@@ -263,7 +270,6 @@ public class Annotations {
         /**
          * @deprecated Use {@link #getLabelSet(String)} instead
          */
-        @Deprecated
         private Set<String> getLabelSet() {
             return getLabelSet("flag");
         }
@@ -407,22 +413,22 @@ public class Annotations {
 //                        code = code.substring(0,code.length()-EmojiConstants.JOINER_MALE_SIGN.length());
 //                    } // otherwise "🚴🏿‍♂️","man biking: dark skin tone"
 //                } else if (code.endsWith(EmojiConstants.JOINER_FEMALE_SIGN)){
-//                    if (matchesInitialPattern(code)) { //
+//                    if (matchesInitialPattern(code)) { // 
 //                        rem = EmojiConstants.WOMAN + rem;
 //                        code = code.substring(0,code.length()-EmojiConstants.JOINER_FEMALE_SIGN.length());
 //                    }
-//                } else
+//                } else 
                 if (code.contains(EmojiConstants.KISS)) {
                     rem = code + rem;
                     code = "💏";
                     skipSet = EmojiConstants.REM_GROUP_SKIP_SET;
-                } else if (code.contains(EmojiConstants.HEART) && !code.startsWith(EmojiConstants.HEART)) {
+                } else if (code.contains(EmojiConstants.HEART)) {
                     rem = code + rem;
                     code = "💑";
                     skipSet = EmojiConstants.REM_GROUP_SKIP_SET;
                 } else if (code.contains(EmojiConstants.HANDSHAKE)) {
                     code = code.startsWith(EmojiConstants.MAN) ? "👬"
-                        : code.endsWith(EmojiConstants.MAN) ? "👫"
+                        : code.endsWith(EmojiConstants.MAN) ? "👫" 
                             : code.startsWith(EmojiConstants.WOMAN) ? "👭"
                             : NEUTRAL_HOLDING;
                     skipSet = EmojiConstants.REM_GROUP_SKIP_SET;
@@ -458,10 +464,10 @@ public class Annotations {
                     annotations.addAll(stock.getKeywords());
                 } else if (otherSource != null) {
                     shortName = otherSource.transform(base);
+                    if (shortName == null) {
+                        return null;
+                    }
                 } else {
-                    return null;
-                }
-                if (shortName == null) {
                     return null;
                 }
             }
@@ -499,7 +505,7 @@ public class Annotations {
                         modName = Utility.hex(mod); // ultimate fallback
                     }
                 }
-                if (hackBlond && shortName != null) {
+                if (hackBlond && shortName != null) { 
                     // HACK: make the blond names look like the other hair names
                     // Split the short name into pieces, if possible, and insert the modName first
                     String sep = initialPattern.format("", "");
@@ -531,7 +537,6 @@ public class Annotations {
         /**
          * @deprecated Use {@link #toString(String,boolean,AnnotationSet)} instead
          */
-        @Deprecated
         public String toString(String code, boolean html) {
             return toString(code, html, null);
         }
@@ -556,7 +561,7 @@ public class Annotations {
                 keywords = Collections.singleton(EQUIVALENT);
             }
 
-            String result = Joiner.on(" |\u00a0").join(keywords);
+            String result = CollectionUtilities.join(keywords, " |\u00a0");
             if (shortName != null) {
                 String ttsString = (html ? "*<b>" : "*") + shortName + (html ? "</b>" : "*");
                 if (result.isEmpty()) {
@@ -580,7 +585,7 @@ public class Annotations {
             String shortName = getShortName(code);
             Set<String> keywords = getKeywords(code);
             if (shortName != null && keywords.contains(shortName)) {
-                keywords = new LinkedHashSet<>(keywords);
+                keywords = new LinkedHashSet<String>(keywords);
                 keywords.remove(shortName);
             }
             return keywords;
@@ -634,10 +639,10 @@ public class Annotations {
     public String toString(boolean html) {
         Set<String> annotations2 = getKeywords();
         if (getShortName() != null && annotations2.contains(getShortName())) {
-            annotations2 = new LinkedHashSet<>(getKeywords());
+            annotations2 = new LinkedHashSet<String>(getKeywords());
             annotations2.remove(getShortName());
         }
-        String result = Joiner.on(" |\u00a0").join(annotations2);
+        String result = CollectionUtilities.join(annotations2, " |\u00a0");
         if (getShortName() != null) {
             String ttsString = (html ? "*<b>" : "*") + getShortName() + (html ? "</b>" : "*");
             if (result.isEmpty()) {
@@ -682,7 +687,7 @@ public class Annotations {
             System.out.println(Utility.hex(key, 4, "_").toLowerCase(Locale.ROOT)
                 + "\t" + key
                 + "\t" + map.get(key).getShortName()
-                + "\t" + Joiner.on(" | ").join(map.get(key).getKeywords()));
+                + "\t" + CollectionUtilities.join(map.get(key).getKeywords(), " | "));
         }
         for (String s : Arrays.asList(
             "💏", "👩‍❤️‍💋‍👩",
@@ -694,8 +699,7 @@ public class Annotations {
             "🚴", "🚴🏿", "🚴‍♂️", "🚴🏿‍♂️", "🚴‍♀️", "🚴🏿‍♀️")) {
             final String shortName = eng.getShortName(s);
             final Set<String> keywords = eng.getKeywords(s);
-            System.out.println("{\"" + s + "\",\"" + shortName + "\",\"" + Joiner.on("|")
-                .join(keywords) + "\"},");
+            System.out.println("{\"" + s + "\",\"" + shortName + "\",\"" + CollectionUtilities.join(keywords, "|") + "\"},");
         }
     }
 
@@ -714,8 +718,8 @@ public class Annotations {
             System.out.println(key + "\tname\t"
                 + "\t" + value.getShortName()
                 + "\t" + (value100 == null ? "" : value100.getShortName())
-                + "\t" + Joiner.on(" | ").join(value.getKeywords())
-                + "\t" + (keywords100 == null ? "" : Joiner.on(" | ").join(keywords100)));
+                + "\t" + CollectionUtilities.join(value.getKeywords(), " | ")
+                + "\t" + (keywords100 == null ? "" : CollectionUtilities.join(keywords100, " | ")));
         }
     }
 }

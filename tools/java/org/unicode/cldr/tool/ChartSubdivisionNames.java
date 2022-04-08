@@ -60,7 +60,6 @@ public class ChartSubdivisionNames extends Chart {
         return MAIN_HEADER + "<p>The charts are presented in groups of related languages, for easier comparison.<p>";
     }
 
-    @Override
     public void writeContents(FormattedFileWriter pw) throws IOException {
         FileCopier.ensureDirectoryExists(DIR);
         FileCopier.copy(Chart.class, "index.css", DIR);
@@ -83,7 +82,7 @@ public class ChartSubdivisionNames extends Chart {
         Set<String> subdivisions = Validity.getInstance().getStatusToCodes(LstrType.subdivision).get(Status.regular);
         // set up right order for columns
 
-        Map<String, String> nameToCode = new LinkedHashMap<>();
+        Map<String, String> nameToCode = new LinkedHashMap<String, String>();
         Relation<LanguageGroup, R3<Integer, String, String>> groupToNameAndCodeSorted = Relation.of(
             new EnumMap<LanguageGroup, Set<R3<Integer, String, String>>>(LanguageGroup.class),
             TreeSet.class);

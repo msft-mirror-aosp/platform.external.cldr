@@ -22,7 +22,8 @@ public class TestMetadata {
     public static void main(String[] args) {
         Factory cldrFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
         CLDRFile metadata = cldrFactory.make("supplementalMetadata", false);
-        // Set allKeys = new TreeSet(metadata);
+        // Set allKeys = new TreeSet();
+        // CollectionUtilities.addAll(metadata.iterator(), allKeys);
         // System.out.println("Keys: " + allKeys);
         // attribute order
 
@@ -93,7 +94,7 @@ public class TestMetadata {
 
     private static void sublistCheck(Set<LinkedHashSet<String>> elementOrderingLists, List<String> elementOrder) {
         for (Iterator<LinkedHashSet<String>> it = elementOrderingLists.iterator(); it.hasNext();) {
-            LinkedHashSet<String> sublist = it.next();
+            LinkedHashSet<String> sublist = (LinkedHashSet<String>) it.next();
             // verify that the elements are in the list in the right order.
             int lastPosition = -1;
             for (Iterator<String> it2 = sublist.iterator(); it2.hasNext();) {
@@ -110,7 +111,7 @@ public class TestMetadata {
 
     private static boolean showSetDifferences(String name1, Collection<String> set1, String name2, Collection<String> set2) {
         boolean hasDifference = false;
-        TreeSet<String> temp = new TreeSet<>();
+        TreeSet<String> temp = new TreeSet<String>();
         temp.addAll(set1);
         temp.removeAll(set2);
         if (temp.size() != 0) {
@@ -147,7 +148,7 @@ public class TestMetadata {
     public static <T> String showDifference(Iterable<T> a, Iterable<T> b, String separator,
         Transform<T, String> aDisplay,
         Transform<T, String> bDisplay) {
-        Differ<T> differ = new Differ<>(300, 10);
+        Differ<T> differ = new Differ<T>(300, 10);
         StringBuilder out = new StringBuilder();
         Iterator<T> ai = a.iterator();
         Iterator<T> bi = b.iterator();
@@ -202,18 +203,18 @@ public class TestMetadata {
         }
 
         String[] zones = zoneList.split("\\s+");
-        Set<String> metaZoneSet = new TreeSet<>();
+        Set<String> metaZoneSet = new TreeSet<String>();
         metaZoneSet.addAll(Arrays.asList(zones));
 
         StandardCodes sc = StandardCodes.make();
         Map<String, List<String>> new_oldZones = sc.getZoneData();
-        Set<String> stdZoneSet = new TreeSet<>();
+        Set<String> stdZoneSet = new TreeSet<String>();
         stdZoneSet.addAll(new_oldZones.keySet());
 
         if (metaZoneSet.equals(stdZoneSet)) {
             System.out.println("Zone Set is up-to-date");
         } else {
-            Set<String> diff = new TreeSet<>();
+            Set<String> diff = new TreeSet<String>();
             diff.addAll(metaZoneSet);
             diff.removeAll(stdZoneSet);
             System.out.println("Meta Zones - Std Zones: " + diff);
@@ -239,7 +240,6 @@ public class TestMetadata {
             this.elementOrderingLists = elementOrderingLists;
         }
 
-        @Override
         public void handleAttributeDecl(String eName, String aName, String type, String mode, String value) {
             attributes.add(aName);
             // System.out.println(
@@ -251,10 +251,9 @@ public class TestMetadata {
             // );
         }
 
-        @Override
         public void handleElementDecl(String name, String model) {
             elements.add(name);
-            LinkedHashSet<String> ordering = new LinkedHashSet<>(Arrays.asList(model.split("[^-_a-zA-Z0-9]+")));
+            LinkedHashSet<String> ordering = new LinkedHashSet<String>(Arrays.asList(model.split("[^-_a-zA-Z0-9]+")));
             ordering.remove("");
             ordering.remove("PCDATA");
             ordering.remove("EMPTY");

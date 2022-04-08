@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.CLDRFile;
@@ -42,23 +41,7 @@ public class BuildIcuCompactDecimalFormat {
         Set<String> debugCreationErrors, String[] debugOriginals,
         CompactStyle style, ULocale locale, CurrencyStyle currencyStyle, String currencyCodeOrUnit) {
 
-        final Map<String, Map<String, String>> customData = buildCustomData(resolvedCldrFile, style, currencyStyle);
-        CompactDecimalFormat cdf = CompactDecimalFormat.getInstance(locale, style);
-        ICUServiceBuilder builder = new ICUServiceBuilder().setCldrFile(resolvedCldrFile);
-
-        cdf.setDecimalFormatSymbols(builder.getDecimalFormatSymbols("latn"));
-        cdf.setProperties(new PropertySetter() {
-            @Override
-            public void set(DecimalFormatProperties props) {
-                props.setCompactCustomData(customData);
-            }
-        });
-        return cdf;
-    }
-
-    public static Map<String, Map<String, String>> buildCustomData(CLDRFile resolvedCldrFile, CompactStyle style, CurrencyStyle currencyStyle) {
-
-        final Map<String, Map<String, String>> customData = new TreeMap<>();
+        final Map<String, Map<String, String>> customData = new HashMap<String, Map<String, String>>();
 
         String prefix = currencyStyle == CurrencyStyle.PLAIN ? "//ldml/numbers/decimalFormats[@numberSystem=\"latn\"]/decimalFormatLength"
             : "//ldml/numbers/currencyFormats[@numberSystem=\"latn\"]/currencyFormatLength";
@@ -79,9 +62,6 @@ public class BuildIcuCompactDecimalFormat {
             String type = parts.getAttributeValue(-1, "type");
             String key = parts.getAttributeValue(-1, "count");
             String pattern = resolvedCldrFile.getStringValue(path);
-            if (pattern.contentEquals("0")) {
-                continue;
-            }
 
             /*
                     <pattern type="1000" count="one">0K</pattern>
@@ -89,7 +69,17 @@ public class BuildIcuCompactDecimalFormat {
 
             add(customData, type, key, pattern);
         }
-        return customData;
+        CompactDecimalFormat cdf = CompactDecimalFormat.getInstance(locale, style);
+        ICUServiceBuilder builder = new ICUServiceBuilder().setCldrFile(resolvedCldrFile);
+
+        cdf.setDecimalFormatSymbols(builder.getDecimalFormatSymbols("latn"));
+        cdf.setProperties(new PropertySetter() {
+            @Override
+            public void set(DecimalFormatProperties props) {
+                props.setCompactCustomData(customData);
+            }
+        });
+        return cdf;
     }
 
     private static <A, B, C> void add(Map<A, Map<B, C>> customData, A a, B b, C c) {
@@ -116,6 +106,6 @@ public class BuildIcuCompactDecimalFormat {
             String currencySymbol = cldrFile.getWinningValue(prefix + "symbol");
             return currencySymbol != null ? currencySymbol : currencyCode;
         }
-    }
+    };
 
 }

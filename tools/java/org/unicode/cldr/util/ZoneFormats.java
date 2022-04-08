@@ -15,7 +15,6 @@ public class ZoneFormats {
 
     public enum Length {
         LONG, SHORT;
-        @Override
         public String toString() {
             return name().toLowerCase(Locale.ENGLISH);
         }

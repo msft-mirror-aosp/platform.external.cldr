@@ -38,15 +38,14 @@ import org.unicode.cldr.util.DtdData.Attribute;
 import org.unicode.cldr.util.DtdData.Element;
 import org.unicode.cldr.util.DtdType;
 import org.unicode.cldr.util.Pair;
-import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.PatternCache;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.SimpleHtmlParser;
 import org.unicode.cldr.util.SimpleHtmlParser.Type;
 import org.unicode.cldr.util.TransliteratorUtilities;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row.R4;
 import com.ibm.icu.text.BreakIterator;
@@ -248,13 +247,13 @@ public class CheckHtmlFiles {
     static Pattern WHITESPACE = PatternCache.get("[\\s]+");
     static Pattern BADSECTION = PatternCache.get("^\\s*(\\d+\\s*)?Section\\s*\\d+\\s*[-:]\\s*");
 
-    static final Set<String> FORCEBREAK = new HashSet<>(Arrays.asList(
+    static final Set<String> FORCEBREAK = new HashSet<String>(Arrays.asList(
         "table", "div", "blockquote",
         "p", "br", "td", "th", "h1", "h2", "h3", "h4", "h5", "li"));
 
 //    enum ContentsElements {h1, h2, h3, h4, h5, caption}
 
-    static final Set<String> DO_CONTENTS = new HashSet<>(Arrays.asList(
+    static final Set<String> DO_CONTENTS = new HashSet<String>(Arrays.asList(
         "h1", "h2", "h3", "h4", "h5", "caption"));
 
     static class Levels implements Comparable<Levels> {
@@ -355,7 +354,7 @@ public class CheckHtmlFiles {
     static class HeadingInfo {
         private Levels levels = new Levels();
         private String text = "";
-        private Set<String> ids = new LinkedHashSet<>();
+        private Set<String> ids = new LinkedHashSet<String>();
         private boolean suppressSection;
         private boolean isHeader;
 
@@ -479,8 +478,8 @@ public class CheckHtmlFiles {
     static class HeadingInfoList {
         private static final long serialVersionUID = -6722150173224993960L;
         Levels lastBuildLevel;
-        private Set<String> errors = new LinkedHashSet<>();
-        Output<Boolean> missingLevel = new Output<>(false);
+        private Set<String> errors = new LinkedHashSet<String>();
+        Output<Boolean> missingLevel = new Output<Boolean>(false);
         private String fileName;
         ArrayList<HeadingInfo> list = new ArrayList<>();
 
@@ -510,7 +509,7 @@ public class CheckHtmlFiles {
         public void listContents() {
 
             System.out.print("\n\t\t<!-- START Generated TOC: CheckHtmlFiles -->");
-            Counter<String> idCounter = new Counter<>();
+            Counter<String> idCounter = new Counter<String>();
 
             int lastLevel = new Levels().getDepth();
             String pad = PAD;
@@ -641,12 +640,12 @@ public class CheckHtmlFiles {
 
     static class Data implements Iterable<String> {
         private static final Pattern ELEMENT_ATTLIST = Pattern.compile("<!(ELEMENT|ATTLIST)\\s+(\\S+)[^>]*>");
-        List<String> sentences = new ArrayList<>();
+        List<String> sentences = new ArrayList<String>();
         M4<String, String, String, Boolean> dtdItems = ChainedMap.of(
             new LinkedHashMap<String, Object>(),
             new TreeMap<String, Object>(),
             new TreeMap<String, Object>(), Boolean.class);
-        Counter<String> hashedSentences = new Counter<>();
+        Counter<String> hashedSentences = new Counter<String>();
         int count = 0;
         int totalErrorCount = 0;
         int totalFatalCount = 0;
@@ -672,7 +671,7 @@ public class CheckHtmlFiles {
             if (!sourceDirectory.exists()) {
                 throw new IllegalArgumentException("Can't find " + sourceDirectory);
             }
-            String canonicalBase = PathUtilities.getNormalizedPathString(sourceDirectory);
+            String canonicalBase = sourceDirectory.getCanonicalPath();
             String FileRegex = canonicalBase + File.separator + regex;
             FileRegex = FileRegex.replace("\\", "\\\\");
             FileRegex = FileRegex.replace("\\\\.", "\\.");
@@ -732,7 +731,7 @@ public class CheckHtmlFiles {
             // for detecting missing captions
             boolean pushedTable = false;
             boolean checkCaption = false;
-            List<Integer> captionWarnings = new ArrayList<>();
+            List<Integer> captionWarnings = new ArrayList<Integer>();
 
             main: while (true) {
                 int lineCount = parser.getLineCount();
@@ -880,7 +879,7 @@ public class CheckHtmlFiles {
             }
             if (!captionWarnings.isEmpty()) {
                 System.out.println("WARNING: Missing <caption> on the following lines: "
-                    + "\n    " + Joiner.on(", ").join(captionWarnings)
+                    + "\n    " + CollectionUtilities.join(captionWarnings, ", ")
                     + "\n\tTo fix, add <caption> after the <table>, such as:"
                     + "\n\t\t<table>"
                     + "\n\t\t\t<caption>Private Use Codes in CLDR</a></caption>"

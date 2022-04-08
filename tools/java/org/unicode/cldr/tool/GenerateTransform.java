@@ -35,13 +35,13 @@ public class GenerateTransform {
         + "transforms"
         + File.separator;
 
-    private final Set<Pair<String, String>> pairs = new TreeSet<>(
+    private final Set<Pair<String, String>> pairs = new TreeSet<Pair<String, String>>(
         new MyComparator(ULocale.ROOT));
-    private final Map<String, String> source_target = new LinkedHashMap<>();
-    private final Map<String, String> target_source = new LinkedHashMap<>();
+    private final Map<String, String> source_target = new LinkedHashMap<String, String>();
+    private final Map<String, String> target_source = new LinkedHashMap<String, String>();
     private final UnicodeContext addDotBetween = new UnicodeContext();
     private final UnicodeContext removeDot = new UnicodeContext();
-    private final Map<String, String> target_retarget = new LinkedHashMap<>();
+    private final Map<String, String> target_retarget = new LinkedHashMap<String, String>();
 
     private boolean sourceCased = false;
     private boolean targetCased = false;
@@ -217,7 +217,6 @@ public class GenerateTransform {
             collator.setStrength(Collator.IDENTICAL);
         }
 
-        @Override
         public int compare(Pair<String, String> arg0, Pair<String, String> arg1) {
             int result = arg0.getFirst().length()
                 - arg1.getFirst().length();
@@ -235,7 +234,7 @@ public class GenerateTransform {
     }
 
     static class UnicodeContext {
-        Map<String, UnicodeSet> first_second = new LinkedHashMap<>();
+        Map<String, UnicodeSet> first_second = new LinkedHashMap<String, UnicodeSet>();
 
         void add(String a, String b) {
             UnicodeSet second = first_second.get(a);
@@ -246,7 +245,7 @@ public class GenerateTransform {
         }
 
         Set<UnicodeSet[]> get() {
-            Map<UnicodeSet, UnicodeSet> second_first = new LinkedHashMap<>();
+            Map<UnicodeSet, UnicodeSet> second_first = new LinkedHashMap<UnicodeSet, UnicodeSet>();
             for (String first : first_second.keySet()) {
                 UnicodeSet second = first_second.get(first);
                 UnicodeSet firstSet = second_first.get(second);
@@ -255,7 +254,7 @@ public class GenerateTransform {
                 }
                 firstSet.add(first);
             }
-            Set<UnicodeSet[]> result = new LinkedHashSet<>();
+            Set<UnicodeSet[]> result = new LinkedHashSet<UnicodeSet[]>();
             for (UnicodeSet second : second_first.keySet()) {
                 UnicodeSet first = second_first.get(second);
                 result.add(new UnicodeSet[] { first, second });
@@ -300,12 +299,10 @@ public class GenerateTransform {
             output.setLength(0);
         }
 
-        @Override
         public String toString() {
             return output.toString();
         }
 
-        @Override
         public void handlePathValue(String path, String value) {
             if (path.indexOf("/comment") >= 0) {
                 if (!value.trim().startsWith("#"))

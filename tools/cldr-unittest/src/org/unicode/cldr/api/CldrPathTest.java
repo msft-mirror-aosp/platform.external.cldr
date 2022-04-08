@@ -1,12 +1,12 @@
 package org.unicode.cldr.api;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
-import java.util.Comparator;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.ibm.icu.dev.test.TestFmwk;
+
+import java.util.Comparator;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 /**
  * Tests for the core CLDR path representation. Since this is an immutable value type, the tests

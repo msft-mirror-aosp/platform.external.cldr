@@ -16,7 +16,7 @@ import org.unicode.cldr.util.TransliteratorUtilities;
 import org.unicode.cldr.util.Validity;
 import org.unicode.cldr.util.Validity.Status;
 
-import com.google.common.base.Joiner;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row.R2;
 
@@ -41,8 +41,7 @@ public class ChartSubdivisions extends Chart {
     @Override
     public String getExplanation() {
         return "<p>Shows the subdivisions of territories, using the Unicode Subdivision Codes with the English names (and sort order). "
-            + "For more information see the LDML spec.<p>"
-            + Chart.dataScrapeMessage(null, null, "common/supplemental/subdivisions.xml", "common/validity/subdivision.xml");
+            + "For more information see the LDML spec.<p>";
     }
 
     @Override
@@ -116,8 +115,7 @@ public class ChartSubdivisions extends Chart {
             tablePrinter.addRow()
                 .addCell(ENGLISH.getName(CLDRFile.TERRITORY_NAME, region))
                 .addCell(region)
-                .addCell(regionAliases == null ? "«none»" : "=" + Joiner.on(", ")
-                    .join(regionAliases))
+                .addCell(regionAliases == null ? "«none»" : "=" + CollectionUtilities.join(regionAliases, ", "))
                 //.addCell(type)
                 .addCell("")
                 .addCell("")

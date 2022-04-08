@@ -32,7 +32,6 @@ public enum Organization {
     iran_hci("Iran HCI"),
     kendra("Kendra (Nepal)"),
     kotoistus("Kotoistus (Finnish IT Ctr)"),
-    kunsill_malti("Il-Kunsill Nazzjonali tal-Ilsien Malti", "National Council for the Maltese Language", "malta", "malti"),
     lakota_lc("Lakota LC"),
     lao_dpt("Lao Posts/Telecom??"),
     longnow("The Long Now Foundation", "Long Now","PanLex"),
@@ -43,7 +42,6 @@ public enum Organization {
     openoffice_org("Open Office"),
     oracle("Oracle", "sun", "Sun Micro"),
     pakistan("Pakistan"),
-    rodakych("Rodakych", "Nigerian Pidgin"),
     rumantscha("Lia Rumantscha"),
     sil("SIL", "SIL International"),
     srilanka("Sri Lanka ICTA", "Sri Lanka"),
@@ -69,7 +67,7 @@ public enum Organization {
 
     static Map<String, Organization> OrganizationNameMap;
     static {
-        OrganizationNameMap = new HashMap<>();
+        OrganizationNameMap = new HashMap<String, Organization>();
         for (Organization x : values()) {
             OrganizationNameMap.put(x.displayName.toLowerCase().replace('-', '_').replace('.', '_'), x);
             for (String name : x.names) {
@@ -79,10 +77,6 @@ public enum Organization {
         }
     }
 
-    /**
-     * @param displayName Preferred display name for the organization
-     * @param names Alternate aliases for this organization
-     */
     private Organization(String displayName, String... names) {
         this.displayName = displayName;
         this.names = names;

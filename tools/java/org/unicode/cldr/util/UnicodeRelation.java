@@ -25,14 +25,13 @@ public class UnicodeRelation<T> implements Freezable<UnicodeRelation<T>> {
     public static SetMaker<Object> HASHSET_MAKER = new SetMaker<Object>() {
         @Override
         public Set<Object> make() {
-            return new HashSet<>();
+            return new HashSet<Object>();
         }
     };
 
     public static final SetMaker<Object> LINKED_HASHSET_MAKER = new SetMaker<Object>() {
-        @Override
         public Set<Object> make() {
-            return new LinkedHashSet<>();
+            return new LinkedHashSet<Object>();
         }
     };
 
@@ -74,7 +73,7 @@ public class UnicodeRelation<T> implements Freezable<UnicodeRelation<T>> {
     }
 
     public Set<T> get(String key) {
-        return data.get(key);
+        return data.get((String) key);
     }
 
     public UnicodeSet getKeys(T value) {

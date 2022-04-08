@@ -11,7 +11,6 @@ import java.util.TreeSet;
 
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.LanguageTagParser;
-import org.unicode.cldr.util.LanguageTagParser.OutputOption;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
@@ -27,9 +26,8 @@ public class LikelySubtags {
 
     private Map<String, String> toMaximized;
     private boolean favorRegion = false;
-    private static SupplementalDataInfo supplementalDataInfo;
-    private static Map<String, String> currencyToLikelyTerritory;
-    private static final Object SYNC = new Object();
+    private SupplementalDataInfo supplementalDataInfo;
+    private Map<String, String> currencyToLikelyTerritory = new HashMap<String, String>();
 
     /**
      * Create the likely subtags.
@@ -37,43 +35,50 @@ public class LikelySubtags {
      * @param toMaximized
      */
     public LikelySubtags(Map<String, String> toMaximized) {
-        loadStaticVariables();
-        if (this.toMaximized == null) {
-            this.toMaximized = supplementalDataInfo.getLikelySubtags();
-        } else {
-            this.toMaximized = toMaximized;
-        }
+        this(SupplementalDataInfo.getInstance(), toMaximized);
     }
 
-    private static void loadStaticVariables() {
-        if (supplementalDataInfo != null && currencyToLikelyTerritory != null) {
-            return;
+    /**
+     * Create the likely subtags.
+     *
+     * @param toMaximized
+     */
+    public LikelySubtags(SupplementalDataInfo supplementalDataInfo) {
+        this(supplementalDataInfo, supplementalDataInfo.getLikelySubtags());
+    }
+
+    /**
+     * Create the likely subtags.
+     *
+     * @param toMaximized
+     */
+    public LikelySubtags(SupplementalDataInfo supplementalDataInfo, Map<String, String> toMaximized) {
+        this.supplementalDataInfo = supplementalDataInfo;
+        this.toMaximized = toMaximized;
+
+        Date now = new Date();
+        Set<Row.R2<Double, String>> sorted = new TreeSet<Row.R2<Double, String>>();
+        for (String territory : supplementalDataInfo.getTerritoriesWithPopulationData()) {
+            PopulationData pop = supplementalDataInfo.getPopulationDataForTerritory(territory);
+            double population = pop.getPopulation();
+            sorted.add(Row.of(-population, territory));
         }
-        synchronized(SYNC) {
-            supplementalDataInfo = SupplementalDataInfo.getInstance();
-            currencyToLikelyTerritory = new HashMap<>();
-            Date now = new Date();
-            Set<Row.R2<Double, String>> sorted = new TreeSet<>();
-            for (String territory : supplementalDataInfo.getTerritoriesWithPopulationData()) {
-                PopulationData pop = supplementalDataInfo.getPopulationDataForTerritory(territory);
-                double population = pop.getPopulation();
-                sorted.add(Row.of(-population, territory));
+        for (R2<Double, String> item : sorted) {
+            String territory = item.get1();
+            Set<CurrencyDateInfo> targetCurrencyInfo = supplementalDataInfo.getCurrencyDateInfo(territory);
+            if (targetCurrencyInfo == null) {
+                continue;
             }
-            for (R2<Double, String> item : sorted) {
-                String territory = item.get1();
-                Set<CurrencyDateInfo> targetCurrencyInfo = supplementalDataInfo.getCurrencyDateInfo(territory);
-                if (targetCurrencyInfo == null) {
-                    continue;
-                }
-                for (CurrencyDateInfo cdi : targetCurrencyInfo) {
-                    String currency = cdi.getCurrency();
-                    if (!currencyToLikelyTerritory.containsKey(currency) && cdi.getStart().before(now)
-                        && cdi.getEnd().after(now) && cdi.isLegalTender()) {
-                        currencyToLikelyTerritory.put(currency, territory);
-                    }
+            for (CurrencyDateInfo cdi : targetCurrencyInfo) {
+                String currency = cdi.getCurrency();
+                if (!currencyToLikelyTerritory.containsKey(currency) && cdi.getStart().before(now)
+                    && cdi.getEnd().after(now) && cdi.isLegalTender()) {
+                    currencyToLikelyTerritory.put(currency, territory);
                 }
             }
         }
+        // System.out.println("Currency to Territory:\n\t" +
+        // CollectionUtilities.join(currencyToLikelyTerritory.entrySet(), "\n\t"));
     }
 
     /**
@@ -82,7 +87,7 @@ public class LikelySubtags {
      * @param toMaximized
      */
     public LikelySubtags() {
-        this(null);
+        this(SupplementalDataInfo.getInstance());
     }
 
     public boolean isFavorRegion() {
@@ -220,11 +225,7 @@ public class LikelySubtags {
 
     // TODO, optimize if needed by adding private routine that maximizes a LanguageTagParser instead of multiple parsings
     // TODO Old, crufty code, needs reworking.
-    public String minimize(String input) {
-        return minimize(input, OutputOption.ICU_LCVARIANT);
-    }
-
-    public synchronized String minimize(String input, OutputOption oo) {
+    public synchronized String minimize(String input) {
         String maximized = maximize(input, toMaximized);
         if (maximized == null) {
             return null;
@@ -261,7 +262,7 @@ public class LikelySubtags {
                     .setVariants(variants)
                     .setExtensions(extensions)
                     .setLocaleExtensions(extensions)
-                    .toString(oo);
+                    .toString();
             }
         }
         return maximized;

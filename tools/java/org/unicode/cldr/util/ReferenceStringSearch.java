@@ -66,7 +66,6 @@ public class ReferenceStringSearch {
     public static class ExtendedRange {
         int minStart, maxStart, minLimit, maxLimit;
 
-        @Override
         public String toString() {
             return minStart + ", " + maxStart + ", " + minLimit + ", " + maxLimit;
         }
@@ -87,7 +86,6 @@ public class ReferenceStringSearch {
         public int start;
         public int limit;
 
-        @Override
         public String toString() {
             return start + ", " + limit;
         }
@@ -166,7 +164,7 @@ public class ReferenceStringSearch {
 
     public ReferenceStringSearch setKey(String key) {
         this.key = key;
-        ArrayList<Integer> keyBufferList = new ArrayList<>();
+        ArrayList<Integer> keyBufferList = new ArrayList<Integer>();
         CollationElementIterator2 keyIterator = new CollationElementIterator2(collator).setText(key);
         while (true) {
             int collationElement = keyIterator.nextProcessed();

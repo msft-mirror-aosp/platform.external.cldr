@@ -62,7 +62,6 @@ public class DiscreteComparator<T> implements Comparator<T> {
      *                thrown if there is no backup comparator, and at least one of
      *                the items is not explicit in the collator.
      */
-    @Override
     public int compare(T o1, T o2) {
         // TODO add option for back ordering
         Integer a = ordering.get(o1);
@@ -93,7 +92,7 @@ public class DiscreteComparator<T> implements Comparator<T> {
      * @return a list
      */
     public List<T> getOrdering() {
-        return new ArrayList<>(ordering.keySet());
+        return new ArrayList<T>(ordering.keySet());
     }
 
     @Override
@@ -122,9 +121,9 @@ public class DiscreteComparator<T> implements Comparator<T> {
          */
         public Builder(Ordering order) {
             this.order = order;
-            all = order == Ordering.CHRONOLOGICAL ? new LinkedHashMap<>()
-                : order == Ordering.NATURAL ? new TreeMap<>()
-                    : new HashMap<>();
+            all = order == Ordering.CHRONOLOGICAL ? new LinkedHashMap<T, Node<T>>()
+                : order == Ordering.NATURAL ? new TreeMap<T, Node<T>>()
+                    : new HashMap<T, Node<T>>();
         }
 
         /**
@@ -238,7 +237,7 @@ public class DiscreteComparator<T> implements Comparator<T> {
             if (DEBUG) {
                 debugIndent = new Exception().getStackTrace().length;
             }
-            Map<T, Integer> ordering = new LinkedHashMap<>();
+            Map<T, Integer> ordering = new LinkedHashMap<T, Integer>();
             for (Node<T> subNode : all.values()) {
                 if (!subNode.visited) {
                     try {
@@ -254,7 +253,7 @@ public class DiscreteComparator<T> implements Comparator<T> {
             }
             // clean up, so another call doesn't mess things up
             all.clear();
-            return new DiscreteComparator<>(ordering, backupOrdering);
+            return new DiscreteComparator<T>(ordering, backupOrdering);
         }
 
         /**
@@ -263,7 +262,7 @@ public class DiscreteComparator<T> implements Comparator<T> {
          * @return list of items that form a cycle, in order from least to greatest
          */
         public List<T> getCycle() {
-            List<T> result = new LinkedList<>();
+            List<T> result = new LinkedList<T>();
             Collection<Node<T>> lesser = all.values();
             main: while (true) {
                 for (Node<T> item : lesser) {
@@ -290,7 +289,7 @@ public class DiscreteComparator<T> implements Comparator<T> {
         }
 
         private Node<T> addNew(T a) {
-            Node<T> aNode = new Node<>(a, order);
+            Node<T> aNode = new Node<T>(a, order);
             all.put(a, aNode);
             return aNode;
         }
@@ -303,10 +302,10 @@ public class DiscreteComparator<T> implements Comparator<T> {
         private boolean chained = false;
 
         public Node(T a, Ordering order) {
-            less = new LinkedHashSet<>();
-            less = order == Ordering.CHRONOLOGICAL ? new LinkedHashSet<>()
-                : order == Ordering.NATURAL ? new TreeSet<>()
-                    : new HashSet<>();
+            less = new LinkedHashSet<Node<T>>();
+            less = order == Ordering.CHRONOLOGICAL ? new LinkedHashSet<Node<T>>()
+                : order == Ordering.NATURAL ? new TreeSet<Node<T>>()
+                    : new HashSet<Node<T>>();
 
             me = a;
         }
@@ -332,7 +331,6 @@ public class DiscreteComparator<T> implements Comparator<T> {
             resultOrdering.put(currentNode.me, resultOrdering.size());
         }
 
-        @Override
         public String toString() {
             StringBuilder result = new StringBuilder();
             result.append(me == null ? null : me.toString()).append(" >");
@@ -342,10 +340,9 @@ public class DiscreteComparator<T> implements Comparator<T> {
             return result.toString();
         }
 
-        @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public int compareTo(Node<T> o) {
-            return ((Comparable) me).compareTo((o.me));
+            return ((Comparable) me).compareTo((Comparable) (o.me));
         }
     }
 

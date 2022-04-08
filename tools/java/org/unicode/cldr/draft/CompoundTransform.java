@@ -7,7 +7,7 @@ import com.ibm.icu.text.StringTransform;
 
 /**
  * Immutable class that does a compound transform
- *
+ * 
  * @author markdavis
  */
 
@@ -15,10 +15,9 @@ public class CompoundTransform implements StringTransform {
     private final List<StringTransform> transforms;
 
     public CompoundTransform(List<StringTransform> transforms) {
-        this.transforms = new ArrayList<>(transforms);
+        this.transforms = new ArrayList<StringTransform>(transforms);
     }
 
-    @Override
     public String transform(String source) {
         for (int i = 0; i < transforms.size(); ++i) {
             source = transforms.get(i).transform(source);
@@ -26,7 +25,6 @@ public class CompoundTransform implements StringTransform {
         return source;
     }
 
-    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < transforms.size(); ++i) {

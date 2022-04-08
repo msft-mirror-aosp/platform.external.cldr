@@ -28,13 +28,13 @@ import org.unicode.cldr.util.SupplementalDataInfo.PopulationData;
 import org.unicode.cldr.util.Validity;
 import org.unicode.cldr.util.Validity.Status;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.text.UnicodeSet;
 
 public class TestCLDRLocaleCoverage extends TestFmwkPlus {
@@ -50,7 +50,7 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
 
     public void TestLanguageNameCoverage() {
         
-        Set<String> additionsToTranslate = new TreeSet<>(Arrays.asList("zxx", "ceb", "ny", "co", "ht", "hmn", "la", "sm", "st", "sa", "mul"));
+        Set<String> additionsToTranslate = new TreeSet<>(Arrays.asList("zxx", "ceb", "ny", "co", "ht", "hmn", "la", "sm", "st", "su", "sa", "mul"));
         
         Map<String, Status> validity = Validity.getInstance().getCodeToStatus(LstrType.language);
         Multimap<Status, String> statusToLang = Multimaps.invertFrom(Multimaps.forMap(validity), TreeMultimap.create());
@@ -171,7 +171,7 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
     }
 
     private boolean assertContains(String title, Collection<String> set, Collection<String> subset) {
-        boolean result = set.containsAll(subset);
+        boolean result = assertTrue(title, set.containsAll(subset));
         if (!result) {
             Set<String> temp = new LinkedHashSet<>(subset);
             temp.removeAll(set);
@@ -179,9 +179,8 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
             for (String locale : temp) {
                 temp2.add(locale + "\t" + ENGLISH.getName(locale));
             }
-            warnln("Missing:\t" + temp.size() + "\n\t" + Joiner.on("\n\t").join(temp2));
+            warnln("Missing:\t" + temp.size() + "\n\t" + CollectionUtilities.join(temp2, "\n\t"));
         }
-        assertTrue(title, result);
         return result;
     }
     
@@ -232,7 +231,7 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
             diff2.removeAll(skip);
             if (!diff2.isEmpty()) {
                 String diffString = diff2.toString();
-                String levelString = Joiner.on("+").join(level);
+                String levelString = CollectionUtilities.join(level, "+");
                 for (String localeId : diff2) {
                     diffString += "\n\t" + localeId + "\t" + CLDRConfig.getInstance().getEnglish().getName(localeId);
                 }

@@ -250,7 +250,7 @@ public class MakeTransliterator {
 
         Transliterator base = Transliterator.createFromRules("foo", coreRules, Transliterator.FORWARD);
         // build up the transliterator one length at a time.
-        List<String> newRules = new ArrayList<>();
+        List<String> newRules = new ArrayList<String>();
         StringBuilder buffer = new StringBuilder();
 
         int lastSourceLength = 1;
@@ -436,7 +436,7 @@ public class MakeTransliterator {
 
         sourceCharacters.addAll(source);
         targetCharacters.addAll(target);
-        store.put(source, new Pair<>(target, frequency));
+        store.put(source, new Pair<String, Long>(target, frequency));
         totalFrequency += frequency;
 
     }
@@ -606,7 +606,6 @@ public class MakeTransliterator {
      */
     static Comparator MyComparator = new Comparator() {
 
-        @Override
         public int compare(Object a, Object b) {
             String as = (String) a;
             String bs = (String) b;
@@ -682,7 +681,7 @@ public class MakeTransliterator {
     private static Transliterator coreBase;
 
     public static Map<String, String> getOverrides() throws IOException {
-        Map<String, String> result = new TreeMap<>();
+        Map<String, String> result = new TreeMap<String, String>();
         BufferedReader br = FileUtilities.openUTF8Reader(cldrDataDir, "internal_overrides.txt");
         try {
             int counter = 0;

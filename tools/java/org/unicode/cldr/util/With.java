@@ -33,7 +33,7 @@ import com.ibm.icu.text.UTF16;
  * @param <V>
  */
 public final class With<V> implements Iterable<V>, Iterator<V> {
-    List<Iterator<V>> iterators = new ArrayList<>();
+    List<Iterator<V>> iterators = new ArrayList<Iterator<V>>();
     int current;
 
     /**
@@ -180,27 +180,6 @@ public final class With<V> implements Iterable<V>, Iterator<V> {
     }
 
     /**
-     * Create a string from a list of code points; the inverse of codePointArray.
-     * @param codePoints
-     * @return string
-     */
-    public static String fromCodePoint(int... codePoints) {
-        switch (codePoints.length) {
-        case 0: return "";
-        case 1: {
-            return String.valueOf(Character.toChars(codePoints[0]));
-        }
-        default: {
-            StringBuilder b = new StringBuilder();
-            for (int cp : codePoints) {
-                b.appendCodePoint(cp);
-            }
-            return b.toString();
-        }
-        }
-    }
-
-    /**
      * An alterative to With.in(CharSequence) that is better when it is likely that only a portion of the text will be
      * looked at,
      * such as when an iterator over codepoints is aborted partway.
@@ -306,7 +285,7 @@ public final class With<V> implements Iterable<V>, Iterator<V> {
     @SuppressWarnings("unchecked")
     public With<V> and(SimpleIterator<V>... iterators) {
         for (SimpleIterator<V> iterator : iterators) {
-            this.iterators.add(new ToIterator<>(iterator));
+            this.iterators.add(new ToIterator<V>(iterator));
         }
         return this;
     }
@@ -320,7 +299,7 @@ public final class With<V> implements Iterable<V>, Iterator<V> {
     public With<V> andCodePoints(CharSequence... sources) {
         for (CharSequence charSequence : sources) {
             this.iterators
-            .add((Iterator<V>) new ToIterator<>(new CharSequenceSimpleIterator(charSequence)));
+                .add((Iterator<V>) new ToIterator<CharSequence>(new CharSequenceSimpleIterator(charSequence)));
         }
         return this;
     }
@@ -348,15 +327,15 @@ public final class With<V> implements Iterable<V>, Iterator<V> {
     }
 
     public static <T> Iterator<T> toIterator(SimpleIterator<T> simple) {
-        return new ToIterator<>(simple);
+        return new ToIterator<T>(simple);
     }
 
     public static <T> Iterable<T> toIterable(SimpleIterator<T> simple) {
-        return new ToIterator<>(simple);
+        return new ToIterator<T>(simple);
     }
 
     public static <T> ToSimpleIterator<T> toSimpleIterator(Iterator<T> iterator) {
-        return new ToSimpleIterator<>(iterator);
+        return new ToSimpleIterator<T>(iterator);
     }
 
     private static class ToIterator<T> implements Iterator<T>, Iterable<T> {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.unicode.cldr.util.CLDRFile;
 
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Row.R4;
 
 public class ChartLanguageMatching extends Chart {
@@ -96,7 +97,7 @@ public class ChartLanguageMatching extends Chart {
                 parts[2] = "XY";
             }
         }
-        String result = ENGLISH.getName(String.join("_", parts), true, CLDRFile.SHORT_ALTS);
+        String result = ENGLISH.getName(CollectionUtilities.join(parts, "_"), true, CLDRFile.SHORT_ALTS);
         if (user) {
             result = result
                 .replace("Xxxx", "any-script")

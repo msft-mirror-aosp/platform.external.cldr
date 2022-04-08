@@ -39,7 +39,7 @@ public class ResolverUtils {
      */
     public static Set<String> getAllPaths(CLDRFile file) {
         String locale = file.getLocaleID();
-        Set<String> paths = new HashSet<>();
+        Set<String> paths = new HashSet<String>();
         for (String path : file) {
             paths.add(path);
         }

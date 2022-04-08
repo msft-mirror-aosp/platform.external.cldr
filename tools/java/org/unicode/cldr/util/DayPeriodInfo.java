@@ -119,7 +119,7 @@ public class DayPeriodInfo {
         public boolean isFixed() {
             return span != null;
         }
-    }
+    };
 
     // the arrays must be in sorted order. First must have start= zero. Last must have end = DAY_LIMIT (and !includesEnd)
     // each of these will have the same length, and correspond.
@@ -241,9 +241,6 @@ public class DayPeriodInfo {
      */
     public R3<Integer, Integer, Boolean> getFirstDayPeriodInfo(DayPeriodInfo.DayPeriod dayPeriod) {
         Span span = getFirstDayPeriodSpan(dayPeriod);
-        if (span == null) {
-            return null;
-        }
         return Row.of(span.start, span.end, true);
     }
 
@@ -337,16 +334,11 @@ public class DayPeriodInfo {
             break;
         }
         StringBuilder result = new StringBuilder();
-        Set<Span> set = dayPeriodsToSpans.get(dayPeriod);
-        if (set != null) {
-            for (Span span : set) {
-                if (span != null) {
-                    if (result.length() != 0) {
-                        result.append("; ");
-                    }
-                    result.append(span.toStringPlain());
-                }
+        for (Span span : dayPeriodsToSpans.get(dayPeriod)) {
+            if (result.length() != 0) {
+                result.append("; ");
             }
+            result.append(span.toStringPlain());
         }
         return result.toString();
     }
@@ -359,7 +351,7 @@ public class DayPeriodInfo {
     }
 
     // Day periods that are allowed to collide
-    private static final EnumMap<DayPeriod, EnumSet<DayPeriod>> allowableCollisions = new EnumMap<>(DayPeriod.class);
+    private static final EnumMap<DayPeriod, EnumSet<DayPeriod>> allowableCollisions = new EnumMap<DayPeriod, EnumSet<DayPeriod>>(DayPeriod.class);
     static {
         allowableCollisions.put(DayPeriod.am, EnumSet.of(DayPeriod.morning1, DayPeriod.morning2));
         allowableCollisions.put(DayPeriod.pm, EnumSet.of(DayPeriod.afternoon1, DayPeriod.afternoon2, DayPeriod.evening1, DayPeriod.evening2));

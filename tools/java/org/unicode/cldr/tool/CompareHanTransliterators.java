@@ -23,9 +23,9 @@ public class CompareHanTransliterators {
             XMLFileReader.CONTENT_HANDLER, false);
         UnicodeMap<String> trunk = handler.map;
 
-        handler.map = new UnicodeMap<>();
+        handler.map = new UnicodeMap<String>();
 
-        reader.read(CLDRPaths.LAST_RELEASE_DIRECTORY + "/common/transforms/Han-Latin.xml",
+        reader.read(CLDRPaths.LAST_DIRECTORY + "/common/transforms/Han-Latin.xml",
             XMLFileReader.CONTENT_HANDLER, false);
         UnicodeMap<String> old = handler.map;
 
@@ -45,9 +45,8 @@ public class CompareHanTransliterators {
     }
 
     public static class MyContentHandler extends SimpleHandler {
-        UnicodeMap<String> map = new UnicodeMap<>();
+        UnicodeMap<String> map = new UnicodeMap<String>();
 
-        @Override
         public void handlePathValue(String path, String value) {
             if (!path.contains("tRule")) return;
             int pos = value.indexOf('→');
