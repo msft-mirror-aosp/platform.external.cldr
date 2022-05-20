@@ -1,10 +1,10 @@
-﻿## Unicode Technical Standard #35
+## Unicode Technical Standard #35
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 6: Supplemental
 
 <!-- HTML: no header -->
 <table><tbody>
-<tr><td>Version</td><td>40</td></tr>
+<tr><td>Version</td><td>41</td></tr>
 <tr><td>Editors</td><td>Steven Loomis (<a href="mailto:srl@icu-project.org">srl@icu-project.org</a>) and <a href="tr35.html#Acknowledgments">other CLDR committee members</a></td></tr>
 </tbody></table>
 
@@ -16,9 +16,14 @@ This document describes parts of an XML format (_vocabulary_) for the exchange o
 
 This is a partial document, describing only those parts of the LDML that are relevant for supplemental data. For the other parts of the LDML see the [main LDML document](tr35.md) and the links above.
 
+_Note:_
+Some links may lead to in-development or older
+versions of the data files.
+See <https://cldr.unicode.org> for up-to-date CLDR release data.
+
 ### _Status_
 
-_This is a draft document which may be updated, replaced, or superseded by other documents at any time. Publication does not imply endorsement by the Unicode Consortium. This is not a stable document; it is inappropriate to cite this document as other than a work in progress._
+_This document has been reviewed by Unicode members and other interested parties, and has been approved for publication by the Unicode Consortium. This is a stable document and may be used as reference material or cited as a normative reference by other specifications._
 
 > _**A Unicode Technical Standard (UTS)** is an independent specification. Conformance to the Unicode Standard does not imply conformance to any UTS._
 
@@ -38,35 +43,49 @@ The LDML specification is divided into the following parts:
 
 ## <a name="Contents" href="#Contents">Contents of Part 6, Supplemental</a>
 
-*   1 [Introduction Supplemental Data](#Supplemental_Data)
-*   2 [Territory Data](#Territory_Data)
-    *   2.1 [Supplemental Territory Containment](#Supplemental_Territory_Containment)
-    *   2.2 [Subdivision Containment](#Subdivision_Containment)
-    *   2.3 [Supplemental Territory Information](#Supplemental_Territory_Information)
-    *   2.4 [Territory-Based Preferences](#Territory_Based_Preferences)
-        *   2.4.1 [Preferred Units for Specific Usages](#Preferred_Units_For_Usage)
-            *   Table: [Unit Preference](#Unit_Preferences)
-    *   2.5 [\<rgScope>: Scope of the “rg” Locale Key](#rgScope)
-*   3 [Supplemental Language Data](#Supplemental_Language_Data)
-    *   3.1 [Supplemental Language Grouping](#Supplemental_Language_Grouping)
-*   4 [Supplemental Code Mapping](#Supplemental_Code_Mapping)
-*   5 [Telephone Code Data](#Telephone_Code_Data) (Deprecated)
-*   6 [Postal Code Validation (Deprecated)](#Postal_Code_Validation)
-*   7 [Supplemental Character Fallback Data](#Supplemental_Character_Fallback_Data)
-*   8 [Coverage Levels](#Coverage_Levels)
-    *   8.1 [Definitions](#Coverage_Level_Definitions)
-    *   8.2 [Data Requirements](#Coverage_Level_Data_Requirements)
-    *   8.3 [Default Values](#Coverage_Level_Default_Values)
-*   9 [Supplemental Metadata](#Appendix_Supplemental_Metadata)
-    *   9.1 [Supplemental Alias Information](#Supplemental_Alias_Information)
-        *   Table: [Alias Attribute Values](#Alias_Attribute_Values)
-    *   9.2 [Supplemental Deprecated Information (Deprecated)](#Supplemental_Deprecated_Information)
-    *   9.3 [Default Content](#Default_Content)
-*   10 [Locale Metadata Elements](#Metadata_Elements)
-*   11 [Version Information](#Version_Information)
-*   12 [Parent Locales](#Parent_Locales)
-*   13 [Unit Conversion](#Unit_Conversion)
-*   14 [Unit Preferences](#Unit_Preferences)
+* 1 Introduction [Supplemental Data](#Supplemental_Data)
+* 2 [Territory Data](#Territory_Data)
+  * 2.1 [Supplemental Territory Containment](#Supplemental_Territory_Containment)
+  * 2.2 [Subdivision Containment](#Subdivision_Containment)
+  * 2.3 [Supplemental Territory Information](#Supplemental_Territory_Information)
+  * 2.4 [Territory-Based Preferences](#Territory_Based_Preferences)
+    * 2.4.1 [Preferred Units for Specific Usages](#Preferred_Units_For_Usage)
+  * 2.5 [`<rgScope>`: Scope of the “rg” Locale Key](#rgScope)
+* 3 [Supplemental Language Data](#Supplemental_Language_Data)
+* 3.1 [Supplemental Language Grouping](#Supplemental_Language_Grouping)
+* 4 [Supplemental Code Mapping](#Supplemental_Code_Mapping)
+* 5 ~~[Telephone Code Data](#Telephone_Code_Data)~~ (Deprecated)
+* 6 ~~[Postal Code Validation (Deprecated)](#Postal_Code_Validation)~~
+* 7 [Supplemental Character Fallback Data](#Supplemental_Character_Fallback_Data)
+* 8 [Coverage Levels](#Coverage_Levels)
+  * 8.1 [Definitions](#Coverage_Level_Definitions)
+  * 8.2 [Data Requirements](#Coverage_Level_Data_Requirements)
+  * 8.3 [Default Values](#Coverage_Level_Default_Values)
+* 9 [Supplemental Metadata](#Appendix_Supplemental_Metadata)
+  * 9.1 [Supplemental Alias Information](#Supplemental_Alias_Information)
+    * Table: [Alias Attribute Values](#Alias_Attribute_Values)
+  * 9.2 ~~[Supplemental Deprecated Information (Deprecated)](#Supplemental_Deprecated_Information)~~
+  * 9.3 [Default Content](#Default_Content)
+* 10 [Locale Metadata Elements](#Metadata_Elements)
+* 11 [Version Information](#Version_Information)
+* 12 [Parent Locales](#Parent_Locales)
+* 13 [Unit Conversion](#Unit_Conversion)
+  * [Constants](#constants)
+  * [Conversion Data](#conversion-data)
+    * [Exceptional Cases](#exceptional-cases)
+      * [Identities](#identities)
+      * [Aliases](#aliases)
+      * [“Duplicate” Units](#duplicate-units)
+      * [Discarding Offsets](#discarding-offsets)
+    * [Unresolved Units](#unresolved-units)
+* [Quantities and Base Units](#quantities-and-base-units)
+  * [UnitType vs Quantity](#unittype-vs-quantity)
+  * [Unit Identifier Normalization](#Unit_Identifier_Normalization)
+* [Mixed Units](#mixed-units)
+* [Testing](#testing)
+* 14 [Unit Preferences](#Unit_Preferences)
+  * [Constraints](#constraints)
+  * [Caveats](#caveats)
 
 ## 1 Introduction <a name="Supplemental_Data" href="#Supplemental_Data">Supplemental Data</a>
 
@@ -85,11 +104,11 @@ Note that [Chapter 10](#Metadata_Elements) presents information about metadata t
 ### 2.1 <a name="Supplemental_Territory_Containment" href="#Supplemental_Territory_Containment">Supplemental Territory Containment</a>
 
 ```xml
-<!ELEMENT territoryContainment ( group* ) >  
-<!ELEMENT group EMPTY >  
-<!ATTLIST group type NMTOKEN #REQUIRED >  
-<!ATTLIST group contains NMTOKENS #IMPLIED >  
-<!ATTLIST group grouping ( true | false ) #IMPLIED >  
+<!ELEMENT territoryContainment ( group* ) >
+<!ELEMENT group EMPTY >
+<!ATTLIST group type NMTOKEN #REQUIRED >
+<!ATTLIST group contains NMTOKENS #IMPLIED >
+<!ATTLIST group grouping ( true | false ) #IMPLIED >
 <!ATTLIST group status ( deprecated, grouping ) #IMPLIED >
 ```
 
@@ -100,7 +119,7 @@ The following data provides information that shows groupings of countries (regio
     + Subcontinent
       + Country
 
-Excluding groupings, in this tree:  
+Excluding groupings, in this tree:
 
 *   All non-overlapping regions form a strict tree rooted at World
 *   All leaf-nodes (country) are always at depth 4. Some of these “country” regions are actually parts of other countries, such as Hong Kong (part of China). Such relationships are not part of the containment data.
@@ -145,17 +164,17 @@ That is, the type value isn’t a grouping, but if you filter out groupings you 
 ### 2.2 <a name="Subdivision_Containment" href="#Subdivision_Containment">Subdivision Containment</a>
 
 ```xml
-<!ELEMENT subdivisionContainment ( subgroup* ) >  
-  
-<!ELEMENT subgroup EMPTY >  
-<!ATTLIST subgroup type NMTOKEN #REQUIRED >  
+<!ELEMENT subdivisionContainment ( subgroup* ) >
+
+<!ELEMENT subgroup EMPTY >
+<!ATTLIST subgroup type NMTOKEN #REQUIRED >
 <!ATTLIST subgroup contains NMTOKENS #IMPLIED >
 ```
 
 The subdivision containment data is similar to the territory containment. It is based on ISO 3166-2 data, but may diverge from it in the future.
 
 ```xml
-<subgroup type="BD" contains="bda bdb bdc bdd bde bdf bdg bdh" />  
+<subgroup type="BD" contains="bda bdb bdc bdd bde bdf bdg bdh" />
 <subgroup type="bda" contains="bd02 bd06 bd07 bd25 bd50 bd51" />
 ```
 
@@ -172,17 +191,17 @@ Note: Formerly (in CLDR 28 through 30):
 ### 2.3 <a name="Supplemental_Territory_Information" href="#Supplemental_Territory_Information">Supplemental Territory Information</a>
 
 ```xml
-<!ELEMENT territory ( languagePopulation* ) >  
-<!ATTLIST territory type NMTOKEN #REQUIRED >  
-<!ATTLIST territory gdp NMTOKEN #REQUIRED >  
-<!ATTLIST territory literacyPercent NMTOKEN #REQUIRED >  
-<!ATTLIST territory population NMTOKEN #REQUIRED >  
-  
-<!ELEMENT languagePopulation EMPTY >  
-<!ATTLIST languagePopulation type NMTOKEN #REQUIRED >  
-<!ATTLIST languagePopulation literacyPercent NMTOKEN #IMPLIED >  
-<!ATTLIST languagePopulation writingPercent NMTOKEN #IMPLIED >  
-<!ATTLIST languagePopulation populationPercent NMTOKEN #REQUIRED >  
+<!ELEMENT territory ( languagePopulation* ) >
+<!ATTLIST territory type NMTOKEN #REQUIRED >
+<!ATTLIST territory gdp NMTOKEN #REQUIRED >
+<!ATTLIST territory literacyPercent NMTOKEN #REQUIRED >
+<!ATTLIST territory population NMTOKEN #REQUIRED >
+
+<!ELEMENT languagePopulation EMPTY >
+<!ATTLIST languagePopulation type NMTOKEN #REQUIRED >
+<!ATTLIST languagePopulation literacyPercent NMTOKEN #IMPLIED >
+<!ATTLIST languagePopulation writingPercent NMTOKEN #IMPLIED >
+<!ATTLIST languagePopulation populationPercent NMTOKEN #REQUIRED >
 <!ATTLIST languagePopulation officialStatus (de_facto_official | official | official_regional | official_minority) #IMPLIED >
 ```
 
@@ -241,10 +260,10 @@ _For information about preferred units and unit conversion, see Section 13 [Unit
 The supplemental `<rgScope>` element specifies the data paths for which the region used for data lookup is determined by the value of any “rg” key present in the locale identifier (see [Region Override](tr35.md#RegionOverride)). If no “rg” key is present, the region used for lookup is determined as usual: from the unicode_region_subtag if present, else inferred from the unicode_language_subtag. The DTD structure is as follows:
 
 ```xml
-<!ELEMENT rgScope ( rgPath* ) >  
-  
-<!ELEMENT rgPath EMPTY >  
-<!ATTLIST rgPath path CDATA #REQUIRED >  
+<!ELEMENT rgScope ( rgPath* ) >
+
+<!ELEMENT rgPath EMPTY >
+<!ATTLIST rgPath path CDATA #REQUIRED >
 ```
 
 The `<rgScope>` element contains a list of `<rgPath>` elements, each of which specifies a datapath for which any “rg” key determines the region for lookup. For example:
@@ -271,18 +290,18 @@ The exact format of the path is provisional in CLDR 29, but as currently shown:
 ## 3 <a name="Supplemental_Language_Data" href="#Supplemental_Language_Data">Supplemental Language Data</a>
 
 ```xml
-<!ELEMENT languageData ( language* ) >  
-<!ELEMENT language EMPTY >  
-<!ATTLIST language type NMTOKEN #REQUIRED >  
-<!ATTLIST language scripts NMTOKENS #IMPLIED >  
-<!ATTLIST language territories NMTOKENS #IMPLIED >  
-<!ATTLIST language variants NMTOKENS #IMPLIED >  
-<!ATTLIST language alt NMTOKENS #IMPLIED >  
+<!ELEMENT languageData ( language* ) >
+<!ELEMENT language EMPTY >
+<!ATTLIST language type NMTOKEN #REQUIRED >
+<!ATTLIST language scripts NMTOKENS #IMPLIED >
+<!ATTLIST language territories NMTOKENS #IMPLIED >
+<!ATTLIST language variants NMTOKENS #IMPLIED >
+<!ATTLIST language alt NMTOKENS #IMPLIED >
 ```
 
 The language data is used for consistency checking and testing. It provides a list of which languages are used with which scripts and in which countries. To a large extent, however, the territory list has been superseded by the data in _Section 2.2 [Supplemental Territory Information](#Supplemental_Territory_Information)_ .
 
-```xml   
+```xml
 <languageData>
     <language type="af" scripts="Latn" territories="ZA" />
     <language type="am" scripts="Ethi" territories="ET" />
@@ -300,8 +319,8 @@ If the language is not a modern language, or the script is not a modern script, 
 ## 3.1 <a name="Supplemental_Language_Grouping" href="#Supplemental_Language_Grouping">Supplemental Language Grouping</a>
 
 ```xml
-<!ELEMENT languageGroups ( languageGroup* ) >  
-<!ELEMENT languageGroup ( #PCDATA ) >  
+<!ELEMENT languageGroups ( languageGroup* ) >
+<!ELEMENT languageGroup ( #PCDATA ) >
 <!ATTLIST languageGroup parent NMTOKEN #REQUIRED >
 ```
 
@@ -320,26 +339,26 @@ The vast majority of the languageGroup data is extracted from wikidata, but may 
 | Finno-Samic languages     | [Q163652](https://www.wikidata.org/wiki/Q163652) |
 | Finno-Volgaic languages   | [Q161236](https://www.wikidata.org/wiki/Q161236) |
 | Finno-Permic languages    | [Q161240](https://www.wikidata.org/wiki/Q161240) |
-| Finno-Ugric languages     | [Q79890](https://www.wikidata.org/wiki/Q79890)   | fiu | 
+| Finno-Ugric languages     | [Q79890](https://www.wikidata.org/wiki/Q79890)   | fiu |
 
 ## 4 <a name="Supplemental_Code_Mapping" href="#Supplemental_Code_Mapping">Supplemental Code Mapping</a>
 
 ```xml
 <!ELEMENT codeMappings (languageCodes*, territoryCodes*, currencyCodes*) >
 
-<!ELEMENT languageCodes EMPTY >  
-<!ATTLIST languageCodes type NMTOKEN #REQUIRED>  
+<!ELEMENT languageCodes EMPTY >
+<!ATTLIST languageCodes type NMTOKEN #REQUIRED>
 <!ATTLIST languageCodes alpha3 NMTOKEN #REQUIRED>
 
-<!ELEMENT territoryCodes EMPTY >  
-<!ATTLIST territoryCodes type NMTOKEN #REQUIRED>  
-<!ATTLIST territoryCodes numeric NMTOKEN #REQUIRED>  
-<!ATTLIST territoryCodes alpha3 NMTOKEN #REQUIRED>  
-<!ATTLIST territoryCodes fips10 NMTOKEN #IMPLIED>  
+<!ELEMENT territoryCodes EMPTY >
+<!ATTLIST territoryCodes type NMTOKEN #REQUIRED>
+<!ATTLIST territoryCodes numeric NMTOKEN #REQUIRED>
+<!ATTLIST territoryCodes alpha3 NMTOKEN #REQUIRED>
+<!ATTLIST territoryCodes fips10 NMTOKEN #IMPLIED>
 <!ATTLIST territoryCodes internet NMTOKENS #IMPLIED> [deprecated]
 
-<!ELEMENT currencyCodes EMPTY >  
-<!ATTLIST currencyCodes type NMTOKEN #REQUIRED>  
+<!ELEMENT currencyCodes EMPTY >
+<!ATTLIST currencyCodes type NMTOKEN #REQUIRED>
 <!ATTLIST currencyCodes numeric NMTOKEN #REQUIRED>
 ```
 
@@ -379,14 +398,14 @@ The currencyCodes are mappings from three letter currency codes to numeric value
 Deprecated in CLDR v34, and data removed.
 
 ```xml
-<!ELEMENT telephoneCodeData ( codesByTerritory* ) >  
-  
-<!ELEMENT codesByTerritory ( telephoneCountryCode+ ) >  
-<!ATTLIST codesByTerritory territory NMTOKEN #REQUIRED >  
-  
-<!ELEMENT telephoneCountryCode EMPTY >  
-<!ATTLIST telephoneCountryCode code NMTOKEN #REQUIRED >  
-<!ATTLIST telephoneCountryCode from NMTOKEN #IMPLIED >  
+<!ELEMENT telephoneCodeData ( codesByTerritory* ) >
+
+<!ELEMENT codesByTerritory ( telephoneCountryCode+ ) >
+<!ATTLIST codesByTerritory territory NMTOKEN #REQUIRED >
+
+<!ELEMENT telephoneCountryCode EMPTY >
+<!ATTLIST telephoneCountryCode code NMTOKEN #REQUIRED >
+<!ATTLIST telephoneCountryCode from NMTOKEN #IMPLIED >
 <!ATTLIST telephoneCountryCode to NMTOKEN #IMPLIED >
 ```
 
@@ -419,11 +438,11 @@ Deprecated in v27. Please see other services that are kept up to date, such as:
 
 * [https://i18napis.appspot.com/address/data/US](https://i18napis.appspot.com/address/data/US)
 * [https://i18napis.appspot.com/address/data/CH](https://i18napis.appspot.com/address/data/CH)
-* ...  
-    
+* ...
+
 ```xml
-<!ELEMENT postalCodeData (postCodeRegex*) >  
-<!ELEMENT postCodeRegex (#PCDATA) >  
+<!ELEMENT postalCodeData (postCodeRegex*) >
+<!ELEMENT postCodeRegex (#PCDATA) >
 <!ATTLIST postCodeRegex territoryId NMTOKEN #REQUIRED >
 ```
 
@@ -444,12 +463,12 @@ The most complicated currently is the UK.
 ## 7 <a name="Supplemental_Character_Fallback_Data" href="#Supplemental_Character_Fallback_Data">Supplemental Character Fallback Data</a>
 
 ```xml
-<!ELEMENT characters ( character-fallback*) >  
-  
-<!ELEMENT character-fallback ( character* ) >  
-<!ELEMENT character (substitute*) >  
-<!ATTLIST character value CDATA #REQUIRED >  
-  
+<!ELEMENT characters ( character-fallback*) >
+
+<!ELEMENT character-fallback ( character* ) >
+<!ELEMENT character (substitute*) >
+<!ATTLIST character value CDATA #REQUIRED >
+
 <!ELEMENT substitute (#PCDATA) >
 ```
 
@@ -486,35 +505,39 @@ That is, this data provides recommended fallbacks for use when a charset or supp
 
 ## 8 <a name="Coverage_Levels" href="#Coverage_Levels">Coverage Levels</a>
 
-The following describes the coverage levels used for the current version of CLDR. This list will change between releases of CLDR. Each level adds to what is in the lower level.
+The following describes the structure used to set coverage levels used for CLDR.
+That structure is primarily intended for internal use in CLDR tooling — it is not anticipated that users of CLDR data would need it.
+
+Each level adds to what is in the lower level. This list will change between releases of CLDR, and more detailed information for each level is on [Coverage Levels](https://cldr.unicode.org/index/cldr-spec/coverage-levels).
+
 
 | Level | Description   |     |
 | ----: | ------------- | --- |
 | 0     | undetermined  | Does not meet any of the following levels. |
-| 10    | core          | The CLDR "core" data, which is defined as the basic information about the language and writing system that is required before other information can be added using the CLDR survey tool. See [http://cldr.unicode.org/index/cldr-spec/minimaldata](http://cldr.unicode.org/index/cldr-spec/minimaldata) |
-| 40    | basic         | The minimum amount of locale data deemed necessary to create a "viable" locale in CLDR. Contains names for the languages, scripts, and territories associated with the language, numbering systems used in those languages, date and number formats, plus a few key values such as the values in Section 3.1 [Unknown or Invalid Identifiers](tr35.md#Unknown_or_Invalid_Identifiers). Also contains data associated with the most prominent languages and countries. |
-| 60    | moderate      | Contains more types of data and more language and territory names than the basic level. If the language is associated with an EU country, then the moderate level attempts to complete the data as it pertains to all EU member countries. |
-| 80    | modern        | Contains all fields in normal modern use, including all country names, and currencies in use. |
-| 100   | comprehensive | Contains complete localizations (or valid inheritance) for every possible field. |
+| 10    | core          | Core Locale — Has minimal data about the language and writing system that is required before other information can be added using the CLDR survey tool. |
+| 40    | basic         | Selectable Locale — Minimal locale data necessary for a "selectable" locale in a platform UI. Very basic number and datetime formatting, etc. |
+| 60    | moderate      | Document Content Locale — Minimal locale data for applications such as spreadsheets and word processors to support general document content internationalization: formatting number, datetime, currencies, sorting, plural handling, and so on. |
+| 80    | modern        | UI Locale — Contains all fields in normal modern use, including all CLDR locale names, country names, timezone names, currencies in use, and so on. |
+| 100   | comprehensive | Above modern level; typically far more data than is needed in practice. |
 
-Levels 40 through 80 are based on the definitions and specifications listed in **8.1-8.4**. However, these principles are continually being refined by the CLDR technical committee, and so do not completely reflect the data that is actually used for coverage determination, which is under the XPath **//supplementalData/CoverageLevels**. For a view of the trunk version of this datafile, see [coverageLevels.xml](https://github.com/unicode-org/cldr/releases/tag/latest/common/supplemental/coverageLevels.xml). (As described in the [introduction to Supplemental Data](tr35-info.md#Supplemental_Data), the specific XML filename may change.)
+Levels 40 through 80 are based on the definitions and specifications listed below.
 
 ```xml
-<!ELEMENT coverageLevels ( approvalRequirements, coverageVariable*, coverageLevel* ) >  
-<!ELEMENT coverageLevel EMPTY >  
-<!ATTLIST coverageLevel inLanguage CDATA #IMPLIED >  
-<!ATTLIST coverageLevel inScript CDATA #IMPLIED >  
-<!ATTLIST coverageLevel inTerritory CDATA #IMPLIED >  
-<!ATTLIST coverageLevel value CDATA #REQUIRED >  
+<!ELEMENT coverageLevels ( approvalRequirements, coverageVariable*, coverageLevel* ) >
+<!ELEMENT coverageLevel EMPTY >
+<!ATTLIST coverageLevel inLanguage CDATA #IMPLIED >
+<!ATTLIST coverageLevel inScript CDATA #IMPLIED >
+<!ATTLIST coverageLevel inTerritory CDATA #IMPLIED >
+<!ATTLIST coverageLevel value CDATA #REQUIRED >
 <!ATTLIST coverageLevel match CDATA #REQUIRED >
 ```
 
 For example, here is an example coverageLevel line.
 
 ```xml
-<coverageLevel  
+<coverageLevel
     value="30"
-    inLanguage="(de|fi)"   
+    inLanguage="(de|fi)"
     match="localeDisplayNames/types/type[@type='phonebook'][@key='collation']"/>
 ```
 
@@ -523,8 +546,8 @@ The `coverageLevel` elements are read in order, and the first match results in a
 The `match` attribute value logically has `//ldml/` prefixed before it is applied. In addition, the `[@` is automatically quoted. Otherwise standard Perl/Java style regular expression syntax is used.
 
 ```xml
-<!ELEMENT coverageVariable EMPTY >  
-<!ATTLIST coverageVariable key CDATA #REQUIRED >  
+<!ELEMENT coverageVariable EMPTY >
+<!ATTLIST coverageVariable key CDATA #REQUIRED >
 <!ATTLIST coverageVariable value CDATA #REQUIRED >
 ```
 
@@ -533,8 +556,8 @@ The `coverageVariable` element allows us to create variables for certain regular
 For example, here is an example coverageLevel line using coverageVariable substitution.
 
 ```xml
-<coverageVariable key="%dayTypes" value="(sun|mon|tue|wed|thu|fri|sat)">  
-<coverageVariable key="%wideAbbr" value="(wide|abbreviated)">  
+<coverageVariable key="%dayTypes" value="(sun|mon|tue|wed|thu|fri|sat)">
+<coverageVariable key="%wideAbbr" value="(wide|abbreviated)">
 <coverageLevel value="20" match="dates/calendars/calendar[@type='gregorian']/days/dayContext[@type='format']/dayWidth[@type='%wideAbbr']/day[@type='%dayTypes']"/>
 ```
 
@@ -553,14 +576,14 @@ The approvalRequirements allows to specify the number of survey tool votes requi
 Here is an example of the approvalRequirements section.
 
 ```xml
-<approvalRequirements>  
+<approvalRequirements>
     <!--  "high bar" items -->
     <approvalRequirement votes="20" locales="*" paths="//ldml/numbers/symbols[^/]++/(decimal|group)"/>
-    <!--  established locales - http://cldr.unicode.org/index/process#TOC-Draft-Status-of-Optimal-Field-Value -->
+    <!--  established locales - https://cldr.unicode.org/index/process#h.rm00w9v03ia8 -->
     <approvalRequirement votes="8" locales="ar ca cs da de el es fi fr he hi hr hu it ja ko nb nl pl pt pt_PT ro ru sk sl sr sv th tr uk vi zh zh_Hant" paths=""/>
     <!--  all other items -->
-    <approvalRequirement votes="4" locales="*" paths=""/>  
-</approvalRequirements>              
+    <approvalRequirement votes="4" locales="*" paths=""/>
+</approvalRequirements>
 ```
 
 This section specifies that a TC vote (20 votes) is required for decimal and grouping separators. Furthermore it specifies that any field in the established locales list (i.e. ar, ca, cs, etc.) requires 8 votes, and that all other locales require 4 votes only.
@@ -568,19 +591,18 @@ This section specifies that a TC vote (20 votes) is required for decimal and gro
 For more information on the CLDR Voting process, See [http://cldr.unicode.org/index/process](http://cldr.unicode.org/index/process)
 
 ### 8.1 <a name="Coverage_Level_Definitions" href="#Coverage_Level_Definitions">Definitions</a>
+This is a snapshot of the contents of certain variables. The actual definitions in the coverageLevels.xml file may vary from these descriptions.
 
 * _Target-Language_ is the language under consideration.
 * _Target-Territories_ is the list of territories found by looking up _Target-Language_ in the `<languageData>` elements in [Supplemental Language Data](tr35-info.md#Supplemental_Language_Data).
 * _Language-List_ is _Target-Language_, plus
-  * **basic:** Chinese, English, French, German, Italian, Japanese, Portuguese, Russian, Spanish, Unknown (de, en, es, fr, it, ja, pt, ru, zh, und
-  * **moderate:** basic + Arabic, Hindi, Korean, Indonesian, Dutch, Bengali, Turkish, Thai, Polish (ar, hi, ko, in, nl, bn, tr, th, pl). If an EU language, add the remaining official EU languages, currently: Danish, Greek, Finnish, Swedish, Czech, Estonian, Latvian, Lithuanian, Hungarian, Maltese, Slovak, Slovene (da, el, fi, sv, cs, et, lv, lt, hu, mt, sk, sl)
+  * **moderate:** Chinese, English, French, German, Italian, Japanese, Portuguese, Russian, Spanish, Unknown; Arabic, Hindi, Korean, Indonesian, Dutch, Bengali, Turkish, Thai, Polish (de, en, es, fr, it, ja, pt, ru, zh, und, ar, hi, ko, in, nl, bn, tr, th, pl). If an EU language, add the remaining official EU languages.
   * **modern:** all languages that are official or major commercial languages of modern territories
 * _Target-Scripts_ is the list of scripts in which _Target-Language_ can be customarily written (found by looking up _Target-Language_ in the `<languageData>` elements in [Supplemental Language Data](tr35-info.md#Supplemental_Language_Data).)_,_ plus Unknown (Zzzz)_._
 * _Script-List_ is the _Target-Scripts_ plus the major scripts used for multiple languages
   * Latin, Simplified Chinese, Traditional Chinese, Cyrillic, Arabic (Latn, Hans, Hant, Cyrl, Arab)
 * _Territory-List_ is the list of territories formed by taking the _Target-Territories_ and adding:
-  * **basic:** Brazil, China, France, Germany, India, Italy, Japan, Russia, United Kingdom, United States, Unknown (BR, CN, DE, GB, FR, IN, IT, JP, RU, US, ZZ)
-  * **moderate:** basic + Spain, Canada, Korea, Mexico, Australia, Netherlands, Switzerland, Belgium, Sweden, Turkey, Austria, Indonesia, Saudi Arabia, Norway, Denmark, Poland, South Africa, Greece, Finland, Ireland, Portugal, Thailand, Hong Kong SAR China, Taiwan (ES, BE, SE, TR, AT, ID, SA, NO, DK, PL, ZA, GR, FI, IE, PT, TH, HK, TW). If an EU language, add the remaining member EU countries: Luxembourg, Czech Republic, Hungary, Estonia, Lithuania, Latvia, Slovenia, Slovakia, Malta (LU, CZ, HU, ES, LT, LV, SI, SK, MT).
+  * **moderate:** Brazil, China, France, Germany, India, Italy, Japan, Russia, United Kingdom, United States, Unknown; Spain, Canada, Korea, Mexico, Australia, Netherlands, Switzerland, Belgium, Sweden, Turkey, Austria, Indonesia, Saudi Arabia, Norway, Denmark, Poland, South Africa, Greece, Finland, Ireland, Portugal, Thailand, Hong Kong SAR China, Taiwan (BR, CN, DE, GB, FR, IN, IT, JP, RU, US, ZZ, ES, BE, SE, TR, AT, ID, SA, NO, DK, PL, ZA, GR, FI, IE, PT, TH, HK, TW). If an EU language, add the remaining member EU countries.
   * **modern:** all current ISO 3166 territories, plus the UN M.49 [[UNM49](tr35.md#UNM49)] regions in [Supplemental Territory Containment](tr35-info.md#Supplemental_Territory_Containment).
 * _Currency-List_ is the list of current official currencies used in any of the territories in _Territory-List_, found by looking at the `region` elements in [Supplemental Territory Containment](tr35-info.md#Supplemental_Territory_Containment), plus Unknown (XXX).
 * _Calendar-List_ is the set of calendars in customary use in any of _Target-Territories_, plus Gregorian.
@@ -588,7 +610,7 @@ For more information on the CLDR Voting process, See [http://cldr.unicode.org/in
 
 ### 8.2 <a name="Coverage_Level_Data_Requirements" href="#Coverage_Level_Data_Requirements">Data Requirements</a>
 
-The required data to qualify for the level is then the following.
+The required data to qualify for each level based on these definitions is then the following.
 
 1. localeDisplayNames
    1. _languages:_ localized names for all languages in _Language-List._
@@ -606,7 +628,7 @@ The required data to qualify for the level is then the following.
    4. am, pm, eraNames, eraAbbr
    5. dateFormat, timeFormat: full, long, medium, short
    6. intervalFormatFallback
-       
+
 3. numbers: symbols, decimalFormats, scientificFormats, percentFormats, currencyFormats for each number system in _Number-System-List_.
 4. currencies: displayNames and symbol for all currencies in _Currency-List_, for all plural forms
 5. transforms: (moderate and above) transliteration between Latin and each other script in _Target-Scripts._
@@ -618,7 +640,7 @@ Items should _only_ be included if they are not the same as the default, which i
 * what is in root, if there is something defined there.
 * for timezone IDs: the name computed according to _[Appendix J: Time Zone Display Names](tr35.md#Time_Zone_Fallback)_
 * for collation sequence, the UCA DUCET (Default Unicode Collation Element Table), as modified by CLDR.
-  * however, in that case the locale must be added to the validSubLocale list in [collation/root.xml](https://github.com/unicode-org/cldr/blob/master/common/collation/root.xml).
+  * however, in that case the locale must be added to the validSubLocale list in [collation/root.xml](https://github.com/unicode-org/cldr/blob/main/common/collation/root.xml).
 * for currency symbol, language, territory, script names, variants, keys, types, the internal code identifiers, for example,
   * currencies: EUR, USD, JPY, ...
   * languages: en, ja, ru, ...
@@ -640,10 +662,10 @@ The supplemental metadata contains information about the CLDR file itself, used 
 ### 9.1 <a name="Supplemental_Alias_Information" href="#Supplemental_Alias_Information">Supplemental Alias Information</a>
 
 ```xml
-<!ELEMENT alias (languageAlias*,scriptAlias*,territoryAlias*,subdivisionAlias*,variantAlias*,zoneAlias*) >  
+<!ELEMENT alias (languageAlias*,scriptAlias*,territoryAlias*,subdivisionAlias*,variantAlias*,zoneAlias*) >
 ```
-  
-_The following are common attributes for subelements of `<alias>`:_  
+
+_The following are common attributes for subelements of `<alias>`:_
 
 ```xml
 <!ELEMENT *Alias EMPTY >
@@ -651,8 +673,8 @@ _The following are common attributes for subelements of `<alias>`:_
 <!ATTLIST *Alias replacement NMTOKEN #IMPLIED >
 <!ATTLIST *Alias reason ( deprecated | overlong ) #IMPLIED >
 ```
-  
-_The `languageAlias` has additional reasons_  
+
+_The `languageAlias` has additional reasons_
 
 ```xml
 <!ATTLIST languageAlias reason ( deprecated | overlong | macrolanguage | legacy | bibliographic ) #IMPLIED >
@@ -673,7 +695,7 @@ This element provides information as to parts of locale IDs that should be subst
 
 Attribute values for the \*Alias values include the following:
 
-##### <a name="Alias_Attribute_Values" href="#Alias_Attribute_Values">Alias Attribute Values</a>
+###### Table: <a name="Alias_Attribute_Values" href="#Alias_Attribute_Values">Alias Attribute Values</a>
 
 | Attribute   | Value         | Description |
 | ----------- | ------------- | ----------- |
@@ -722,12 +744,12 @@ For the relationship between Inheritance, DefaultContent, LikelySubtags, and Loc
 Note: This section refers to the per-locale `<metadata>` element, containing metadata about a particular locale. This is in contrast to the [_Supplemental_ Metadata](#Appendix_Supplemental_Metadata), which is in the supplemental tree and is not specific to a locale.
 
 ```xml
-<!ELEMENT metadata ( alias | ( casingData?, special* ) ) >  
-<!ELEMENT casingData ( alias | ( casingItem*, special* ) ) >  
-<!ELEMENT casingItem ( #PCDATA ) >  
-<!ATTLIST casingItem type CDATA #REQUIRED >  
-<!ATTLIST casingItem override (true | false) #IMPLIED >  
-<!ATTLIST casingItem forceError (true | false) #IMPLIED >  
+<!ELEMENT metadata ( alias | ( casingData?, special* ) ) >
+<!ELEMENT casingData ( alias | ( casingItem*, special* ) ) >
+<!ELEMENT casingItem ( #PCDATA ) >
+<!ATTLIST casingItem type CDATA #REQUIRED >
+<!ATTLIST casingItem override (true | false) #IMPLIED >
+<!ATTLIST casingItem forceError (true | false) #IMPLIED >
 ```
 
 The `<metadata>` element contains metadata about the locale for use by the Survey Tool or other tools in checking locale data; this data is not intended for export as part of the locale itself.
@@ -757,11 +779,11 @@ The parentLocales data is supplemental data, but is described in detail in the [
 
 ## 13 <a name="Unit_Conversion" href="#Unit_Conversion">Unit Conversion</a>
 
-The unit conversion data ([units.xml](https://github.com/unicode-org/cldr/blob/master/common/supplemental/units.xml)) provides the data for converting all of the cldr unit identifiers to base units, and back. That allows conversion between any two convertible units, such as two units of length. For any two convertible units (such as acre and dunum) the first can be converted to the base unit (square-meter), then that base unit can be converted to the second unit.
+The unit conversion data ([units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml)) provides the data for converting all of the cldr unit identifiers to base units, and back. That allows conversion between any two convertible units, such as two units of length. For any two convertible units (such as acre and dunum) the first can be converted to the base unit (square-meter), then that base unit can be converted to the second unit.
 
 Many of the elements allow for a common @description attribute, to disambiguate the main attribute value or to explain the choice of other values. For example:
 ```xml
-<unitConstant constant="glucose_molar_mass" value="180.1557" 
+<unitConstant constant="glucose_molar_mass" value="180.1557"
   description="derivation from the mean atomic weights according to STANDARD ATOMIC WEIGHTS 2019 on https://ciaaw.org/atomic-weights.htm"/>
 ```
 
@@ -849,9 +871,9 @@ The conversion may also require an offset, such as the following:
 
 The factor and offset can be simple expressions, just like the values in the unitConstants.
 
-Where a factor is not present, the value is 1; where an offset is not present, the value is 0. 
+Where a factor is not present, the value is 1; where an offset is not present, the value is 0.
 
-The `systems` attribute indicates the measurement system(s). Multiple values may be given; for example, _minute_ is marked as systems="metric ussystem uksystem" 
+The `systems` attribute indicates the measurement system(s). Multiple values may be given; for example, _minute_ is marked as systems="metric ussystem uksystem"
 
 Attribute Value | Description
 ------------ | -------------
@@ -863,57 +885,57 @@ _uksystem_ | the inch-pound system as used in the UK, also called _British Imper
 CLDR follows conversion values where possible from:
 * [NIST Special Publication 1038](https://www.govinfo.gov/content/pkg/GOVPUB-C13-f10c2ff9e7af2091314396a2d53213e4/pdf/GOVPUB-C13-f10c2ff9e7af2091314396a2d53213e4.pdf)
 * [International Astronomical Union General Assembly](https://arxiv.org/pdf/1510.07674.pdf)
- 
+
 See also [NIST Guide to the SI, Chapter 4: The Two Classes of SI Units and the SI Prefixes](https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-4-two-classes-si-units-and-si-prefixes)
 
 For complex units, such as _pound-force-per-square-inch_, the conversions are computed by combining the conversions of each of the simple units: _pound-force_ and _inch_. Because the conversions in convertUnit are reversible, the computation can go from complex source unit to complex base unit to complex target units.
 
 Here is an example:
 
-> **50 foot-per-minute ⟹ X mile-per-hour**  
-> ⟹ source: 1 foot  
-> ⟹ factor: 381 / 1250 = 0.3048 meter  
-> ⟹ source: 1 minute  
-> ⟹ factor: 60 second  
-> ⟹ intermediate: 127 / 500 = 0.254 meter-per-second  
-> ⟹ mile-per-hour  
-> ⟹ source: 1 mile  
-> ⟹ factor: 201168 / 125 = 1609.344 meter  
-> ⟹ source: 1 hour  
-> ⟹ factor: 3600 second  
+> **50 foot-per-minute ⟹ X mile-per-hour**
+> ⟹ source: 1 foot
+> ⟹ factor: 381 / 1250 = 0.3048 meter
+> ⟹ source: 1 minute
+> ⟹ factor: 60 second
+> ⟹ intermediate: 127 / 500 = 0.254 meter-per-second
+> ⟹ mile-per-hour
+> ⟹ source: 1 mile
+> ⟹ factor: 201168 / 125 = 1609.344 meter
+> ⟹ source: 1 hour
+> ⟹ factor: 3600 second
 > ⟹ target: 25 / 44 ≅ 0.5681818 mile-per-hour
 
 **Reciprocals.** When you convert a complex unit to another complex unit, you typically convert the source to a complex base unit (like _meter-per-cubic-meter_), then convert the latter backwards to the desired target. However, there may not be a matching conversion from that complex base unit to the desired target unit. That is the case for converting from _mile-per-gallon_ (used in the US) to _liter-per-100-kilometer_ (used in Europe and elsewhere). When that happens, the reciprocal of the complex base unit is used, as in the following example:
 
-> **50 mile-per-gallon ⟹ X liter-per-100-kilometer**  
-> ⟹ source: 1 mile  
-> ⟹ factor: 201168 / 125 = 1609.344 meter  
-> ⟹ source: 1 gallon  
-> ⟹ factor: 473176473 / 125000000000 ≅ 0.003785412 cubic-meter  
-> ⟹ intermediate: 2400000000000 / 112903 ≅ 2.125719E7 meter-per-cubic-meter  
-> ⟹ liter-per-100-kilometer  
-> ⟹ source: 1 liter  
-> ⟹ factor: 1 / 1000 = 0.001 cubic-meter  
-> ⟹ source: 1 100-kilometer  
-> ⟹ factor: 100000 meter  
-> **⟹ 1/intermediate: 112903 / 2400000000000 ≅ 4.704292E-8 cubic-meter-per-meter**  
-> ⟹ target: 112903 / 24000 ≅ 4.704292 liter-per-100-kilometer  
+> **50 mile-per-gallon ⟹ X liter-per-100-kilometer**
+> ⟹ source: 1 mile
+> ⟹ factor: 201168 / 125 = 1609.344 meter
+> ⟹ source: 1 gallon
+> ⟹ factor: 473176473 / 125000000000 ≅ 0.003785412 cubic-meter
+> ⟹ intermediate: 2400000000000 / 112903 ≅ 2.125719E7 meter-per-cubic-meter
+> ⟹ liter-per-100-kilometer
+> ⟹ source: 1 liter
+> ⟹ factor: 1 / 1000 = 0.001 cubic-meter
+> ⟹ source: 1 100-kilometer
+> ⟹ factor: 100000 meter
+> **⟹ 1/intermediate: 112903 / 2400000000000 ≅ 4.704292E-8 cubic-meter-per-meter**
+> ⟹ target: 112903 / 24000 ≅ 4.704292 liter-per-100-kilometer
 
 This applies to more than just these cases: one can convert from any unit to related reciprocals as in the following example:
 
-> **50 foot-per-minute ⟹ X hour-per-mile**  
-> ⟹ source: 1 foot  
-> ⟹ factor: 381 / 1250 = 0.3048 meter  
-> ⟹ source: 1 minute  
-> ⟹ factor: 60 second  
-> ⟹ intermediate: 127 / 500 = 0.254 meter-per-second  
-> ⟹ hour-per-mile  
-> ⟹ source: 1 hour  
-> ⟹ factor: 3600 second  
-> ⟹ source: 1 mile  
-> ⟹ factor: 201168 / 125 = 1609.344 meter  
-> **⟹ 1/intermediate: 500 / 127 ≅ 3.937008 second-per-meter**  
-> ⟹ target: 44 / 25 = 1.76 hour-per-mile  
+> **50 foot-per-minute ⟹ X hour-per-mile**
+> ⟹ source: 1 foot
+> ⟹ factor: 381 / 1250 = 0.3048 meter
+> ⟹ source: 1 minute
+> ⟹ factor: 60 second
+> ⟹ intermediate: 127 / 500 = 0.254 meter-per-second
+> ⟹ hour-per-mile
+> ⟹ source: 1 hour
+> ⟹ factor: 3600 second
+> ⟹ source: 1 mile
+> ⟹ factor: 201168 / 125 = 1609.344 meter
+> **⟹ 1/intermediate: 500 / 127 ≅ 3.937008 second-per-meter**
+> ⟹ target: 44 / 25 = 1.76 hour-per-mile
 
 #### Exceptional Cases
 
@@ -936,7 +958,7 @@ In a few instances the old identifiers are deprecated in favor of regular syntax
 <unitAlias type="pound-per-square-inch" replacement="pound-force-per-square-inch" reason="deprecated"/>
 ```
 
-These use the standard alias elements in XML, and are also included in the [units.xml](https://github.com/unicode-org/cldr/blob/master/common/supplemental/units.xml) file.
+These use the standard alias elements in XML, and are also included in the [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml) file.
 
 ##### “Duplicate” Units
 
@@ -1003,7 +1025,7 @@ There are many possible ways to construct complex units. For comparison of unit 
 3. Convert multiple instances of a unit into the appropriate power.
    * foot-per-second-second ⇒ foot-per-square-second
    * kilogram-meter-kilogram ⇒ meter-square-kilogram
-4. For each single unit, disregarding prefixes and powers, get the order of the _simple_ unit among the `unitQuantity` elements in the [units.xml](https://github.com/unicode-org/cldr/blob/master/common/supplemental/units.xml). Sort the single units by that order, using a stable sort. If there are private-use single units, sort them after all the non-private use single units.
+4. For each single unit, disregarding prefixes and powers, get the order of the _simple_ unit among the `unitQuantity` elements in the [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml). Sort the single units by that order, using a stable sort. If there are private-use single units, sort them after all the non-private use single units.
    * meter-square-kilogram => square-kilogram-meter
    * meter-square-gram ⇒ square-gram-meter
 5. As an edge case, there could be two adjacent single units with the same _simple_ unit but different prefixes, such as _meter-kilometer_. In that case, sort the larger prefixes first, such as _kilometer-meter_ or _kibibyte-kilobyte_
@@ -1028,7 +1050,7 @@ Mixed units are expected to be rendered in the order of the tokens in the identi
 
 ## Testing
 
-The [unitsTest.txt](https://github.com/unicode-org/cldr/blob/master/common/testData/units/unitsTest.txt) file supplies a list of all the CLDR units with conversions, for testing implementations. Instructions for use are supplied in the header of the file.
+The [unitsTest.txt](https://github.com/unicode-org/cldr/blob/main/common/testData/units/unitsTest.txt) file supplies a list of all the CLDR units with conversions, for testing implementations. Instructions for use are supplied in the header of the file.
 
 ## 14 <a name="Unit_Preferences" href="#Unit_Preferences">Unit Preferences</a>
 
@@ -1101,12 +1123,12 @@ The intended usage is to take the measure to be formatted, and the desired categ
 
 * First, see if there is an exact match, producing a list of one or more `unitPreference` elements. For example, length/road/GB has a match above, giving
 
-  ```xml  
+  ```xml
   <unitPreference regions="GB" geq="0.5">mile</unitPreference>
   <unitPreference regions="GB" geq="100.0" skeleton="precision-increment/50">yard</unitPreference>
   <unitPreference regions="GB">yard</unitPreference>
   ```
-  
+
 * If there is no match for the category, then the data is not available.
 * Otherwise, given the category:
   * If there is an exact match for the usage, but not for the region, try region=”001”.
@@ -1114,7 +1136,7 @@ The intended usage is to take the measure to be formatted, and the desired categ
 * While in version 37 only 001 is used, in the future the data may contain others.
 * The fallback is: subdivision2 ⇒ subdivision1 ⇒ region/country ⇒ subcontinent ⇒ continent ⇒ world
 * Example:
-  
+
   | Region/subdivision | Code  |
   | ------------------ | ----- |
   | Blackpool          | gbbpl |
@@ -1123,7 +1145,7 @@ The intended usage is to take the measure to be formatted, and the desired categ
   | Northern Europe    | 154   |
   | Europe             | 150   |
   | World              | 001   |
-  
+
 * If there is an exact match for the region, but not for the usage,
   * If the usage has multiple parts (eg land-agriculture-grain) drop the last part (eg land-agriculture)
   * Repeat dropping the last part and trying the result (eg land)
@@ -1169,6 +1191,6 @@ The extended unit support is still being developed further. See the Known Issues
 
 * * *
 
-Copyright © 2001–2021 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://unicode.org/copyright.html) apply.
+Copyright © 2001–2022 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://unicode.org/copyright.html) apply.
 
 Unicode and the Unicode logo are trademarks of Unicode, Inc., and are registered in some jurisdictions.
