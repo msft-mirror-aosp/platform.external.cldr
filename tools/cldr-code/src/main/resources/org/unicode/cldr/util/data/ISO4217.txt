@@ -223,6 +223,7 @@ currency	|	CSD	|	Serbian Dinar	|	CS	|	SERBIA AND MONTENEGRO	|	C
 currency	|	EUR	|	Euro	|	CS	|	SERBIA AND MONTENEGRO	|	C
 currency	|	SCR	|	Seychelles Rupee	|	SC	|	SEYCHELLES	|	C
 currency	|	SLL	|	Leone	|	SL	|	SIERRA LEONE	|	C
+currency	|	SLE	|	Leone	|	SL	|	SIERRA LEONE	|	F
 currency	|	SGD	|	Singapore Dollar	|	SG	|	SINGAPORE	|	C
 currency	|	SKK	|	Slovak Koruna	|	SK	|	SLOVAKIA	|	C
 currency	|	SIT	|	Tolar	|	SI	|	SLOVENIA	|	O
@@ -400,3 +401,4 @@ currency   	|	CNH	|	Yuan Renminbi (offshore)	|	CN	|	CHINA	|	F
 currency	|	STD	|	Dobra	|	ST	|	SÃO TOME AND PRINCIPE	|	O
 currency	|	VEF	|	Bolivar Fuerte	|	VE	|	VENEZUELA	|	O
 currency	|	UYW	|	Uruguayan Nominal Wage Index Unit	|	UY	|	URUGUAY	|	F
+currency    |   VED |   Bolívar Soberano    |  VE   |  VENEZUALA   | F
