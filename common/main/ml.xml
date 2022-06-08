@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
-<!-- Copyright © 1991-2021 Unicode, Inc.
+<!-- Copyright © 1991-2022 Unicode, Inc.
 For terms of use, see http://www.unicode.org/copyright.html
 SPDX-License-Identifier: Unicode-DFS-2016
 CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
@@ -4074,6 +4074,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<zone type="Pacific/Enderbury">
 				<exemplarCity>എൻഡബറി</exemplarCity>
 			</zone>
+			<zone type="Pacific/Kanton">
+				<exemplarCity draft="contributed">കാൻട്ടൻ</exemplarCity>
+			</zone>
 			<zone type="Pacific/Kiritimati">
 				<exemplarCity>കിരിറ്റിമാറ്റി</exemplarCity>
 			</zone>
@@ -6419,7 +6422,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName count="other">ജോർജ്ജിയൻ ലാറിസ്</displayName>
 				<symbol>GEL</symbol>
 				<symbol alt="narrow">₾</symbol>
-				<symbol alt="variant">₾</symbol>
 			</currency>
 			<currency type="GHC">
 				<displayName>ഘാന കെഡി (1979–2007)</displayName>
@@ -7509,7 +7511,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<caseMinimalPairs case="nominative" draft="contributed">{0} ദിവസം</caseMinimalPairs>
 			<caseMinimalPairs case="sociative" draft="contributed">{0} ദിവസത്തിനോട്</caseMinimalPairs>
 			<genderMinimalPairs gender="feminine" draft="contributed">{0} സ്ത്രീലിംഗം</genderMinimalPairs>
-			<genderMinimalPairs gender="neuter" draft="provisional">{0} neuter</genderMinimalPairs>
+			<genderMinimalPairs gender="neuter" draft="contributed">{0} neuter</genderMinimalPairs>
 		</minimalPairs>
 	</numbers>
 	<units>
@@ -11364,8 +11366,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<listPatternPart type="2">{0} കൂടാതെ {1}</listPatternPart>
 		</listPattern>
 		<listPattern type="or">
-			<listPatternPart type="start">{0}, {1} എന്നിവ</listPatternPart>
-			<listPatternPart type="middle">{0}, {1} എന്നിവ</listPatternPart>
+			<listPatternPart type="start">{0}, {1}</listPatternPart>
+			<listPatternPart type="middle">{0}, {1}</listPatternPart>
 			<listPatternPart type="end">{0}, അല്ലെങ്കിൽ {1}</listPatternPart>
 			<listPatternPart type="2">{0} അല്ലെങ്കിൽ {1}</listPatternPart>
 		</listPattern>

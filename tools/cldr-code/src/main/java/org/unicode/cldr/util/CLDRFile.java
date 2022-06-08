@@ -124,7 +124,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
     public static final String SUPPLEMENTAL_NAME = "supplementalData";
     public static final String SUPPLEMENTAL_METADATA = "supplementalMetadata";
     public static final String SUPPLEMENTAL_PREFIX = "supplemental";
-    public static final String GEN_VERSION = "40";
+    public static final String GEN_VERSION = "41";
     public static final List<String> SUPPLEMENTAL_NAMES = Arrays.asList("characters", "coverageLevels", "dayPeriods", "genderList", "grammaticalFeatures",
         "languageInfo",
         "languageGroup", "likelySubtags", "metaZones", "numberingSystems", "ordinals", "pluralRanges", "plurals", "postalCodeData", "rgScope",
@@ -807,6 +807,26 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
                 + value).initCause(e);
         }
         return this;
+    }
+
+    /**
+     * Note where this element was parsed.
+     * @param system system name, such as a filename
+     * @param line line number
+     * @param column column number
+     */
+    public CLDRFile addSourceLocation(String currentFullXPath, XMLSource.SourceLocation location) {
+        dataSource.addSourceLocation(currentFullXPath, location);
+        return this;
+    }
+
+    /**
+     * Get the line and column for a path
+     * @param path xpath or fullpath
+     */
+    public XMLSource.SourceLocation getSourceLocation(String path) {
+        final String fullPath = getFullXPath(path);
+        return dataSource.getSourceLocation(fullPath);
     }
 
     public CLDRFile addComment(String xpath, String comment, Comments.CommentType type) {
@@ -1543,6 +1563,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
         private String[] orderedString = new String[30]; // just make deep enough to handle any CLDR file.
         private int level = 0;
         private int overrideCount = 0;
+        private Locator documentLocator = null;
 
         MyDeclHandler(CLDRFile target, DraftStatus minimalDraftStatus) {
             this.target = target;
@@ -1685,7 +1706,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
                 }
             }
             value = trimWhitespaceSpecial(value);
-            target.add(fullXPath, value);
+            target.add(fullXPath, value)
+                  .addSourceLocation(fullXPath, new XMLSource.SourceLocation(documentLocator));
         }
 
         private void pop(String qName) {
@@ -1987,6 +2009,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
         @Override
         public void setDocumentLocator(Locator locator) {
             Log.logln(LOG_PROGRESS, "setDocumentLocator Locator " + locator);
+            documentLocator = locator;
         }
 
         @Override
