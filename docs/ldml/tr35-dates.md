@@ -1,10 +1,10 @@
-﻿## Unicode Technical Standard #35
+## Unicode Technical Standard #35
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 4: Dates
 
 <!-- HTML: no header -->
 <table><tbody>
-<tr><td>Version</td><td>40</td></tr>
+<tr><td>Version</td><td>41</td></tr>
 <tr><td>Editors</td><td>Peter Edberg and <a href="tr35.html#Acknowledgments">other CLDR committee members</a></td></tr>
 </tbody></table>
 
@@ -18,7 +18,7 @@ This is a partial document, describing only those parts of the LDML that are rel
 
 ### _Status_
 
-_This is a draft document which may be updated, replaced, or superseded by other documents at any time. Publication does not imply endorsement by the Unicode Consortium. This is not a stable document; it is inappropriate to cite this document as other than a work in progress._
+_This document has been reviewed by Unicode members and other interested parties, and has been approved for publication by the Unicode Consortium. This is a stable document and may be used as reference material or cited as a normative reference by other specifications._
 
 > _**A Unicode Technical Standard (UTS)** is an independent specification. Conformance to the Unicode Standard does not imply conformance to any UTS._
 
@@ -38,52 +38,53 @@ The LDML specification is divided into the following parts:
 
 ## <a name="Contents" href="#Contents">Contents of Part 4, Dates</a>
 
-*   1 [Overview: Dates Element, Supplemental Date and Calendar Information](#Overview_Dates_Element_Supplemental)
-*   2 [Calendar Elements](#Calendar_Elements)
-    *   2.1 [Elements months, days, quarters, eras](#months_days_quarters_eras)
-    *   2.2 [Elements monthPatterns, cyclicNameSets](#monthPatterns_cyclicNameSets)
-    *   2.3 [Element dayPeriods](#dayPeriods)
-    *   2.4 [Element dateFormats](#dateFormats)
-    *   2.5 [Element timeFormats](#timeFormats)
-    *   2.6 [Element dateTimeFormats](#dateTimeFormats)
-        *   2.6.1 [Element dateTimeFormat](#dateTimeFormat)
-            *   Table: [Date-Time Combination Examples](#Date_Time_Combination_Examples)
-        *   2.6.2 [Elements availableFormats, appendItems](#availableFormats_appendItems)
-            *   2.6.2.1 [Matching Skeletons](#Matching_Skeletons)
-            *   2.6.2.2 [Missing Skeleton Fields](#Missing_Skeleton_Fields)
-        *   2.6.3 [Element intervalFormats](#intervalFormats)
-*   3 [Calendar Fields](#Calendar_Fields)
-*   4 [Supplemental Calendar Data](#Supplemental_Calendar_Data)
-    *   4.1 [Calendar Data](#Calendar_Data)
-    *   4.2 [Calendar Preference Data](#Calendar_Preference_Data)
-    *   4.3 [Week Data](#Week_Data)
-        *   Table: [Week Designation Types](#Week_Designation_Types)
-    *   4.4 [Time Data](#Time_Data)
-    *   4.5 [Day Period Rule Sets](#Day_Period_Rule_Sets)
-        *   4.5.1 [Day Period Rules](#Day_Period_Rules)
-            *   4.5.1.1 [Fixed periods](#Fixed_periods)
-            *   4.5.1.2 [Variable periods](#Variable_periods)
-            *   4.5.1.3 [Parsing Day Periods](#Parsing_Day_Periods)
-*   5 [Time Zone Names](#Time_Zone_Names)
-    *   Table: [\<timeZoneNames> Elements Used for Fallback](#timeZoneNames_Elements_Used_for_Fallback)
-    *   5.1 [Metazone Names](#Metazone_Names)
-*   6 [Supplemental Time Zone Data](#Supplemental_Time_Zone_Data)
-    *   6.1 [Metazones](#Metazones)
-    *   6.2 [Windows Zones](#Windows_Zones)
-    *   6.3 [Primary Zones](#Primary_Zones)
-*   7 [Using Time Zone Names](#Using_Time_Zone_Names)
-    *   7.1 [Time Zone Format Terminology](#Time_Zone_Format_Terminology)
-    *   7.2 [Goals](#Time_Zone_Goals)
-    *   7.3 [Parsing](#Time_Zone_Parsing)
-*   8 [Date Format Patterns](#Date_Format_Patterns)
-    *   Table: [Date Format Pattern Examples](#Date_Format_Pattern_Examples)
-    *   [Date Field Symbol Table](#Date_Field_Symbol_Table)
-    *   8.1 [Localized Pattern Characters (deprecated)](#Localized_Pattern_Characters)
-    *   8.2 [AM / PM](#Date_Patterns_AM_PM)
-    *   8.3 [Eras](#Date_Patterns_Eras)
-    *   8.4 [Week of Year](#Date_Patterns_Week_Of_Year)
-    *   8.5 [Week Elements](#Date_Patterns_Week_Elements)
-*   9 [Parsing Dates and Times](#Parsing_Dates_Times)
+* 1 [Overview: Dates Element, Supplemental Date and Calendar Information](#Overview_Dates_Element_Supplemental)
+* 2 [Calendar Elements](#Calendar_Elements)
+  * 2.1 [Elements months, days, quarters, eras](#months_days_quarters_eras)
+  * 2.2 [Elements monthPatterns, cyclicNameSets](#monthPatterns_cyclicNameSets)
+  * 2.3 [Element dayPeriods](#dayPeriods)
+  * 2.4 [Element dateFormats](#dateFormats)
+  * 2.5 [Element timeFormats](#timeFormats)
+  * 2.6 [Element dateTimeFormats](#dateTimeFormats)
+    * 2.6.1 [Element dateTimeFormat](#dateTimeFormat)
+      * Table: [Date-Time Combination Examples](#Date_Time_Combination_Examples)
+    * 2.6.2 [Elements availableFormats, appendItems](#availableFormats_appendItems)
+      * Table: [Mapping Requested Time Skeletons To Patterns](#Mapping_Requested_Time_Skeletons_To_Patterns)
+      * 2.6.2.1 [Matching Skeletons](#Matching_Skeletons)
+      * 2.6.2.2 [Missing Skeleton Fields](#Missing_Skeleton_Fields)
+    * 2.6.3 [Element intervalFormats](#intervalFormats)
+* 3 [Calendar Fields](#Calendar_Fields)
+* 4 [Supplemental Calendar Data](#Supplemental_Calendar_Data)
+  * 4.1 [Calendar Data](#Calendar_Data)
+  * 4.2 [Calendar Preference Data](#Calendar_Preference_Data)
+  * 4.3 [Week Data](#Week_Data)
+    * Table: [Week Designation Types](#Week_Designation_Types)
+  * 4.4 [Time Data](#Time_Data)
+  * 4.5 [Day Period Rule Sets](#Day_Period_Rule_Sets)
+    * 4.5.1 [Day Period Rules](#Day_Period_Rules)
+      * 4.5.1.1 [Fixed periods](#Fixed_periods)
+      * 4.5.1.2 [Variable periods](#Variable_periods)
+      * 4.5.1.3 [Parsing Day Periods](#Parsing_Day_Periods)
+* 5 [Time Zone Names](#Time_Zone_Names)
+  * Table: [<timeZoneNames> Elements Used for Fallback](#timeZoneNames_Elements_Used_for_Fallback)
+  * 5.1 [Metazone Names](#Metazone_Names)
+* 6 [Supplemental Time Zone Data](#Supplemental_Time_Zone_Data)
+  * 6.1 [Metazones](#Metazones)
+  * 6.2 [Windows Zones](#Windows_Zones)
+  * 6.3 [Primary Zones](#Primary_Zones)
+* 7 [Using Time Zone Names](#Using_Time_Zone_Names)
+  * 7.1 [Time Zone Format Terminology](#Time_Zone_Format_Terminology)
+  * 7.2 [Goals](#Time_Zone_Goals)
+  * 7.3 [Parsing](#Time_Zone_Parsing)
+* 8 [Date Format Patterns](#Date_Format_Patterns)
+  * Table: [Date Format Pattern Examples](#Date_Format_Pattern_Examples)
+  * Table: [Date Field Symbol Table](#Date_Field_Symbol_Table)
+  * 8.1 [Localized Pattern Characters (deprecated)](#Localized_Pattern_Characters)
+  * 8.2 [AM / PM](#Date_Patterns_AM_PM)
+  * 8.3 [Eras](#Date_Patterns_Eras)
+  * 8.4 [Week of Year](#Date_Patterns_Week_Of_Year)
+  * 8.5 [Week Elements](#Date_Patterns_Week_Elements)
+* 9 [Parsing Dates and Times](#Parsing_Dates_Times)
 
 ## 1 <a name="Overview_Dates_Element_Supplemental" href="#Overview_Dates_Element_Supplemental">Overview: Dates Element, Supplemental Date and Calendar Information</a>
 
@@ -595,8 +596,10 @@ Date/Time formats have the following form:
             . . .
         </availableFormats>
         <appendItems>
-            <appendItem request="G">{0} {1}</appendItem>
-            <appendItem request="w">{0} ({2}: {1})</appendItem>
+            <appendItem request="Day">{0} ({2}: {1})</appendItem>
+            <appendItem request="Day-Of-Week">{0} {1}</appendItem>
+            <appendItem request="Era">{0} {1}</appendItem>
+            <appendItem request="Hour">{0} ({2}: {1})</appendItem>
             . . .
         </appendItems>
     </dateTimeFormats>
@@ -626,7 +629,7 @@ The `dateTimeFormat` element works like the dateFormats and timeFormats, except 
 
 When combining a standard date pattern with a standard time pattern, the type of dateTimeFormat used to combine them is determined by the type of the date pattern. For example:
 
-##### <a name="Date_Time_Combination_Examples" href="#Date_Time_Combination_Examples">Date-Time Combination Examples</a>
+###### Table: <a name="Date_Time_Combination_Examples" href="#Date_Time_Combination_Examples">Date-Time Combination Examples</a>
 
 | Date-Time Combination   | dateTimeFormat            | Results |
 | ----------------------- | ------------------------- | ------- |
@@ -669,7 +672,7 @@ Locales that use 12-hour-cycle time formats with B may provide availableFormats 
 
 When matching a requested skeleton containing b or B to the skeletons actually available in the data, if there is no skeleton matching the specified day period field, then find a match in which the b or B matches an explicit or implicit 'a' in the skeleton, but replace the 'a' in the corresponding pattern with the requested day period b or B. The following table illustrates how requested skeletons map to patterns with different sets of `availableFormats` data:
 
-##### <a name="Mapping_Requested_Time_Skeletons_To_Patterns" href="#Mapping_Requested_Time_Skeletons_To_Patterns">Mapping Requested Time Skeletons To Patterns</a>
+###### Table: <a name="Mapping_Requested_Time_Skeletons_To_Patterns" href="#Mapping_Requested_Time_Skeletons_To_Patterns">Mapping Requested Time Skeletons To Patterns</a>
 
 <!-- HTML: spanning columns, header cells on non-first row -->
 <table><tbody>
@@ -690,15 +693,15 @@ The hour input skeleton symbols 'j', 'J', and 'C' can be used to select the best
 
 The dateFormatItems inherit from their parent locale, so the inherited items need to be considered when processing.
 
-##### <a name="Matching_Skeletons" href="#Matching_Skeletons">2.6.2.1 Matching Skeletons</a>
+##### 2.6.2.1 <a name="Matching_Skeletons" href="#Matching_Skeletons">Matching Skeletons</a>
 
-It is not necessary to supply dateFormatItems with skeletons for every field length; fields in the skeleton and pattern are expected to be expanded in parallel to handle a request.
+It is not necessary to supply `dateFormatItem`s with skeletons for every field length; fields in the skeleton and pattern are expected to be adjusted in parallel to handle a request.
 
-Typically a “best match” is found using a closest distance match, such as:
+Typically a “best match” from requested skeleton to the `id` portion of a `dateFormatItem` is found using a closest distance match, such as:
 
-1. Symbols requesting a best choice for the locale are replaced.
+1. Skeleton symbols requesting a best choice for the locale are replaced.
    * j → one of {H, k, h, K}; C → one of {a, b, B}
-2. For fields with symbols representing the same type (year, month, day, etc):
+2. For skeleton and `id` fields with symbols representing the same type (year, month, day, etc):
    1. Most symbols have a small distance from each other.
       * M ≅ L; E ≅ c; a ≅ b ≅ B; H ≅ k ≅ h ≅ K; ...
    2. Width differences among fields, other than those marking text vs numeric, are given small distance from each other.
@@ -709,21 +712,21 @@ Typically a “best match” is found using a closest distance match, such as:
    4. Symbols representing substantial differences (week of year vs week of month) are given much larger a distances from each other.
       * d ≋ D; ...
 3. A requested skeleton that includes both seconds and fractional seconds (e.g. “mmssSSS”) is allowed to match a dateFormatItem skeleton that includes seconds but not fractional seconds (e.g. “ms”). In this case the requested sequence of ‘S’ characters (or its length) should be retained separately and used when adjusting the pattern, as described below.
-4. Otherwise, missing or extra fields cause a match to fail. (But see **[Missing Skeleton Fields](#Missing_Skeleton_Fields)** below).
+4. Otherwise, missing or extra fields between requested skeleton and `id` cause a match to fail. (But see **[Missing Skeleton Fields](#Missing_Skeleton_Fields)** below).
 
-Once a skeleton match is found, the corresponding pattern is used, but with adjustments. Consider the following dateFormatItem:
+Once a best match is found between requested skeleton and `dateFormatItem` `id`, the corresponding `dateFormatItem` pattern is used, but with adjustments primarily to make the pattern field lengths match the skeleton field lengths. Consider the following `dateFormatItem`:
 
 ```xml
 <dateFormatItem id="yMMMd">d MMM y</dateFormatItem>
 ```
 
-If this is the best match for yMMMMd, pattern is automatically expanded to produce the pattern "d MMMM y" in response to the request. Of course, if the desired behavior is that a request for yMMMMd should produce something _other_ than "d MMMM y", a separate `dateFormatItem` must be present, for example:
+If this is the best match for yMMMMd, the pattern is automatically expanded to produce a pattern "d MMMM y" in response to the request. Of course, if the desired behavior is that a request for yMMMMd should produce something _other_ than "d MMMM y", a separate `dateFormatItem` must be present, for example:
 
 ```xml
 <dateFormatItem id="yMMMMd">d 'de' MMMM 'de' y</dateFormatItem>
 ```
 
-However, such automatic expansions should never convert a numeric element in the pattern to an alphabetic element. Consider the following dateFormatItem:
+However, when the best-match `dateFormatItem` has an alphabetic field (such as MMM or MMMM) that corresponds to a numeric field in the pattern (such as M or MM), that numeric field in the pattern should _not_ be adjusted to match the skeleton length, and vice versa; i.e. adjustments should _never_ convert a numeric element in the pattern to an alphabetic element, or the opposite. Consider the following dateFormatItem:
 
 ```xml
 <dateFormatItem id="yMMM">y年M月</dateFormatItem>
@@ -733,7 +736,7 @@ If this is the best match for a requested skeleton yMMMM, automatic expansion sh
 
 If the requested skeleton included both seconds and fractional seconds and the dateFormatItem skeleton included seconds but not fractional seconds, then the seconds field of the corresponding pattern should be adjusted by appending the locale’s decimal separator, followed by the sequence of ‘S’ characters from the requested skeleton.
 
-##### <a name="Missing_Skeleton_Fields" href="#Missing_Skeleton_Fields">2.6.2.2 Missing Skeleton Fields</a>
+##### 2.6.2.2 <a name="Missing_Skeleton_Fields" href="#Missing_Skeleton_Fields">Missing Skeleton Fields</a>
 
 If a client-requested set of fields includes both date and time fields, and if the `availableFormats` data does not include a `dateFormatItem` whose skeleton matches the same set of fields, then the request should be handled as follows:
 
@@ -1064,7 +1067,7 @@ What is meant by the weekend varies from country to country. It is typically whe
 
 Each `weekOfPreference` element provides, for its specified locales, an ordered list of the preferred types of week designations for that set of locales. There are four types of week designations, each of which makes use of date patterns available in the locale, as follows:
 
-##### <a name="Week_Designation_Types" href="#Week_Designation_Types">Week Designation Types</a>
+###### Table: <a name="Week_Designation_Types" href="#Week_Designation_Types">Week Designation Types</a>
 
 <!-- HTML: row spans -->
 <table><tbody>
@@ -1166,7 +1169,7 @@ As with plurals, the exact set of periods used for any language may be different
 
 Here are the requirements for a rule set.
 
-##### <a name="Fixed_periods" href="#Fixed_periods">4.5.1.1 Fixed periods</a>
+##### 4.5.1.1 <a name="Fixed_periods" href="#Fixed_periods">Fixed periods</a>
 
 There are 4 dayPeriods that are fixed; am/pm are always defined, and always have the same meaning and definition for every locale. Midnight and noon are optional, however if they are defined, they have the same meaning and definition as in all other locales where they are defined.
 
@@ -1185,7 +1188,7 @@ All locales must support am/pm, but not all support **noon** or **midnight**; th
 
 It is strongly recommended that implementations provide for the ability to specify whether **midnight** is supported or not (and for either 00:00 or 24:00 or both), since only the caller knows enough of the context to determine what to use. In the absence of such information, 24:00 may be the best choice.
 
-##### <a name="Variable_periods" href="#Variable_periods">4.5.1.2 Variable periods</a>
+##### 4.5.1.2 <a name="Variable_periods" href="#Variable_periods">Variable periods</a>
 
 1. If a locale has a set of dayPeriodRules for variable periods, it needs to completely cover the 24 hours in a day (from 0:00 before 24:00), with **no** overlaps between any dayPeriodRules. They may overlap with the **Fixed Periods**.
    If it does not have a rule set for variable periods, behavior should fall back to using the fixed periods (am, pm).
@@ -1204,7 +1207,7 @@ It is strongly recommended that implementations provide for the ability to speci
      * `<dayPeriod type = "night1" from="21:00" to="24:00"/>`
 9. 24:00 is _only_ allowed in _before_="24:00".
 
-##### <a name="Parsing_Day_Periods" href="#Parsing_Day_Periods">4.5.1.3 Parsing Day Periods</a>
+##### 4.5.1.3 <a name="Parsing_Day_Periods" href="#Parsing_Day_Periods">Parsing Day Periods</a>
 
 When parsing, if the hour is present with a strict parse the dayperiod is checked for consistency with the hour. If there is no hour, the center of the first matching dayPeriodRule can be chosen (starting from 0:00). However, if there is other information available when parsing, a different point within the interval may be chosen.
 
@@ -1327,7 +1330,7 @@ For more information, see [[Data Formats](tr35.md#DataFormats)].
 
 The following subelements of `<timeZoneNames>` are used to control the fallback process described in [Using Time Zone Names](#Using_Time_Zone_Names).
 
-##### <a name="timeZoneNames_Elements_Used_for_Fallback" href="#timeZoneNames_Elements_Used_for_Fallback">&lt;timeZoneNames&gt; Elements Used for Fallback</a>
+###### Table: <a name="timeZoneNames_Elements_Used_for_Fallback" href="#timeZoneNames_Elements_Used_for_Fallback">&lt;timeZoneNames&gt; Elements Used for Fallback</a>
 
 <table><tbody>
 <tr><th>Element Name</th><th>Data Examples</th><th>Results/Comment</th></tr>
@@ -1848,7 +1851,7 @@ A date pattern is a character string consisting of two types of elements:
 
 The following are examples:
 
-##### <a name="Date_Format_Pattern_Examples" href="#Date_Format_Pattern_Examples">Date Format Pattern Examples</a>
+###### Table: <a name="Date_Format_Pattern_Examples" href="#Date_Format_Pattern_Examples">Date Format Pattern Examples</a>
 
 | Pattern | Result (in a particular locale) |
 | ------- | ------------------------------- |
@@ -1899,7 +1902,7 @@ Notes for the table below:
 * Any sequence of pattern characters other than those listed below is invalid. Invalid pattern fields should be handled for formatting and parsing as described in [Handling Invalid Patterns](tr35.md#Invalid_Patterns).
 * The examples in the table below are merely illustrative and may not reflect current actual data.
 
-##### <a name="Date_Field_Symbol_Table" href="#Date_Field_Symbol_Table">Date Field Symbol Table</a>
+###### Table: <a name="Date_Field_Symbol_Table" href="#Date_Field_Symbol_Table">Date Field Symbol Table</a>
 
 <!-- HTML: spanned rows, spanned columns, vertical header cells -->
 <table><tbody>
@@ -2254,6 +2257,6 @@ The meaning of symbol fields should be easy to determine; the problem is determi
 
 * * *
 
-Copyright © 2001–2021 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://unicode.org/copyright.html) apply.
+Copyright © 2001–2022 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://unicode.org/copyright.html) apply.
 
 Unicode and the Unicode logo are trademarks of Unicode, Inc., and are registered in some jurisdictions.
