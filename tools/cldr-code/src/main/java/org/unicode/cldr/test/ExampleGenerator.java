@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,6 +85,9 @@ import com.ibm.icu.util.ULocale;
  * @author markdavis
  */
 public class ExampleGenerator {
+    private static final String EXAMPLE_OF_INCORRECT = "❌  ";
+    private static final String EXAMPLE_OF_CAUTION = "⚠️  ";
+
     private static final boolean DEBUG_EXAMPLE_GENERATOR = false;
 
     final static boolean DEBUG_SHOW_HELP = false;
@@ -452,9 +456,9 @@ public class ExampleGenerator {
             result = handleLabelPattern(parts, value);
         }
         if (result != null) {
-            if (!typeIsEnglish) {
-                result = addTransliteration(result, value);
-            }
+//            if (!typeIsEnglish) {
+//                result = addTransliteration(result, value);
+//            }
             result = finalizeBackground(result);
         }
         return result;
@@ -645,43 +649,97 @@ public class ExampleGenerator {
         List<String> examples = new ArrayList<>();
 
         Output<String> output = new Output<>();
-        String count;
+        String count = null;
+        String otherCount = null;
         String sample = null;
+        String sampleBad = null;
+        String locale = getCldrFile().getLocaleID();
 
         switch(parts.getElement(-1)) {
 
         case "ordinalMinimalPairs":   //ldml/numbers/minimalPairs/ordinalMinimalPairs[@count="one"]
             count = parts.getAttributeValue(-1, "count");
             sample = bestMinimalPairSamples.getPluralOrOrdinalSample(PluralType.ordinal, count); // Pick a unit that exhibits the most variation
+            otherCount = getOtherCount(locale, PluralType.ordinal, count);
+            sampleBad = bestMinimalPairSamples.getPluralOrOrdinalSample(PluralType.ordinal, otherCount); // Pick a unit that exhibits the most variation
             break;
 
         case "pluralMinimalPairs":   //ldml/numbers/minimalPairs/pluralMinimalPairs[@count="one"]
             count = parts.getAttributeValue(-1, "count");
             sample = bestMinimalPairSamples.getPluralOrOrdinalSample(PluralType.cardinal, count); // Pick a unit that exhibits the most variation
+            otherCount = getOtherCount(locale, PluralType.cardinal, count);
+            sampleBad = bestMinimalPairSamples.getPluralOrOrdinalSample(PluralType.cardinal, otherCount); // Pick a unit that exhibits the most variation
             break;
 
         case "caseMinimalPairs":   //ldml/numbers/minimalPairs/caseMinimalPairs[@case="accusative"]
             String gCase = parts.getAttributeValue(-1, "case");
             sample = bestMinimalPairSamples.getBestUnitWithCase(gCase, output); // Pick a unit that exhibits the most variation
+            sampleBad = getOtherCase(bestMinimalPairSamples, locale, gCase, sample);
             break;
 
         case "genderMinimalPairs": //ldml/numbers/minimalPairs/genderMinimalPairs[@gender="feminine"]
             String gender = parts.getAttributeValue(-1, "gender");
             sample = bestMinimalPairSamples.getBestUnitWithGender(gender, output);
+            String otherGender = getOtherGender(locale, gender);
+            sampleBad = bestMinimalPairSamples.getBestUnitWithGender(otherGender, output);
             break;
         default:
             return null;
         }
         String formattedUnit = format(minimalPattern, backgroundStartSymbol + sample + backgroundEndSymbol);
         examples.add(formattedUnit);
+        if (sampleBad == null) {
+            sampleBad = "n/a";
+        }
+        formattedUnit = format(minimalPattern, backgroundStartSymbol + sampleBad + backgroundEndSymbol);
+        examples.add(EXAMPLE_OF_INCORRECT + formattedUnit);
         return formatExampleList(examples);
+    }
+
+    private String getOtherGender(String locale, String gender) {
+        Collection<String> unitGenders = grammarInfo.get(GrammaticalTarget.nominal, GrammaticalFeature.grammaticalGender, GrammaticalScope.units);
+        for (String otherGender : unitGenders) {
+            if (!gender.equals(otherGender)) {
+                return otherGender;
+            }
+        }
+        return null;
+    }
+
+    private String getOtherCase(BestMinimalPairSamples bestMinimalPairSamples2, String locale, String gCase, String sample) {
+        Collection<String> unitCases = grammarInfo.get(GrammaticalTarget.nominal, GrammaticalFeature.grammaticalCase, GrammaticalScope.units);
+        Output<String> output = new Output<>();
+        for (String otherCase : unitCases) {
+            String sampleBad = bestMinimalPairSamples.getBestUnitWithCase(otherCase, output); // Pick a unit that exhibits the most variation
+            if (!sampleBad.equals(sample)) {
+                return sampleBad;
+            }
+        }
+        return null;
+    }
+
+    private static String getOtherCount(String locale, PluralType ordinal, String count) {
+        String otherCount = null;
+        if (!Objects.equals(count, "other"))  {
+            otherCount = "other";
+        } else {
+            PluralInfo rules = SupplementalDataInfo.getInstance().getPlurals(ordinal, locale);
+            Set<String> counts = rules.getAdjustedCountStrings();
+            for (String tryCount : counts) {
+                if (!tryCount.equals("other")) {
+                    otherCount = tryCount;
+                    break;
+                }
+            }
+        }
+        return otherCount;
     }
 
     private UnitLength getUnitLength(XPathParts parts) {
         return UnitLength.valueOf(parts.getAttributeValue(-3, "type").toUpperCase(Locale.ENGLISH));
     }
 
-    private String handleFormatUnit(XPathParts parts, String value) {
+    private String handleFormatUnit(XPathParts parts, String unitPattern) {
         // Sample: //ldml/units/unitLength[@type="long"]/unit[@type="duration-day"]/unitPattern[@count="one"][@case="accusative"]
 
         String count = parts.getAttributeValue(-1, "count");
@@ -692,18 +750,22 @@ public class ExampleGenerator {
          */
         @SuppressWarnings("deprecation")
         FixedDecimal amount = getBest(Count.valueOf(count));
-        DecimalFormat numberFormat = null;
-        if (amount != null) {
-            numberFormat = icuServiceBuilder.getNumberFormat(1);
-            examples.add(format(value, backgroundStartSymbol + numberFormat.format(amount) + backgroundEndSymbol));
+        if (amount == null) {
+            return null;
         }
+        DecimalFormat numberFormat = null;
+        String formattedAmount = null;
+        numberFormat = icuServiceBuilder.getNumberFormat(1);
+        formattedAmount = numberFormat.format(amount);
+        examples.add(format(unitPattern, backgroundStartSymbol + formattedAmount + backgroundEndSymbol));
+
         if (parts.getElement(-2).equals("unit")) {
             String longUnitId = parts.getAttributeValue(-2, "type");
             final String shortUnitId = UNIT_CONVERTER.getShortId(longUnitId);
             if (UnitConverter.HACK_SKIP_UNIT_NAMES.contains(shortUnitId)) {
                 return null;
             }
-            if (value != null) {
+            if (unitPattern != null) {
                 String gCase = parts.getAttributeValue(-1, "case");
                 if (gCase == null) {
                     gCase = GrammaticalFeature.grammaticalCase.getDefault(null);
@@ -714,14 +776,37 @@ public class ExampleGenerator {
                 }
                 String minimalPattern = cldrFile.getStringValue("//ldml/numbers/minimalPairs/caseMinimalPairs[@case=\"" + gCase + "\"]");
                 if (minimalPattern != null && numberFormat != null) {
-                    String composed = format(value, backgroundStartSymbol + numberFormat.format(amount) + backgroundEndSymbol);
+                    String composed = format(unitPattern, backgroundStartSymbol + formattedAmount + backgroundEndSymbol);
                     examples.add(backgroundStartSymbol + format(minimalPattern, backgroundEndSymbol + composed + backgroundStartSymbol) + backgroundEndSymbol);
-                } else if (unitCaseInfo != null && !unitCaseInfo.isEmpty()) {
-                    examples.add("⚠️No Case Minimal Pair available yet️");
+                    // get contrasting case
+                    if (unitCaseInfo != null && !unitCaseInfo.isEmpty()) {
+                        String constrastingCase = getConstrastingCase(unitPattern, gCase, unitCaseInfo, parts);
+                        if (constrastingCase != null) {
+                            minimalPattern = cldrFile.getStringValue("//ldml/numbers/minimalPairs/caseMinimalPairs[@case=\"" + constrastingCase + "\"]");
+                            composed = format(unitPattern, backgroundStartSymbol + formattedAmount + backgroundEndSymbol);
+                            examples.add(EXAMPLE_OF_INCORRECT + backgroundStartSymbol + format(minimalPattern, backgroundEndSymbol + composed + backgroundStartSymbol) + backgroundEndSymbol);
+                        }
+                    } else {
+                        examples.add(EXAMPLE_OF_CAUTION + "️No Case Minimal Pair available yet️");
+                    }
                 }
             }
         }
         return formatExampleList(examples);
+    }
+
+    private String getConstrastingCase(String unitPattern, String gCase, Collection<String> unitCaseInfo, XPathParts parts) {
+        for (String otherCase : unitCaseInfo) {
+            if (otherCase.equals(gCase)) {
+                continue;
+            }
+            parts.putAttributeValue(-1, "case", "nominative".equals(otherCase) ? null : otherCase);
+            String otherValue = cldrFile.getStringValue(parts.toString());
+            if (otherValue != null && !otherValue.equals(unitPattern)) {
+                return otherCase;
+            }
+        }
+        return null;
     }
 
     private String handleFormatPerUnit(XPathParts parts, String value) {
@@ -1517,7 +1602,7 @@ public class ExampleGenerator {
                         .getWinningValue("//ldml/localeDisplayNames/territories/territory[@type=\"" + countryCode
                             + "\"]");
                     result = setBackground(getMZTimeFormat() + " " +
-                            format(regionFormat, countryName));
+                        format(regionFormat, countryName));
                 } else {
                     String gmtFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/gmtFormat");
                     String hourFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/hourFormat");
@@ -1730,6 +1815,12 @@ public class ExampleGenerator {
                 value = cf.format(NUMBER_SAMPLE);
             }
             String result;
+            if (value == null) {
+                throw new NullPointerException(
+                    cldrFile.getSourceLocation(fullPath) +
+                    ": " + cldrFile.getLocaleID()+ ": " +
+                    ": Error: no currency symbol for " + currency);
+            }
             DecimalFormat x = icuServiceBuilder.getCurrencyFormat(currency, value);
             result = x.format(NUMBER_SAMPLE);
             result = setBackground(result).replace(value, backgroundEndSymbol + value + backgroundStartSymbol);
@@ -2139,7 +2230,6 @@ public class ExampleGenerator {
         if (description == null || description.equals("SKIP")) {
             return null;
         }
-        // http://cldr.org/translation/timezones
         int start = 0;
         StringBuilder buffer = new StringBuilder();
 
