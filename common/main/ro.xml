@@ -813,8 +813,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="MF">Sfântul Martin</territory>
 			<territory type="MG">Madagascar</territory>
 			<territory type="MH">Insulele Marshall</territory>
-			<territory type="MK">Republica Macedonia</territory>
-			<territory type="MK" alt="variant">Republica Macedonia (FRIM)</territory>
+			<territory type="MK">Macedonia de Nord</territory>
 			<territory type="ML">Mali</territory>
 			<territory type="MM">Myanmar (Birmania)</territory>
 			<territory type="MN">Mongolia</territory>
@@ -886,7 +885,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="SV">El Salvador</territory>
 			<territory type="SX">Sint-Maarten</territory>
 			<territory type="SY">Siria</territory>
-			<territory type="SZ">Swaziland</territory>
+			<territory type="SZ">eSwatini</territory>
+			<territory type="SZ" alt="variant">Swaziland</territory>
 			<territory type="TA">Tristan da Cunha</territory>
 			<territory type="TC">Insulele Turks și Caicos</territory>
 			<territory type="TD">Ciad</territory>

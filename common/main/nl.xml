@@ -1000,8 +1000,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="MF">Saint-Martin</territory>
 			<territory type="MG">Madagaskar</territory>
 			<territory type="MH">Marshalleilanden</territory>
-			<territory type="MK">Macedonië</territory>
-			<territory type="MK" alt="variant">Macedonië (FYROM)</territory>
+			<territory type="MK">Noord-Macedonië</territory>
 			<territory type="ML">Mali</territory>
 			<territory type="MM">Myanmar (Birma)</territory>
 			<territory type="MN">Mongolië</territory>
@@ -1073,7 +1072,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="SV">El Salvador</territory>
 			<territory type="SX">Sint-Maarten</territory>
 			<territory type="SY">Syrië</territory>
-			<territory type="SZ">Swaziland</territory>
+			<territory type="SZ">eSwatini</territory>
+			<territory type="SZ" alt="variant">Swaziland</territory>
 			<territory type="TA">Tristan da Cunha</territory>
 			<territory type="TC">Turks- en Caicoseilanden</territory>
 			<territory type="TD">Tsjaad</territory>

@@ -821,8 +821,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="MF">Saint-Martin</territory>
 			<territory type="MG">Madagascar</territory>
 			<territory type="MH">Oileáin Marshall</territory>
-			<territory type="MK">an Mhacadóin</territory>
-			<territory type="MK" alt="variant">an Mhacadóin (PIIM)</territory>
+			<territory type="MK">an Mhacadóin Thuaidh</territory>
 			<territory type="ML">Mailí</territory>
 			<territory type="MM">Maenmar (Burma)</territory>
 			<territory type="MN">an Mhongóil</territory>
@@ -895,6 +894,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="SX">Sint Maarten</territory>
 			<territory type="SY">an tSiria</territory>
 			<territory type="SZ">an tSuasalainn</territory>
+			<territory type="SZ" alt="variant">Ríocht na Suasalainne</territory>
 			<territory type="TA">Tristan da Cunha</territory>
 			<territory type="TC">Oileáin na dTurcach agus Caicos</territory>
 			<territory type="TD">Sead</territory>

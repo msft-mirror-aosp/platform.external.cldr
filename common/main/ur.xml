@@ -671,8 +671,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="MF">سینٹ مارٹن</territory>
 			<territory type="MG">مڈغاسکر</territory>
 			<territory type="MH">مارشل آئلینڈز</territory>
-			<territory type="MK">مقدونیہ</territory>
-			<territory type="MK" alt="variant">مقدونیہ (FYROM)</territory>
+			<territory type="MK">شمالی مقدونیہ</territory>
 			<territory type="ML">مالی</territory>
 			<territory type="MM">میانمار (برما)</territory>
 			<territory type="MN">منگولیا</territory>
@@ -744,7 +743,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="SV">ال سلواڈور</territory>
 			<territory type="SX">سنٹ مارٹن</territory>
 			<territory type="SY">شام</territory>
-			<territory type="SZ">سوازی لینڈ</territory>
+			<territory type="SZ">سواتنی</territory>
+			<territory type="SZ" alt="variant">سوازی لینڈ</territory>
 			<territory type="TA">ٹرسٹن ڈا کیونہا</territory>
 			<territory type="TC">ترکس اور کیکاؤس جزائر</territory>
 			<territory type="TD">چاڈ</territory>

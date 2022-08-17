@@ -900,8 +900,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="MF">सेन्ट मार्टिन</territory>
 			<territory type="MG">माडागास्कर</territory>
 			<territory type="MH">मार्शल टापुहरु</territory>
-			<territory type="MK">म्यासेडोनिया</territory>
-			<territory type="MK" alt="variant">म्यासेडोनिया (फाइरम)</territory>
+			<territory type="MK">उत्तर म्यासेडोनिया</territory>
 			<territory type="ML">माली</territory>
 			<territory type="MM">म्यान्मार (बर्मा)</territory>
 			<territory type="MN">मङ्गोलिया</territory>
@@ -974,6 +973,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="SX">सिन्ट मार्टेन</territory>
 			<territory type="SY">सिरिया</territory>
 			<territory type="SZ">स्वाजिल्याण्ड</territory>
+			<territory type="SZ" alt="variant">SZ</territory>
 			<territory type="TA">ट्रिस्टान डा कुन्हा</territory>
 			<territory type="TC">तुर्क र काइकोस टापु</territory>
 			<territory type="TD">चाड</territory>
