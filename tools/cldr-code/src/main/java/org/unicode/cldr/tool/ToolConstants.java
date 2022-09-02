@@ -61,14 +61,15 @@ public class ToolConstants {
         "37.0",
         "38.0",
         "38.1",
-        "39.0"
+        "39.0",
+        "40.0"
         // add to this once the release is final!
         );
     public static final Set<VersionInfo> CLDR_VERSIONS_VI = ImmutableSet.copyOf(CLDR_VERSIONS.stream()
         .map(x -> VersionInfo.getInstance(x))
         .collect(Collectors.toList()));
 
-    public static final String DEV_VERSION = "40";
+    public static final String DEV_VERSION = "41";
     public static final VersionInfo DEV_VERSION_VI = VersionInfo.getInstance(DEV_VERSION);
 
     public static final Set<String> CLDR_RELEASE_VERSION_SET = ImmutableSet.copyOf(ToolConstants.CLDR_VERSIONS);
@@ -96,7 +97,7 @@ public class ToolConstants {
         if (vi.equals(DEV_VERSION_VI)) {
             return CLDRPaths.BASE_DIRECTORY;
         } else if (CLDR_VERSIONS_VI.contains(vi)) {
-            return CLDRPaths.ARCHIVE_DIRECTORY + "cldr-" + vi.getVersionString(2, 2) + "/";
+            return CLDRPaths.ARCHIVE_DIRECTORY + "cldr-" + vi.getVersionString(2, 3) + "/";
         } else {
             throw new IllegalArgumentException("not a known version: " + vi.getVersionString(2, 2)
                 + ", must be in: " + CLDR_VERSIONS_VI);

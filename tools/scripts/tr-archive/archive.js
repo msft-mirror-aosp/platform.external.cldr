@@ -50,8 +50,10 @@ async function renderit(infile) {
   // add CSS
   head.innerHTML =
     head.innerHTML +
-    `<meta charset="utf-8">` +
-    `<link rel='stylesheet' type='text/css' media='screen' href='../reports-v2.css'>`;
+    `<meta charset="utf-8">\n` +
+    `<link rel='stylesheet' type='text/css' media='screen' href='../reports-v2.css'>\n`;
+
+
 
   // Is there a title?
   if (dom.window.document.getElementsByTagName("title").length >= 1) {
@@ -106,9 +108,20 @@ async function renderit(infile) {
       div.appendChild(e);
     }
   }
+  // body already has no content to it at this point.
+  function getScript({src, code})  {
+    const script = dom.window.document.createElement("script");
+    if (src) {
+      script.setAttribute("src", src);
+    }
+    if (code) {
+      script.appendChild(dom.window.document.createTextNode(code));
+    }
+    return script;
+  }
+  body.appendChild(getScript({ src: './js/anchor.min.js' }));
   body.appendChild(header);
   body.appendChild(div);
-
   // now, fix all links from  ….md#…  to ….html#…
   for (const e of dom.window.document.getElementsByTagName("a")) {
     const href = e.getAttribute("href");
@@ -118,6 +131,39 @@ async function renderit(infile) {
     } else if ((m = /^(.*)\.md$/.exec(href))) {
       e.setAttribute("href", `${m[1]}.html`);
     }
+  }
+  // put this last
+  body.appendChild(getScript({ code: `anchors.add('h1, h2, h3, h4, h5, h6, caption');` }));
+
+  // Now, fixup captions
+  // Look for:  <h6>Table: …</h6> followed by <table>…</table>
+  // Move the h6 inside the table, but as <caption/>
+  const h6es = dom.window.document.getElementsByTagName("h6");
+  const toRemove = [];
+  for (const h6 of h6es) {
+    if (!h6.innerHTML.startsWith("Table: ")) {
+      console.error('Does not start with Table: ' + h6.innerHTML);
+      continue; // no 'Table:' marker.
+    }
+    const next = h6.nextElementSibling;
+    if (next.tagName !== 'TABLE') {
+      console.error('Not a following table for ' + h6.innerHTML);
+      continue; // Next item is not a table. Maybe a PRE or something.
+    }
+    const caption = dom.window.document.createElement("caption");
+    for (const e of h6.childNodes) {
+      // h6.removeChild(e);
+      caption.appendChild(e.cloneNode(true));
+    }
+    for (const p of h6.attributes) {
+      caption.setAttribute(p.name, p.value);
+      h6.removeAttribute(p.name); // so that it does not have a conflicting id
+    }
+    next.prepend(caption);
+    toRemove.push(h6);
+  }
+  for (const h6 of toRemove) {
+    h6.remove();
   }
 
   // OK, done munging the DOM, write it out.

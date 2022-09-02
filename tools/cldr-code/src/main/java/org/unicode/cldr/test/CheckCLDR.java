@@ -69,7 +69,7 @@ import com.ibm.icu.util.ICUUncheckedIOException;
  */
 abstract public class CheckCLDR {
 
-    public static final boolean LIMITED_SUBMISSION = false; // TODO represent differently
+    public static final boolean LIMITED_SUBMISSION = true; // TODO represent differently
 
     private static CLDRFile displayInformation;
 
@@ -205,7 +205,11 @@ abstract public class CheckCLDR {
             // if limited submission, and winner doesn't have an error, limit the values
 
             if (LIMITED_SUBMISSION) {
-                if (!SubmissionLocales.allowEvenIfLimited(pathValueInfo.getLocale().toString(), pathValueInfo.getXpath(), valueStatus == ValueStatus.ERROR, pathValueInfo.getBaselineStatus() == Status.missing)) {
+                if (!SubmissionLocales.allowEvenIfLimited(
+                    pathValueInfo.getLocale().toString(),
+                    pathValueInfo.getXpath(),
+                    valueStatus == ValueStatus.ERROR,
+                    pathValueInfo.getBaselineStatus() == Status.missing)) {
                     return StatusAction.FORBID_READONLY;
                 }
             }
@@ -589,6 +593,7 @@ abstract public class CheckCLDR {
             .add(new CheckMetazones())
             .add(new CheckLogicalGroupings(factory))
             .add(new CheckAlt())
+            .add(new CheckAltOnly(factory))
             .add(new CheckCurrencies())
             .add(new CheckCasing())
             .add(new CheckConsistentCasing(factory)) // this doesn't work; many spurious errors that user can't correct
@@ -728,7 +733,8 @@ abstract public class CheckCLDR {
             invalidPlaceHolder, asciiQuotesNotAllowed, badMinimumGroupingDigits, inconsistentPeriods,
             inheritanceMarkerNotAllowed, invalidDurationUnitPattern, invalidDelimiter, illegalCharactersInPattern,
             badParseLenient, tooManyValues, invalidSymbol, invalidGenderCode,
-            mismatchedUnitComponent, longPowerWithSubscripts, gapsInPlaceholderNumbers, duplicatePlaceholders, largerDifferences
+            mismatchedUnitComponent, longPowerWithSubscripts, gapsInPlaceholderNumbers, duplicatePlaceholders, largerDifferences,
+            missingNonAltPath
             ;
 
             @Override
@@ -766,7 +772,6 @@ abstract public class CheckCLDR {
         private Subtype subtype = Subtype.none;
         private String messageFormat;
         private Object[] parameters;
-        private String htmlMessage;
         private CheckCLDR cause;
         private boolean checkOnSubmit = true;
 
@@ -820,23 +825,6 @@ abstract public class CheckCLDR {
                 }
             }
             return message.replace('\t', ' ');
-        }
-
-        /**
-         * @deprecated
-         */
-        @Deprecated
-        public String getHTMLMessage() {
-            return htmlMessage;
-        }
-
-        /**
-         * @deprecated
-         */
-        @Deprecated
-        public CheckStatus setHTMLMessage(String message) {
-            htmlMessage = message;
-            return this;
         }
 
         public CheckStatus setMessage(String message) {
@@ -1147,7 +1135,7 @@ abstract public class CheckCLDR {
     /**
      * Returns any examples in the result parameter. Both examples and demos can
      * be returned. A demo will have getType() == CheckStatus.demoType. In that
-     * case, there will be no getMessage or getHTMLMessage available; instead,
+     * case, there will be no getMessage available; instead,
      * call getDemo() to get the demo, then call getHTML() to get the initial
      * HTML.
      */
