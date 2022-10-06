@@ -165,6 +165,7 @@ public class GenerateProductionData {
                 copyFilesAndReturnIsEmpty(sourceDir, destinationDir, null, isLdmlDtdType, stats);
             }
         });
+        // should be called from the main thread. Synchronizing to document.
         if (!localeToSubdivisionsToMigrate.isEmpty()) {
             System.err.println("WARNING: Subdivision files not written");
             for (Entry<String, Pair<String, String>> entry : localeToSubdivisionsToMigrate.entries()) {
@@ -342,7 +343,10 @@ public class GenerateProductionData {
 
                 // Move subdivisions elsewhere
                 if (!isSubdivisionDirectory && xpath.startsWith("//ldml/localeDisplayNames/subdivisions/subdivision")) {
-                    localeToSubdivisionsToMigrate.put(localeId, Pair.of(xpath, value));
+                    // Android-changed: See CLDR-15913. Cherry-picked from CLDR 42.
+                    synchronized(localeToSubdivisionsToMigrate) {
+                        localeToSubdivisionsToMigrate.put(localeId, Pair.of(xpath, value));
+                    }
                     toRemove.add(xpath);
                     continue;
                 }
@@ -386,12 +390,15 @@ public class GenerateProductionData {
             try (PrintWriter pw = new PrintWriter(destinationFile)) {
                 CLDRFile outCldrFile = cldrFileUnresolved.cloneAsThawed();
                 if (isSubdivisionDirectory) {
-                    Collection<Pair<String, String>> path_values = localeToSubdivisionsToMigrate.get(localeId);
-                    if (path_values != null) {
-                        for (Pair<String, String>path_value : path_values) {
-                            outCldrFile.add(path_value.getFirst(), path_value.getSecond());
+                    // Android-changed: See CLDR-15913. Cherry-picked from CLDR 42.
+                    synchronized (localeToSubdivisionsToMigrate) {
+                        Collection<Pair<String, String>> path_values = localeToSubdivisionsToMigrate.get(localeId);
+                        if (path_values != null) {
+                            for (Pair<String, String>path_value : path_values) {
+                                outCldrFile.add(path_value.getFirst(), path_value.getSecond());
+                            }
+                            localeToSubdivisionsToMigrate.removeAll(localeId);
                         }
-                        localeToSubdivisionsToMigrate.removeAll(localeId);
                     }
                 }
 
