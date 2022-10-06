@@ -55,7 +55,8 @@ public class LogicalGrouping {
     /**
      * Cache from path (String) to logical group (Set<String>)
      */
-    private static Multimap<String, String> cachePathToLogicalGroup = ArrayListMultimap.create();
+    // Android-changed: See CLDR-15913. Cherry-picked from CLDR 42.
+    private static final ConcurrentHashMap<String, Set<String>> cachePathToLogicalGroup = new ConcurrentHashMap<>();
 
     /**
      * Cache from locale and path (<Pair<String, String>), to logical group (Set<String>)
@@ -158,7 +159,14 @@ public class LogicalGrouping {
             }
             Set<String> set = new TreeSet<>();
             pathType.addPaths(set, cldrFile, path, parts);
-            cachePathToLogicalGroup.putAll(path, set);
+            // Android-changed: See CLDR-15913. Cherry-picked from CLDR 42.
+            cachePathToLogicalGroup.compute(path, (pathKey, cachedPaths) -> {
+                if (cachedPaths == null) {
+                    return Collections.synchronizedSet(new HashSet<>(set));
+                } else {
+                    cachedPaths.addAll(set);
+                    return cachedPaths;
+                }});
             return set;
         }
     }
