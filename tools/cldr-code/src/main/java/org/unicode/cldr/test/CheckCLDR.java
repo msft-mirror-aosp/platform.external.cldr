@@ -67,9 +67,9 @@ import com.ibm.icu.util.ICUUncheckedIOException;
  *
  * @author davis
  */
-abstract public class CheckCLDR {
+abstract public class CheckCLDR implements CheckAccessor {
 
-    public static final boolean LIMITED_SUBMISSION = true; // TODO represent differently
+    public static final boolean LIMITED_SUBMISSION = false; // TODO represent differently
 
     private static CLDRFile displayInformation;
 
@@ -79,6 +79,24 @@ abstract public class CheckCLDR {
     private boolean skipTest = false;
     private Phase phase;
     private Map<Subtype, List<Pattern>> filtersForLocale = new HashMap<>();
+
+    @Override
+    public String getStringValue(String path) {
+        return getCldrFileToCheck().getStringValue(path);
+    }
+    @Override
+    public String getUnresolvedStringValue(String path) {
+        return getCldrFileToCheck().getUnresolved().getStringValue(path);
+    }
+    @Override
+    public String getLocaleID() {
+        return getCldrFileToCheck().getLocaleID();
+    }
+    @Override
+    public CheckCLDR getCause() {
+        return this;
+    }
+
 
     public enum InputMethod {
         DIRECT, BULK
@@ -601,6 +619,7 @@ abstract public class CheckCLDR {
             .add(new CheckUnits())
             .add(new CheckWidths())
             .add(new CheckPlaceHolders())
+            .add(new CheckPersonNames())
             .add(new CheckNew(factory)) // this is at the end; it will check for other certain other errors and warnings and
             // not add a message if there are any.
             ;
@@ -724,7 +743,7 @@ abstract public class CheckCLDR {
             narrowDateFieldTooWide, illegalCharactersInExemplars, orientationDisagreesWithExemplars,
             inconsistentDatePattern, inconsistentTimePattern, missingDatePattern, illegalDatePattern,
             missingMainExemplars, mustNotStartOrEndWithSpace, illegalCharactersInNumberPattern,
-            numberPatternNotCanonical, currencyPatternMissingCurrencySymbol, missingMinusSign,
+            numberPatternNotCanonical, currencyPatternMissingCurrencySymbol, currencyPatternUnexpectedCurrencySymbol, missingMinusSign,
             badNumericType, percentPatternMissingPercentSymbol, illegalNumberFormat, unexpectedAttributeValue,
             metazoneContainsDigit, tooManyGroupingSeparators, inconsistentPluralFormat, missingZeros, sameAsEnglish, sameAsCode,
             dateSymbolCollision, incompleteLogicalGroup, extraMetazoneString, inconsistentDraftStatus,
@@ -734,7 +753,7 @@ abstract public class CheckCLDR {
             inheritanceMarkerNotAllowed, invalidDurationUnitPattern, invalidDelimiter, illegalCharactersInPattern,
             badParseLenient, tooManyValues, invalidSymbol, invalidGenderCode,
             mismatchedUnitComponent, longPowerWithSubscripts, gapsInPlaceholderNumbers, duplicatePlaceholders, largerDifferences,
-            missingNonAltPath
+            missingNonAltPath, badSamplePersonName, missingLanguage, namePlaceholderProblem
             ;
 
             @Override
@@ -772,7 +791,7 @@ abstract public class CheckCLDR {
         private Subtype subtype = Subtype.none;
         private String messageFormat;
         private Object[] parameters;
-        private CheckCLDR cause;
+        private CheckAccessor cause;
         private boolean checkOnSubmit = true;
 
         public CheckStatus() {
@@ -898,10 +917,10 @@ abstract public class CheckCLDR {
         }
 
         public CheckCLDR getCause() {
-            return cause;
+            return cause instanceof CheckCLDR ? (CheckCLDR) cause : null;
         }
 
-        public CheckStatus setCause(CheckCLDR cause) {
+        public CheckStatus setCause(CheckAccessor cause) {
             this.cause = cause;
             return this;
         }
@@ -1114,7 +1133,7 @@ abstract public class CheckCLDR {
         // If we're being asked to run tests for an inheritance marker, then we need to change it
         // to the "real" value first before running tests. Testing the value CldrUtility.INHERITANCE_MARKER ("↑↑↑") doesn't make sense.
         if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
-            value = cldrFileToCheck.getConstructedBaileyValue(path, null, null);
+            value = cldrFileToCheck.getBaileyValue(path, null, null);
             // If it hasn't changed, then don't run any tests.
             if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
                 return this;
@@ -1211,7 +1230,7 @@ abstract public class CheckCLDR {
             // If we're being asked to run tests for an inheritance marker, then we need to change it
             // to the "real" value first before running tests. Testing the value CldrUtility.INHERITANCE_MARKER ("↑↑↑") doesn't make sense.
             if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
-                value = getCldrFileToCheck().getConstructedBaileyValue(path, null, null);
+                value = getCldrFileToCheck().getBaileyValue(path, null, null);
             }
             for (Iterator<CheckCLDR> it = filteredCheckList.iterator(); it.hasNext();) {
                 CheckCLDR item = it.next();
