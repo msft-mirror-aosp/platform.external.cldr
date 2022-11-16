@@ -240,6 +240,7 @@ public class PathHeader implements Comparable<PathHeader> {
 
         Displaying_Lists( SectionId.Misc, "Displaying Lists"),
         MinimalPairs(SectionId.Misc, "Minimal Pairs"),
+        PersonNameFormats(SectionId.Misc, "Person Name Formats"),
         Transforms( SectionId.Misc),
 
         Identity( SectionId.Special),
@@ -1350,10 +1351,13 @@ public class PathHeader implements Comparable<PathHeader> {
             });
             functionMap.put("categoryFromKey", new Transform<String, String>() {
                 Map<String, String> fixNames = Builder.with(new HashMap<String, String>())
+                    .put("cf", "Currency Format")
+                    .put("em", "Emoji Presentation")
+                    .put("fw", "First Day of Week")
                     .put("lb", "Line Break")
                     .put("hc", "Hour Cycle")
                     .put("ms", "Measurement System")
-                    .put("cf", "Currency Format")
+                    .put("ss", "Sentence Break Suppressions")
                     .freeze();
 
                 @Override
@@ -1850,6 +1854,91 @@ public class PathHeader implements Comparable<PathHeader> {
                     return source;
                 }
             });
+
+            functionMap.put("personNameSection", new Transform<String, String>() {
+                @Override
+                public String transform(String source) {
+                    // sampleName item values in desired sort order
+                    final List<String> itemValues = Arrays.asList("givenOnly", "givenSurnameOnly", "given12Surname", "full");
+                    // personName attribute values: each group in desired
+                    // sort order, but groups from least important to most
+                    final List<String> pnAttrValues = Arrays.asList(
+                        "long", "medium", "short", // length values
+                        "givenFirst", "surnameFirst", "sorting"); // order values
+
+                    if (source.equals("NameOrder")) {
+                        order = 0;
+                        return "NameOrder for Locales";
+                    }
+                    if (source.equals("AuxiliaryItems")) {
+                        order = 10;
+                        return source;
+                    }
+                    String itemPrefix = "SampleName:";
+                    if (source.startsWith(itemPrefix)) {
+                        String itemValue = source.substring(itemPrefix.length());
+                        order = 20 + itemValues.indexOf(itemValue);
+                        return "SampleName Fields for Item: " + itemValue;
+                    }
+                    String pnPrefix = "PersonName:";
+                    if (source.startsWith(pnPrefix)) {
+                        String attrValues = source.substring(pnPrefix.length());
+                        List<String> parts = HYPHEN_SPLITTER.splitToList(attrValues);
+                        order = 30;
+                        for (String part: parts) {
+                         if (pnAttrValues.contains(part)) {
+                                order += (1 << pnAttrValues.indexOf(part));
+                            }
+                        }
+                        attrValues = attrValues.replace("sorting-", "sorting/index-");
+                        return "PersonName Patterns for Order-Length: " + attrValues;
+                    }
+                    order = 40;
+                    return source;
+                }
+            });
+
+            functionMap.put("personNameOrder", new Transform<String, String>() {
+                @Override
+                public String transform(String source) {
+                    // personName attribute values: each group in desired
+                    // sort order, but groups from least important to most
+                    final List<String> attrValues = Arrays.asList(
+                        "formal", "informal", //formality values
+                        "referring", "addressing", "monogram"); // usage values
+                        // order & length values handled in &personNameSection
+
+                    List<String> parts = HYPHEN_SPLITTER.splitToList(source);
+                    order = 0;
+                    for (String part: parts) {
+                        if (attrValues.contains(part)) {
+                            order += (1 << attrValues.indexOf(part));
+                        } // anything else like alt="variant" is at order 0
+                    }
+                    return source;
+                }
+            });
+
+            functionMap.put("sampleNameOrder", new Transform<String, String>() {
+                @Override
+                public String transform(String source) {
+                    // The various nameField attribute values: each group in desired
+                    // sort order, but groups from least important to most
+                    final List<String> attrValues = Arrays.asList(
+                        "informal", "prefix", "core", // modifiers for nameField type
+                        "prefix", "given", "given2", "surname", "surname2", "suffix"); // values for nameField type
+
+                    List<String> parts = HYPHEN_SPLITTER.splitToList(source);
+                    order = 0;
+                    for (String part: parts) {
+                        if (attrValues.contains(part)) {
+                            order += (1 << attrValues.indexOf(part));
+                        } // anything else like alt="variant" is at order 0
+                    }
+                    return source;
+                }
+            });
+
             functionMap.put("alphaOrder", new Transform<String, String>() {
                 @Override
                 public String transform(String source) {
