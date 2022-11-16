@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.XPathParts.Comments;
 
-import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.UnicodeSet;
@@ -235,7 +234,7 @@ public class SimpleXMLSource extends XMLSource {
     @Override
     public XMLSource addSourceLocation(String currentFullXPath, SourceLocation location) {
         if (!isFrozen()) {
-            locationHash.put(currentFullXPath, location);
+            locationHash.put(currentFullXPath.intern(), location);
         } else {
             System.err.println("SimpleXMLSource::addSourceLocationAttempt to modify frozen source location");
         }
