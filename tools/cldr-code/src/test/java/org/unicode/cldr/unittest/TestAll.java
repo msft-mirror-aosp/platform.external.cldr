@@ -238,6 +238,8 @@ public class TestAll extends TestGroup {
             "org.unicode.cldr.unittest.TestUnits",
             "org.unicode.cldr.unittest.TestNumbers",
             "org.unicode.cldr.unittest.TestLocaleCanonicalizer",
+            "org.unicode.cldr.unittest.TestPersonNameFormatter",
+            "org.unicode.cldr.unittest.TestCompactNumbers",
             //            "org.unicode.cldr.unittest.TestCollators" See Ticket #8288
             "org.unicode.cldr.api.AllTests",
         },
