@@ -2051,6 +2051,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<metazoneId shortId="wall" longId="Wallis" />
 			<metazoneId shortId="yaku" longId="Yakutsk" />
 			<metazoneId shortId="yeka" longId="Yekaterinburg" />
+			<metazoneId shortId="yuko" longId="Yukon" />
 		</metazoneIds>
 	</metaZones>
 
