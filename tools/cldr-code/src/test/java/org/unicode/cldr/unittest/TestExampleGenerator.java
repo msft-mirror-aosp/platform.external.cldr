@@ -138,12 +138,14 @@ public class TestExampleGenerator extends TestFmwk {
         "//ldml/numbers/currencyFormats/currencySpacing/afterCurrency/currencyMatch",
         "//ldml/numbers/currencyFormats/currencySpacing/afterCurrency/surroundingMatch",
         "//ldml/numbers/currencyFormats/currencySpacing/afterCurrency/insertBetween",
+        "//ldml/numbers/currencyFormats/currencyPatternAppendISO", // TODO see CLDR-14831
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/beforeCurrency/currencyMatch",
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/beforeCurrency/surroundingMatch",
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/beforeCurrency/insertBetween",
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/afterCurrency/currencyMatch",
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/afterCurrency/surroundingMatch",
         "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencySpacing/afterCurrency/insertBetween",
+        "//ldml/numbers/currencyFormats[@numberSystem=\"([^\"]*+)\"]/currencyPatternAppendISO", // TODO see CLDR-14831
 
         "//ldml/localeDisplayNames/variants/variant[@type=\"([^\"]*+)\"]",
         "//ldml/localeDisplayNames/keys/key[@type=\"([^\"]*+)\"]",
@@ -186,7 +188,19 @@ public class TestExampleGenerator extends TestFmwk {
 
         "//ldml/localeDisplayNames/subdivisions/subdivision[@type=\"([^\"]*+)\"]",
 
-        "//ldml/dates/timeZoneNames/zone[@type=\"([^\"]*+)\"]/long/standard" // Error: (TestExampleGenerator.java:245) No background:   <Coordinated Universal Time>    〖Coordinated Universal Time〗
+        "//ldml/dates/timeZoneNames/zone[@type=\"([^\"]*+)\"]/long/standard", // Error: (TestExampleGenerator.java:245) No background:   <Coordinated Universal Time>    〖Coordinated Universal Time〗
+
+        "//ldml/personNames/nameOrderLocales[@order=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/foreignSpaceReplacement[@xml:space=\"([^\"]*+)\"][@alt=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/foreignSpaceReplacement[@xml:space=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/foreignSpaceReplacement[@alt=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/foreignSpaceReplacement", // TODO CLDR-15384
+        "//ldml/personNames/initialPattern[@type=\"([^\"]*+)\"][@alt=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/initialPattern[@type=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/personName[@order=\"([^\"]*+)\"][@length=\"([^\"]*+)\"][@usage=\"([^\"]*+)\"][@formality=\"([^\"]*+)\"]/namePattern[@alt=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/sampleName[@item=\"([^\"]*+)\"]/nameField[@type=\"([^\"]*+)\"][@alt=\"([^\"]*+)\"]", // TODO CLDR-15384
+        "//ldml/personNames/sampleName[@item=\"([^\"]*+)\"]/nameField[@type=\"([^\"]*+)\"]" // TODO CLDR-15384
+
         );
     // Add to above if the example SHOULD appear, but we don't have it yet. TODO Add later
 
@@ -230,7 +244,9 @@ public class TestExampleGenerator extends TestFmwk {
         "//ldml/dates/timeZoneNames/zone[@type=\"([^\"]*+)\"]/long/standard",
         "//ldml/dates/timeZoneNames/metazone[@type=\"([^\"]*+)\"]/short/generic",
         "//ldml/dates/timeZoneNames/metazone[@type=\"([^\"]*+)\"]/short/standard",
-        "//ldml/dates/timeZoneNames/metazone[@type=\"([^\"]*+)\"]/short/daylight");
+        "//ldml/dates/timeZoneNames/metazone[@type=\"([^\"]*+)\"]/short/daylight",
+        "//ldml/personNames/personName[@order=\"([^\"]*+)\"][@length=\"([^\"]*+)\"][@formality=\"([^\"]*+)\"]/namePattern",
+        "//ldml/personNames/personName[@order=\"([^\"]*+)\"][@length=\"([^\"]*+)\"][@usage=\"([^\"]*+)\"][@formality=\"([^\"]*+)\"]/namePattern"); // CLDR-15384
     // Add to above if the background SHOULD appear, but we don't have them yet. TODO Add later
 
     public void TestAllPaths() {
@@ -588,8 +604,24 @@ public class TestExampleGenerator extends TestFmwk {
 
     public void TestPluralSamples() {
         ExampleGenerator exampleGenerator = getExampleGenerator("sv");
-        String path = "//ldml/units/unitLength[@type=\"short\"]/unit[@type=\"length-centimeter\"]/unitPattern[@count=\"one\"]";
-        checkValue("Number should be one", "〖❬1❭ cm〗〖❬Jag tror att 1❭ cm❬ är tillräckligt.❭〗", exampleGenerator, path);
+        String[][] tests = {
+            {"//ldml/units/unitLength[@type=\"short\"]/unit[@type=\"length-centimeter\"]/unitPattern[@count=\"one\"]",
+                "Number should be one",
+            "〖❬1❭ cm〗〖❬Jag tror att 1❭ cm❬ är tillräckligt.❭〗"},
+            {"//ldml/numbers/minimalPairs/ordinalMinimalPairs[@ordinal=\"one\"]",
+                "Ordinal one",
+            "〖Ta ❬1❭:a svängen till höger〗〖❌  Ta ❬3❭:a svängen till höger〗"},
+            {"//ldml/numbers/minimalPairs/ordinalMinimalPairs[@ordinal=\"other\"]",
+                "Ordinal other",
+            "〖Ta ❬3❭:e svängen till höger〗〖❌  Ta ❬1❭:e svängen till höger〗"},
+        };
+        for (String[] row : tests) {
+            String path = row[0];
+            String message = row[1];
+            String expected = row[2];
+            checkValue(message, expected, exampleGenerator, path);
+        }
+
     }
 
     public void TestLocaleDisplayPatterns() {
@@ -624,6 +656,26 @@ public class TestExampleGenerator extends TestFmwk {
             "〖€ ❬1295,00❭〗〖-€ ❬1295,00❭〗", actual);
     }
 
+    public void TestCurrencyFormatsWithContext() {
+        ExampleGenerator exampleGenerator = getExampleGenerator("he");
+        String actual = simplify(exampleGenerator
+            .getExampleHtml(
+                "//ldml/numbers/currencyFormats[@numberSystem=\"latn\"]/currencyFormatLength/currencyFormat[@type=\"standard\"]/pattern[@type=\"standard\"]",
+                "‏#,##0.00 ¤;‏-#,##0.00 ¤"));
+        assertEquals("Currency format example faulty",
+            "【‏❬1,295❭.❬00❭ ₪〗【⃪‏❬1,295❭.❬00❭ ₪〗【‏‎-❬1,295❭.❬00❭ ₪〗【⃪‏‎-❬1,295❭.❬00❭ ₪〗【‏❬1,295❭.❬00❭ ILS〗【⃪‏❬1,295❭.❬00❭ ILS〗【‏‎-❬1,295❭.❬00❭ ILS〗【⃪‏‎-❬1,295❭.❬00❭ ILS〗", actual);
+    }
+
+    public void TestDateFormatsWithContext() {
+        ExampleGenerator exampleGenerator = getExampleGenerator("ar");
+        String actual = simplify(exampleGenerator
+            .getExampleHtml(
+                "//ldml/dates/calendars/calendar[@type=\"gregorian\"]/dateFormats/dateFormatLength[@type=\"short\"]/dateFormat[@type=\"standard\"]/pattern[@type=\"standard\"]",
+                "d‏/M‏/y"));
+        assertEquals("Currency format example faulty",
+            "【٥‏/٩‏/١٩٩٩〗【⃪٥‏/٩‏/١٩٩٩〗", actual);
+    }
+
     public void TestSymbols() {
         CLDRFile english = info.getEnglish();
         ExampleGenerator exampleGenerator = new ExampleGenerator(english,
@@ -645,7 +697,7 @@ public class TestExampleGenerator extends TestFmwk {
             CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY);
         String actual = exampleGenerator.getExampleHtml(
             "//ldml/dates/timeZoneNames/fallbackFormat", "{1} [{0}]");
-        assertEquals("fallbackFormat faulty", "〖❬Central Time❭ [❬Cancun❭]〗",
+        assertEquals("fallbackFormat faulty", "〖❬Central Time❭ [❬Cancún❭]〗",
             ExampleGenerator.simplify(actual, false));
     }
 
