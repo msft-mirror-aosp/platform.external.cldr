@@ -64,8 +64,16 @@ public final class SubmissionLocales {
         .addAll(ALLOW_ALL_PATHS)
         .build();
 
-    public static final Pattern PATHS_ALLOWED_IN_LIMITED =
-    Pattern.compile("//ldml/units/unitLength\\[@type=\"long\"]");
+    public static final Pattern PATHS_ALLOWED_IN_LIMITED = Pattern.compile(
+        "//ldml/"
+            // v43: All person names
+            // + "(personNames/.*"
+            // v43: Turkey and its alternate
+            // + "|localeDisplayNames/territories/territory\\[@type=\"TR\"\\].*"
+            + "|units/unitLength\\[@type=\"long\"]"
+            // v43: Exemplar city for America/Ciudad_Juarez
+            + "|dates/timeZoneNames/zone[@type=\"America/Ciudad_Juarez\"]/exemplarCity"
+        + ")");
 
     /* Example of special paths
      * Pattern.compile(
