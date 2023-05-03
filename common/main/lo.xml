@@ -1039,7 +1039,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">ຕູນິເຊຍ</territory>
 			<territory type="TO">ທອງກາ</territory>
 			<territory type="TR">ເທີຄີ</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">ເທີຄີ</territory>
 			<territory type="TT">ທຣິນິແດດ ແລະ ໂທແບໂກ</territory>
 			<territory type="TV">ຕູວາລູ</territory>
 			<territory type="TW">ໄຕ້ຫວັນ</territory>

@@ -1023,7 +1023,7 @@ annotations.
 			<territory type="TO">Tonga</territory>
 			<!-- Android patch: Swap the primary and variant name. b/246410688 begin. -->
 			<territory type="TR">Turkiye</territory>
-			<territory type="TR" alt="variant">Turkey</territory>
+			<territory type="TR" alt="variant">Turkiye</territory>
 			<!-- Android patch: Swap the primary and variant name. b/246410688 end. -->
 			<territory type="TT">Trinidad &amp; Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
