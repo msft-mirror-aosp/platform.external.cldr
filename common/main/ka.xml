@@ -995,7 +995,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">ტუნისი</territory>
 			<territory type="TO">ტონგა</territory>
 			<territory type="TR">თურქეთი</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">თურქეთი</territory>
 			<territory type="TT">ტრინიდადი და ტობაგო</territory>
 			<territory type="TV">ტუვალუ</territory>
 			<territory type="TW">ტაივანი</territory>

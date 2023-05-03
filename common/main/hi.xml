@@ -1014,8 +1014,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">तुर्कमेनिस्तान</territory>
 			<territory type="TN">ट्यूनीशिया</territory>
 			<territory type="TO">टोंगा</territory>
-			<territory type="TR">तुर्की</territory>
-			<territory type="TR" alt="variant">तुर्किए</territory>
+			<territory type="TR">तुर्किये</territory>
+			<territory type="TR" alt="variant">तुर्किये</territory>
 			<territory type="TT">त्रिनिदाद और टोबैगो</territory>
 			<territory type="TV">तुवालू</territory>
 			<territory type="TW">ताइवान</territory>
