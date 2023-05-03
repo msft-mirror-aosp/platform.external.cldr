@@ -6754,6 +6754,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<zone type="America/Hermosillo">
 				<exemplarCity>埃莫西约</exemplarCity>
 			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>华雷斯城</exemplarCity>
+			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>马萨特兰</exemplarCity>
 			</zone>
