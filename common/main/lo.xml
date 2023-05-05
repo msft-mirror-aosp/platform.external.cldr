@@ -4580,6 +4580,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<zone type="America/Hermosillo">
 				<exemplarCity>ເອໂມຊິໂຢ</exemplarCity>
 			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>ຊີອູດັດ ຄົວເຣຊ</exemplarCity>
+			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>ມາຊາດລານ</exemplarCity>
 			</zone>
