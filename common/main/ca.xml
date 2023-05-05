@@ -1097,7 +1097,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">Tunísia</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turquia</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turquia</territory>
 			<territory type="TT">Trinitat i Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
 			<territory type="TW">Taiwan</territory>

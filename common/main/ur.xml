@@ -820,8 +820,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">ترکمانستان</territory>
 			<territory type="TN">تونس</territory>
 			<territory type="TO">ٹونگا</territory>
-			<territory type="TR">ترکی</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">ترکیہ</territory>
+			<territory type="TR" alt="variant">ترکیہ</territory>
 			<territory type="TT">ترینیداد اور ٹوباگو</territory>
 			<territory type="TV">ٹووالو</territory>
 			<territory type="TW">تائیوان</territory>

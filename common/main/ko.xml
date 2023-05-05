@@ -1065,8 +1065,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">투르크메니스탄</territory>
 			<territory type="TN">튀니지</territory>
 			<territory type="TO">통가</territory>
-			<territory type="TR">터키</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">튀르키예</territory>
+			<territory type="TR" alt="variant">튀르키예</territory>
 			<territory type="TT">트리니다드 토바고</territory>
 			<territory type="TV">투발루</territory>
 			<territory type="TW">대만</territory>
