@@ -1065,7 +1065,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">תוניסיה</territory>
 			<territory type="TO">טונגה</territory>
 			<territory type="TR">טורקיה</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">טורקיה</territory>
 			<territory type="TT">טרינידד וטובגו</territory>
 			<territory type="TV">טובאלו</territory>
 			<territory type="TW">טייוואן</territory>
