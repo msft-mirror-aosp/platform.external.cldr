@@ -1000,7 +1000,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
-			<territory type="TR">Tyrkia</territory>
+			<territory type="TR">↑↑↑</territory>
 			<territory type="TR" alt="variant">↑↑↑</territory>
 			<territory type="TT">Trinidad og Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
