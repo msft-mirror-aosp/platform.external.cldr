@@ -1013,8 +1013,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">તુર્કમેનિસ્તાન</territory>
 			<territory type="TN">ટ્યુનિશિયા</territory>
 			<territory type="TO">ટોંગા</territory>
-			<territory type="TR">તુર્કી</territory>
-			<territory type="TR" alt="variant">તુર્કી</territory>
+			<territory type="TR">તુર્કિયે</territory>
+			<territory type="TR" alt="variant">તુર્કિયે</territory>
 			<territory type="TT">ટ્રિનીદાદ અને ટોબેગો</territory>
 			<territory type="TV">તુવાલુ</territory>
 			<territory type="TW">તાઇવાન</territory>

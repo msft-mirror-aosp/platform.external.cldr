@@ -915,7 +915,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tuniisiya</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turki</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turki</territory>
 			<territory type="TT">Tirinidaad &amp; Tobago</territory>
 			<territory type="TV">Tufaalu</territory>
 			<territory type="TW">Taywaan</territory>
