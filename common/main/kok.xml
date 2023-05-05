@@ -3189,6 +3189,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<zone type="America/Hermosillo">
 				<exemplarCity>हर्मोसिलो</exemplarCity>
 			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>सिउदाद जुआरेज</exemplarCity>
+			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>माझाट्लान</exemplarCity>
 			</zone>
