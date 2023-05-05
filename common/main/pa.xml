@@ -825,7 +825,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">ਟਿਊਨੀਸ਼ੀਆ</territory>
 			<territory type="TO">ਟੌਂਗਾ</territory>
 			<territory type="TR">ਤੁਰਕੀ</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">ਤੁਰਕੀ</territory>
 			<territory type="TT">ਟ੍ਰਿਨੀਡਾਡ ਅਤੇ ਟੋਬਾਗੋ</territory>
 			<territory type="TV">ਟੁਵਾਲੂ</territory>
 			<territory type="TW">ਤਾਇਵਾਨ</territory>
