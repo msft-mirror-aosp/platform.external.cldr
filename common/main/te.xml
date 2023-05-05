@@ -1008,8 +1008,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">టర్క్‌మెనిస్తాన్</territory>
 			<territory type="TN">ట్యునీషియా</territory>
 			<territory type="TO">టోంగా</territory>
-			<territory type="TR">టర్కీ</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">తుర్కియె</territory>
+			<territory type="TR" alt="variant">తుర్కియె</territory>
 			<territory type="TT">ట్రినిడాడ్ మరియు టొబాగో</territory>
 			<territory type="TV">టువాలు</territory>
 			<territory type="TW">తైవాన్</territory>

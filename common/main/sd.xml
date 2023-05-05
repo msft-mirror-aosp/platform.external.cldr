@@ -809,8 +809,8 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TM">ترڪمانستان</territory>
 			<territory type="TN">تيونيسيا</territory>
 			<territory type="TO">ٽونگا</territory>
-			<territory type="TR">ترڪي</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">ترڪييي</territory>
+			<territory type="TR" alt="variant">ترڪييي</territory>
 			<territory type="TT">ٽريني ڊيڊ ۽ ٽوباگو ٻيٽ</territory>
 			<territory type="TV">توالو</territory>
 			<territory type="TW">تائیوان</territory>
