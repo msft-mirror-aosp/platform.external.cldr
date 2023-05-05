@@ -973,7 +973,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">Túnis</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Tyrkland</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Tyrkland</territory>
 			<territory type="TT">Trínidad og Tóbagó</territory>
 			<territory type="TV">Túvalú</territory>
 			<territory type="TW">Taívan</territory>

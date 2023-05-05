@@ -1086,7 +1086,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">突尼斯</territory>
 			<territory type="TO">汤加</territory>
 			<territory type="TR">土耳其</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">土耳其</territory>
 			<territory type="TT">特立尼达和多巴哥</territory>
 			<territory type="TV">图瓦卢</territory>
 			<territory type="TW">台湾</territory>

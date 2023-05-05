@@ -1162,7 +1162,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunīsia</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Toake</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Toake</territory>
 			<territory type="TT">Tilinitati mo Topako</territory>
 			<territory type="TV">Tūvalu</territory>
 			<territory type="TW">Taiuani</territory>
