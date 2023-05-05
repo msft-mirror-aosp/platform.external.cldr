@@ -1010,8 +1010,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">துர்க்மெனிஸ்தான்</territory>
 			<territory type="TN">டுனிசியா</territory>
 			<territory type="TO">டோங்கா</territory>
-			<territory type="TR">துருக்கி</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">துருக்கியே</territory>
+			<territory type="TR" alt="variant">துருக்கியே</territory>
 			<territory type="TT">டிரினிடாட் &amp; டொபாகோ</territory>
 			<territory type="TV">துவாலு</territory>
 			<territory type="TW">தைவான்</territory>

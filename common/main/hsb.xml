@@ -815,7 +815,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tuneziska</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turkowska</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turkowska</territory>
 			<territory type="TT">Trinidad a Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
 			<territory type="TW">Taiwan</territory>
