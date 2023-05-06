@@ -773,6 +773,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN" draft="provisional">Туніс</territory>
 			<territory type="TO" draft="provisional">Тонга</territory>
 			<territory type="TR" draft="provisional">Турэччына</territory>
+			<territory type="TR" alt="variant" draft="provisional">Турэччына</territory>
 			<territory type="TT" draft="provisional">Трынідад і Табага</territory>
 			<territory type="TV" draft="provisional">Тувалу</territory>
 			<territory type="TW" draft="provisional">Тайвань</territory>
