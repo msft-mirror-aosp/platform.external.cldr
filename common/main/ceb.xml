@@ -356,7 +356,7 @@ the LDML specification (http://unicode.org/reports/tr35/)
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turkey</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turkey</territory>
 			<territory type="TT">Trinidad &amp; Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
 			<territory type="TW">Taiwan</territory>
@@ -2116,6 +2116,9 @@ the LDML specification (http://unicode.org/reports/tr35/)
 				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Hermosillo">
+				<exemplarCity>↑↑↑</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
 				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">

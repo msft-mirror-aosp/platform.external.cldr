@@ -886,7 +886,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">Թունիս</territory>
 			<territory type="TO">Տոնգա</territory>
 			<territory type="TR">Թուրքիա</territory>
-			<territory type="TR" alt="variant">Թյուրքիե</territory>
+			<territory type="TR" alt="variant">Թուրքիա</territory>
 			<territory type="TT">Տրինիդադ և Տոբագո</territory>
 			<territory type="TV">Տուվալու</territory>
 			<territory type="TW">Թայվան</territory>
@@ -3344,6 +3344,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>Էրմոսիլյո</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>Սյուդադ Խուարես</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>Մազաթլան</exemplarCity>

@@ -800,7 +800,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunishia</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Tɔɔki</territory>
-			<territory type="TR" alt="variant">Èdè Tɔɔki</territory>
+			<territory type="TR" alt="variant">Tɔɔki</territory>
 			<territory type="TT">Tirinida ati Tobaga</territory>
 			<territory type="TV">Tufalu</territory>
 			<territory type="TW">Taiwani</territory>
