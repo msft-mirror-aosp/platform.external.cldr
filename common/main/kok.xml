@@ -811,7 +811,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">ट्यूनीशिया</territory>
 			<territory type="TO">टोंगा</territory>
 			<territory type="TR">तुर्की</territory>
-			<territory type="TR" alt="variant">तुर्कीए</territory>
+			<territory type="TR" alt="variant">तुर्की</territory>
 			<territory type="TT">ट्रिनीदाद आनी टोबॅगो</territory>
 			<territory type="TV">टुवालू</territory>
 			<territory type="TW">तायवान</territory>
@@ -3188,6 +3188,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>हर्मोसिलो</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>सिउदाद जुआरेज</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>माझाट्लान</exemplarCity>
