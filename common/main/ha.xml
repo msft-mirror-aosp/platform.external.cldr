@@ -800,7 +800,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunisiya</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turkiyya</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turkiyya</territory>
 			<territory type="TT">Tirinidad Da Tobago</territory>
 			<territory type="TV">Tubalu</territory>
 			<territory type="TW">Taiwan</territory>
@@ -3337,6 +3337,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Hermosillo">
+				<exemplarCity>↑↑↑</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
 				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
