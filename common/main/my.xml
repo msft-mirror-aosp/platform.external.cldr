@@ -838,7 +838,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">တူနီးရှား</territory>
 			<territory type="TO">တွန်ဂါ</territory>
 			<territory type="TR">တူရကီ</territory>
-			<territory type="TR" alt="variant">တာ့ကီယဲ</territory>
+			<territory type="TR" alt="variant">တူရကီယဲ</territory>
 			<territory type="TT">ထရီနီဒတ်နှင့် တိုဘက်ဂို</territory>
 			<territory type="TV">တူဗားလူ</territory>
 			<territory type="TW">ထိုင်ဝမ်</territory>
@@ -3220,6 +3220,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>ဟာမိုစ်စီလို</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>စီယူဒတ်စ် ဟွာရက်စ်</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>မာဇတ်လန်</exemplarCity>

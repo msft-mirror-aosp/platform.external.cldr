@@ -721,7 +721,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunizio</territory>
 			<territory type="TO">Tongo</territory>
 			<territory type="TR">Turkujo</territory>
-			<territory type="TR" alt="variant" draft="unconfirmed">↑↑↑</territory>
+			<territory type="TR" alt="variant" draft="unconfirmed">Turkujo</territory>
 			<territory type="TT">Trinidado kaj Tobago</territory>
 			<territory type="TV">Tuvalo</territory>
 			<territory type="TW">Tajvano</territory>

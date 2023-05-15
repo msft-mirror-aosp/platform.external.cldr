@@ -1018,8 +1018,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">തുർക്ക്മെനിസ്ഥാൻ</territory>
 			<territory type="TN">ടുണീഷ്യ</territory>
 			<territory type="TO">ടോംഗ</territory>
-			<territory type="TR">തുർക്കി</territory>
-			<territory type="TR" alt="variant">തുർക്കി</territory>
+			<territory type="TR">തുർക്കിയെ</territory>
+			<territory type="TR" alt="variant">തുർക്കിയെ</territory>
 			<territory type="TT">ട്രിനിഡാഡും ടുബാഗോയും</territory>
 			<territory type="TV">ടുവാലു</territory>
 			<territory type="TW">തായ്‌വാൻ</territory>
@@ -4294,6 +4294,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>ഹെർമോസില്ലോ</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>സിയുഡാഡ് ഹുവാരസ്</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>മസറ്റ്‌ലാൻ</exemplarCity>
