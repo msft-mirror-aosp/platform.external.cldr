@@ -1013,7 +1013,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">Túnez</territory>
 			<territory type="TO">Tonga</territory>
 			<territory type="TR">Turquía</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Turquía</territory>
 			<territory type="TT">Trinidad y Tobago</territory>
 			<territory type="TV">Tuvalu</territory>
 			<territory type="TW">Taiwán</territory>
@@ -4375,6 +4375,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>Hermosillo</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>Mazatlán</exemplarCity>

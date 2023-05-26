@@ -749,7 +749,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">ቱኒዝያ</territory>
 			<territory type="TO">ቶንጋ</territory>
 			<territory type="TR">ቱርኪ</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">ቱርኪ</territory>
 			<territory type="TT">ትሪኒዳድን ቶባጎን</territory>
 			<territory type="TV">ቱቫሉ</territory>
 			<territory type="TW">ታይዋን</territory>
