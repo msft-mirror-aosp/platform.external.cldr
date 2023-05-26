@@ -898,7 +898,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TN">ቱኒዚያ</territory>
 			<territory type="TO">ቶንጋ</territory>
 			<territory type="TR">ቱርክ</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">ቱርክ</territory>
 			<territory type="TT">ትሪናዳድ እና ቶቤጎ</territory>
 			<territory type="TV">ቱቫሉ</territory>
 			<territory type="TW">ታይዋን</territory>
@@ -4359,6 +4359,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>ኸርሞዚሎ</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>ሳዮዳድ ሁዋሬዝ</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>ማዛትላን</exemplarCity>

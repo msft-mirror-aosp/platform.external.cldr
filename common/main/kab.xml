@@ -750,7 +750,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunes</territory>
 			<territory type="TO">Ṭunga</territory>
 			<territory type="TR">Ṭurk</territory>
-			<territory type="TR" alt="variant" draft="unconfirmed">↑↑↑</territory>
+			<territory type="TR" alt="variant" draft="unconfirmed">Ṭurk</territory>
 			<territory type="TT">Ṭrindad d Ṭubagu</territory>
 			<territory type="TV">Ṭuvalu</territory>
 			<territory type="TW">Ṭaywan</territory>

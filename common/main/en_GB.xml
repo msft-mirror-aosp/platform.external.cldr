@@ -1008,7 +1008,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
 			<!-- Android patch: Swap the primary and variant name. b/246410688 begin. -->
-			<territory type="TR">Türkiye</territory>
+			<territory type="TR">↑↑↑</territory>
 			<territory type="TR" alt="variant">↑↑↑</territory>
 			<!-- Android patch: Swap the primary and variant name. b/246410688 end. -->
 			<territory type="TT">↑↑↑</territory>
@@ -4481,6 +4481,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>Hermosillo</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>Mazatlan</exemplarCity>

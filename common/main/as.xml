@@ -807,8 +807,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TM">তুৰ্কমেনিস্তান</territory>
 			<territory type="TN">টুনিচিয়া</territory>
 			<territory type="TO">টংগা</territory>
-			<territory type="TR">তুৰ্কি</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR">তুৰ্কিয়ে</territory>
+			<territory type="TR" alt="variant">তুৰ্কিয়ে</territory>
 			<territory type="TT">ট্ৰিনিডাড আৰু টোবাগো</territory>
 			<territory type="TV">টুভালু</territory>
 			<territory type="TW">টাইৱান</territory>
@@ -3290,6 +3290,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Hermosillo">
 				<exemplarCity>হাৰ্মোছিল্লো</exemplarCity>
+			</zone>
+			<zone type="America/Ciudad_Juarez">
+				<exemplarCity>চিউডে‘ড জৰেজ</exemplarCity>
 			</zone>
 			<zone type="America/Mazatlan">
 				<exemplarCity>মাজাট্‌লান</exemplarCity>
