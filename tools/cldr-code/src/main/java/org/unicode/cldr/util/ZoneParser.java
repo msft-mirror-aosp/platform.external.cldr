@@ -545,7 +545,7 @@ public class ZoneParser {
     private static List<String> errorData = Arrays.asList(new String[] {
         new Double(Double.MIN_VALUE).toString(), new Double(Double.MIN_VALUE).toString(), "" });
 
-    private Comparator<String> TZIDComparator = new Comparator<String>() {
+    private Comparator<String> TZIDComparator = new Comparator<>() {
         Map<String, List<String>> data = getZoneData();
 
         @Override
@@ -684,8 +684,12 @@ public class ZoneParser {
     // When these zones are deprecated in CLDR, remove them from this array.
     // See CLDR-16049
     static final String[][] SUPPLEMENTAL_ZONE_ID_DATA = {
-        {"Europe/Uzhgorod", "UA", "+4837+02218"},
-        {"Europe/Zaporozhye", "UA", "+4750+03510"}
+        {"Europe/Uzhgorod", "UA", "+4837+02218"},       // 2022d
+        {"Europe/Zaporozhye", "UA", "+4750+03510"},     // 2022d
+        {"America/Nipigon", "CA", "+4901-08816"},       // 2022f
+        {"America/Rainy_River", "CA", "+4843-09434"},   // 2022f
+        {"America/Thunder_Bay", "CA", "+4823-08915"},   // 2022f
+        {"America/Pangnirtung", "CA", "+6608-06544"},   // 2022g
     };
 
     /**
