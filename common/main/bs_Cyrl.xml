@@ -1054,7 +1054,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="TN">Тунис</territory>
 			<territory type="TO">Тонга</territory>
 			<territory type="TR">Турска</territory>
-			<territory type="TR" alt="variant">↑↑↑</territory>
+			<territory type="TR" alt="variant">Турска</territory>
 			<territory type="TT">Тринидад и Тобаго</territory>
 			<territory type="TV">Тувалу</territory>
 			<territory type="TW">Тајван</territory>
