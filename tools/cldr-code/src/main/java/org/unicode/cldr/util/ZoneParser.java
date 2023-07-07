@@ -545,7 +545,7 @@ public class ZoneParser {
     private static List<String> errorData = Arrays.asList(new String[] {
         new Double(Double.MIN_VALUE).toString(), new Double(Double.MIN_VALUE).toString(), "" });
 
-    private Comparator<String> TZIDComparator = new Comparator<String>() {
+    private Comparator<String> TZIDComparator = new Comparator<>() {
         Map<String, List<String>> data = getZoneData();
 
         @Override
