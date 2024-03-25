@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
@@ -31,14 +30,21 @@ public class CLDRFilePseudolocalizer {
     private static final String NUMBERS_PATH = "//ldml/numbers/defaultNumberingSystem";
     // Android patch (b/37512961) end.
     private static final String EXEMPLAR_PATH = "//ldml/characters/exemplarCharacters";
-    private static final String EXEMPLAR_AUX_PATH = "//ldml/characters/exemplarCharacters[@type=\"auxiliary\"]";
-    private static final String TERRITORY_PATTERN = "//ldml/localeDisplayNames/territories/territory[@type=\"%s\"]";
-    private static final String[] EXCLUDE_LIST = { "/exemplarCharacters", "/delimiters",
-        "/contextTransforms", "/numbers",
+    private static final String EXEMPLAR_AUX_PATH =
+            "//ldml/characters/exemplarCharacters[@type=\"auxiliary\"]";
+    private static final String TERRITORY_PATTERN =
+            "//ldml/localeDisplayNames/territories/territory[@type=\"%s\"]";
+    private static final String[] EXCLUDE_LIST = {
+        "/exemplarCharacters",
+        "/delimiters",
+        "/contextTransforms",
+        "/numbers",
         "/units", // [ and ] are not allowed in units
-        "narrow", "localeDisplayPattern", "timeZoneNames/fallbackFormat", // Expansion limits
+        "narrow",
+        "localeDisplayPattern",
+        "timeZoneNames/fallbackFormat", // Expansion limits
     };
-    private static final String[] PATTERN_LIST = { "/pattern", "FormatItem", "hourFormat" };
+    private static final String[] PATTERN_LIST = {"/pattern", "FormatItem", "hourFormat"};
 
     private static class Pseudolocalizer {
         private boolean pattern;
@@ -70,13 +76,46 @@ public class CLDRFilePseudolocalizer {
 
     private static class PseudolocalizerXA extends Pseudolocalizer {
         private static final String[] NUMBERS = {
-            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-            "seventeen", "eighteen", "nineteen", "twenty", "twentyone", "twentytwo",
-            "twentythree", "twentyfour", "twentyfive", "twentysix", "twentyseven",
-            "twentyeight", "twentynine", "thirty", "thirtyone", "thirtytwo",
-            "thirtythree", "thirtyfour", "thirtyfive", "thirtysix", "thirtyseven",
-            "thirtyeight", "thirtynine", "forty"
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "eleven",
+            "twelve",
+            "thirteen",
+            "fourteen",
+            "fifteen",
+            "sixteen",
+            "seventeen",
+            "eighteen",
+            "nineteen",
+            "twenty",
+            "twentyone",
+            "twentytwo",
+            "twentythree",
+            "twentyfour",
+            "twentyfive",
+            "twentysix",
+            "twentyseven",
+            "twentyeight",
+            "twentynine",
+            "thirty",
+            "thirtyone",
+            "thirtytwo",
+            "thirtythree",
+            "thirtyfour",
+            "thirtyfive",
+            "thirtysix",
+            "thirtyseven",
+            "thirtyeight",
+            "thirtynine",
+            "forty"
         };
         private static final Map<Integer, String> REPLACEMENTS = buildReplacementsTable();
         private int charCount = 0;
@@ -241,7 +280,7 @@ public class CLDRFilePseudolocalizer {
         public String fragment(String text) {
             StringBuilder output = new StringBuilder();
             boolean wrapping = false;
-            for (int index = 0; index < text.length();) {
+            for (int index = 0; index < text.length(); ) {
                 int codePoint = text.codePointAt(index);
                 index += Character.charCount(codePoint);
                 byte directionality = Character.getDirectionality(codePoint);
@@ -265,10 +304,8 @@ public class CLDRFilePseudolocalizer {
     /**
      * Construct new CLDRPseudolocalization object.
      *
-     * @param outputLocale
-     *             name of target locale
-     * @param pipeline
-     *             pseudolocalization pipeline to generate target locale data
+     * @param outputLocale name of target locale
+     * @param pipeline pseudolocalization pipeline to generate target locale data
      */
     public CLDRFilePseudolocalizer(String outputLocale, Pseudolocalizer pseudolocalizer) {
         this.outputLocale = outputLocale;
@@ -299,9 +336,7 @@ public class CLDRFilePseudolocalizer {
         }
     }
 
-    /**
-     * Check if string contains any substring from the provided list.
-     */
+    /** Check if string contains any substring from the provided list. */
     private boolean containsOneOf(String string, String[] substrings) {
         for (String substring : substrings) {
             if (string.contains(substring)) {
@@ -311,26 +346,22 @@ public class CLDRFilePseudolocalizer {
         return false;
     }
 
-    /**
-     * Create either localizable or non-localizable text fragment depending on flag value.
-     */
+    /** Create either localizable or non-localizable text fragment depending on flag value. */
     private String pseudolocalizeFragment(String text, boolean localizable) {
         return localizable ? pseudolocalizer.fragment(text) : text;
     }
 
-    /**
-     * Create a message that can contain localizable and non-localizable parts.
-     */
-    private String createMessage(String text, Pattern pattern,
-        boolean matchIsLocalizable) {
+    /** Create a message that can contain localizable and non-localizable parts. */
+    private String createMessage(String text, Pattern pattern, boolean matchIsLocalizable) {
         StringBuffer buffer = new StringBuffer(pseudolocalizer.start());
         Matcher match = pattern.matcher(text);
         int start = 0;
         pseudolocalizer.setPattern(matchIsLocalizable);
         for (; match.find(); start = match.end()) {
             if (match.start() > start) {
-                buffer.append(pseudolocalizeFragment(
-                    text.substring(start, match.start()), !matchIsLocalizable));
+                buffer.append(
+                        pseudolocalizeFragment(
+                                text.substring(start, match.start()), !matchIsLocalizable));
             }
             buffer.append(pseudolocalizeFragment(match.group(), matchIsLocalizable));
         }
@@ -341,9 +372,7 @@ public class CLDRFilePseudolocalizer {
         return buffer.toString();
     }
 
-    /**
-     * Add pseudolocale characters to exemplarCharacters entry pointed by xpath.
-     */
+    /** Add pseudolocale characters to exemplarCharacters entry pointed by xpath. */
     private String mergeExemplars(String value) {
         String pseudolocalized = createMessage(value, NUMERIC_PLACEHOLDER, false);
         StringBuffer result = new StringBuffer(value.substring(0, value.length() - 1));
@@ -357,8 +386,7 @@ public class CLDRFilePseudolocalizer {
                 } else {
                     chunk = String.format("\\u%04X", (int) c);
                 }
-                if (result.indexOf(chunk) == -1
-                    && result.indexOf(String.valueOf(c)) == -1) {
+                if (result.indexOf(chunk) == -1 && result.indexOf(String.valueOf(c)) == -1) {
                     result.append(' ');
                     result.append(chunk);
                 }
@@ -369,8 +397,8 @@ public class CLDRFilePseudolocalizer {
     }
 
     /**
-     * Generate CLDRFile object. Original CLDRFile is created from .xml file and its
-     * content is passed through pseudolocalization pipeline.
+     * Generate CLDRFile object. Original CLDRFile is created from .xml file and its content is
+     * passed through pseudolocalization pipeline.
      */
     public CLDRFile generate() {
         Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
@@ -388,8 +416,8 @@ public class CLDRFilePseudolocalizer {
             }
         }
         // Pseudolocalize exemplar characters and put them into auxiliary set.
-        outputSource.putValueAtPath(EXEMPLAR_AUX_PATH,
-            mergeExemplars(input.getStringValue(EXEMPLAR_PATH)));
+        outputSource.putValueAtPath(
+                EXEMPLAR_AUX_PATH, mergeExemplars(input.getStringValue(EXEMPLAR_PATH)));
         // Create fake pseudolocales territories.
         addTerritory(outputSource, "XA");
         addTerritory(outputSource, "XB");
@@ -400,20 +428,21 @@ public class CLDRFilePseudolocalizer {
         return new CLDRFile(outputSource);
     }
 
-    /**
-     * Add a territory into output xml.
-     */
+    /** Add a territory into output xml. */
     private void addTerritory(XMLSource outputSource, String territory) {
         String territoryPath = String.format(TERRITORY_PATTERN, territory);
         outputSource.putValueAtPath(territoryPath, String.format("[%s]", territory));
     }
 
-    /**
-     * Generate CLDRFile object and save it into .xml file.
-     */
+    /** Generate CLDRFile object and save it into .xml file. */
     public String generateAndSave() throws Exception {
         CLDRFile output = generate();
-        String outputDir = CLDRPaths.GEN_DIRECTORY + "main" + File.separator + PSEUDOLOCALES_DIRECTORY + File.separator;
+        String outputDir =
+                CLDRPaths.GEN_DIRECTORY
+                        + "main"
+                        + File.separator
+                        + PSEUDOLOCALES_DIRECTORY
+                        + File.separator;
         String outputFile = output.getLocaleID() + ".xml";
         PrintWriter out = FileUtilities.openUTF8Writer(outputDir, outputFile);
         output.write(out);
