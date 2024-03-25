@@ -1,11 +1,14 @@
 package org.unicode.cldr.unittest;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.TreeMultimap;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
-
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
@@ -13,17 +16,14 @@ import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CoreCoverageInfo;
 import org.unicode.cldr.util.CoreCoverageInfo.CoreItems;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
-import org.unicode.cldr.util.Organization;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-
 public class TestCoverage extends TestFmwkPlus {
+    private static final boolean DEBUG = false;
+    private static final boolean SHOW_LSR_DATA = false;
 
     static final StandardCodes sc = StandardCodes.make();
     static final CLDRConfig testInfo = CLDRConfig.getInstance();
@@ -33,25 +33,20 @@ public class TestCoverage extends TestFmwkPlus {
         new TestCoverage().run(args);
     }
 
-    static Set<CoreItems> all = Collections.unmodifiableSet(EnumSet
-        .allOf(CoreItems.class));
-    static Set<CoreItems> none = Collections.unmodifiableSet(EnumSet
-        .noneOf(CoreItems.class));
+    static Set<CoreItems> all = Collections.unmodifiableSet(EnumSet.allOf(CoreItems.class));
+    static Set<CoreItems> none = Collections.unmodifiableSet(EnumSet.noneOf(CoreItems.class));
 
     public void TestBasic() {
         CLDRFile engCldrFile = testInfo.getEnglish();
         Multimap<CoreItems, String> errors = LinkedHashMultimap.create();
-        Set<CoreItems> coreCoverage = CoreCoverageInfo.getCoreCoverageInfo(
-            engCldrFile, errors);
+        Set<CoreItems> coreCoverage = CoreCoverageInfo.getCoreCoverageInfo(engCldrFile, errors);
         if (!assertEquals("English should be complete", all, coreCoverage)) {
             showDiff("Missing", all, coreCoverage);
         }
         CLDRFile skimpyLocale = testInfo.getCldrFactory().make("asa", false);
         errors.clear();
-        coreCoverage = CoreCoverageInfo.getCoreCoverageInfo(skimpyLocale,
-            errors);
-        if (!assertEquals("Skimpy locale should not be complete", none,
-            coreCoverage)) {
+        coreCoverage = CoreCoverageInfo.getCoreCoverageInfo(skimpyLocale, errors);
+        if (!assertEquals("Skimpy locale should not be complete", none, coreCoverage)) {
             showDiff("Missing", all, coreCoverage);
             showDiff("Extra", coreCoverage, none);
         }
@@ -59,9 +54,24 @@ public class TestCoverage extends TestFmwkPlus {
 
     public void TestSelected() {
         Object[][] tests = {
-            { "en", "//ldml/localeDisplayNames/subdivisions/subdivision[@type=\"gbeng\"]", Level.MODERN, 8 },
-            { "en", "//ldml/numbers/minimalPairs/ordinalMinimalPairs[@ordinal=\"other\"]", Level.MODERATE, 20 },
-            { "en", "//ldml/numbers/minimalPairs/pluralMinimalPairs[@count=\"other\"]", Level.MODERATE, 20 },
+            {
+                "en",
+                "//ldml/localeDisplayNames/subdivisions/subdivision[@type=\"gbeng\"]",
+                Level.MODERN,
+                8
+            },
+            {
+                "en",
+                "//ldml/numbers/minimalPairs/ordinalMinimalPairs[@ordinal=\"other\"]",
+                Level.MODERATE,
+                20
+            },
+            {
+                "en",
+                "//ldml/numbers/minimalPairs/pluralMinimalPairs[@count=\"other\"]",
+                Level.MODERATE,
+                20
+            },
         };
         PathHeader.Factory phf = PathHeader.getFactory(testInfo.getEnglish());
         for (Object[] test : tests) {
@@ -79,55 +89,49 @@ public class TestCoverage extends TestFmwkPlus {
         }
     }
 
-    static final boolean DEBUG = false;
+    final ImmutableSet<CoreItems> nonCore =
+            ImmutableSet.copyOf(
+                    Sets.difference(
+                            CoreItems.ALL, Set.copyOf(CoreItems.LEVEL_TO_ITEMS.get(Level.CORE))));
 
     public void TestLocales() {
         long start = System.currentTimeMillis();
-        logln("Status\tLocale\tName\tLevel\tCount" + showColumn(all)
-            + "\tError Messages");
-        LanguageTagParser ltp = new LanguageTagParser();
-        Multimap<CoreItems, String> errors = LinkedHashMultimap.create();
-        Set<String> toTest = new HashSet(
-            Arrays.asList("ky mn ms uz az kk pa sr zh lo".split(" ")));
-        Set<String> defaultContents = sdi.getDefaultContentLocales();
 
         Factory fullCldrFactory = testInfo.getFullCldrFactory();
-        for (String locale : fullCldrFactory.getAvailable()) {
-            if (!ltp.set(locale).getRegion().isEmpty() || locale.equals("root")
-                || defaultContents.contains(locale)) {
-                continue;
-            }
-            Level level = sc.getLocaleCoverageLevel(Organization.cldr, locale);
-            if (DEBUG && (!toTest.contains(locale) || level != Level.MODERN)) {
-                continue;
-            }
-            if (locale.equals("am")) {
-                int debug = 0;
-            }
+        CLDRFile testFile0 = fullCldrFactory.make("yi", true);
+        checkLocale(testFile0);
 
-            CLDRFile testFile = fullCldrFactory.make(locale, false);
-            Set<CoreItems> coreCoverage;
-            errors.clear();
-            try {
-                coreCoverage = CoreCoverageInfo.getCoreCoverageInfo(testFile,
-                    errors);
-            } catch (Exception e) {
-                errln("Failure for locale: " + getLocaleAndName(locale));
-                e.printStackTrace();
+        for (String locale : fullCldrFactory.getAvailable()) {
+            if (CLDRLocale.getInstance(locale).getParent() != CLDRLocale.ROOT) {
                 continue;
             }
-            Set missing = EnumSet.allOf(CoreItems.class);
-            missing.removeAll(coreCoverage);
-            if (missing.size() != 0) {
-                errln("\t" + getLocaleAndName(locale) + "\t" + level + "\t"
-                    + missing.size() + showColumn(missing) + "\t" + errors);
-            } else {
-                logln("OK\t" + getLocaleAndName(locale) + "\t" + level + "\t"
-                    + missing.size());
-            }
+            CLDRFile testFile = fullCldrFactory.make(locale, true);
+            checkLocale(testFile);
         }
         long end = System.currentTimeMillis();
         logln("Elapsed:\t" + (end - start));
+    }
+
+    public Multimap<CoreItems, String> checkLocale(CLDRFile testFile) {
+        Multimap<CoreItems, String> errors = TreeMultimap.create();
+        String locale = testFile.getLocaleID();
+
+        try {
+            CoreCoverageInfo.getCoreCoverageInfo(testFile, errors);
+        } catch (Exception e) {
+            errln(
+                    "Failure for locale: "
+                            + getLocaleAndName(locale)
+                            + ", can't access CoreCoverageInfo.getCoreCoverageInfo");
+            e.printStackTrace();
+            return errors;
+        }
+        // Tried errors.removeAll(nonCore), but doesn't remove all keys; rather all values for 1 key
+        for (CoreItems x : nonCore) {
+            errors.removeAll(x);
+        }
+        assertEquals("Core items " + getLocaleAndName(locale), ImmutableMultimap.of(), errors);
+        return errors;
     }
 
     private String getLocaleAndName(String locale) {
@@ -145,9 +149,8 @@ public class TestCoverage extends TestFmwkPlus {
         return result.toString();
     }
 
-    public void showDiff(String title, Set<CoreItems> all,
-        Set<CoreItems> coreCoverage) {
-        Set diff = EnumSet.copyOf(all);
+    public void showDiff(String title, Set<CoreItems> all, Set<CoreItems> coreCoverage) {
+        Set<CoreItems> diff = EnumSet.copyOf(all);
         diff.removeAll(coreCoverage);
         if (diff.size() != 0) {
             errln("\t" + title + ": " + diff);
