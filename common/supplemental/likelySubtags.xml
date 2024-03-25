@@ -1834,7 +1834,9 @@ not be patched by hand, as any changes made in that fashion may be lost.
 		<likelySubtag from="und_Latn_NE" to="ha_Latn_NE"/>
 		<likelySubtag from="und_Latn_NI" to="es_Latn_NI"/>
 		<likelySubtag from="und_Latn_NL" to="nl_Latn_NL"/>
-		<likelySubtag from="und_Latn_NO" to="nb_Latn_NO"/>
+		<!-- Android patch (CLDR ticket #2698) begin. -->
+		<likelySubtag from="und_Latn_NO" to="no_Latn_NO"/>
+		<!-- Android patch (CLDR ticket #2698) end. -->
 		<likelySubtag from="und_Latn_PA" to="es_Latn_PA"/>
 		<likelySubtag from="und_Latn_PE" to="es_Latn_PE"/>
 		<likelySubtag from="und_Latn_PF" to="fr_Latn_PF"/>
@@ -1852,7 +1854,9 @@ not be patched by hand, as any changes made in that fashion may be lost.
 		<likelySubtag from="und_Latn_SC" to="fr_Latn_SC"/>
 		<likelySubtag from="und_Latn_SE" to="sv_Latn_SE"/>
 		<likelySubtag from="und_Latn_SI" to="sl_Latn_SI"/>
-		<likelySubtag from="und_Latn_SJ" to="nb_Latn_SJ"/>
+		<!-- Android patch (CLDR ticket #2698) begin. -->
+		<likelySubtag from="und_Latn_SJ" to="no_Latn_SJ"/>
+		<!-- Android patch (CLDR ticket #2698) end. -->
 		<likelySubtag from="und_Latn_SK" to="sk_Latn_SK"/>
 		<likelySubtag from="und_Latn_SL" to="kri_Latn_SL"/>
 		<likelySubtag from="und_Latn_SM" to="it_Latn_SM"/>
