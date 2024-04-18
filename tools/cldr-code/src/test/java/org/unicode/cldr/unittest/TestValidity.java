@@ -33,6 +33,7 @@ import org.unicode.cldr.util.LocaleNames;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StandardCodes.LstrField;
 import org.unicode.cldr.util.StandardCodes.LstrType;
+import org.unicode.cldr.util.TestCLDRPaths;
 import org.unicode.cldr.util.TransliteratorUtilities;
 import org.unicode.cldr.util.Units;
 import org.unicode.cldr.util.Validity;
@@ -137,16 +138,18 @@ public class TestValidity extends TestFmwkPlus {
                     "itpn",
                     "itts",
                     "itud",
-                    "SLE");
+                    "SLE",
+                    // 2024
+                    "dzd");
     static final Set<String> ALLOWED_MISSING =
             ImmutableSet.of(LocaleNames.ROOT, "POSIX", "REVISED", "SAAHO");
     static final Set<String> ALLOWED_REGULAR_TO_SPECIAL = ImmutableSet.of("Zanb", "Zinh", "Zyyy");
 
     public void TestCompatibility() {
-        // Only run the rest in exhaustive mode, since it requires CLDR_ARCHIVE_DIRECTORY
-        if (getInclusion() <= 5) {
-            return;
+        if (!TestCLDRPaths.canUseArchiveDirectory()) {
+            return; // skipped
         }
+
         Set<String> messages = new HashSet<>();
         File archive = new File(CLDRPaths.ARCHIVE_DIRECTORY);
         for (File cldrArchive : archive.listFiles()) {
@@ -189,10 +192,6 @@ public class TestValidity extends TestFmwkPlus {
 
                         if (newStatus == null) {
                             if (ALLOWED_MISSING.contains(code)) {
-                                continue;
-                            }
-                            if (code.equals("cqzzzz")
-                                    && logKnownIssue("CLDR-16464", "Skipping cqzzzz")) {
                                 continue;
                             }
                             errln(

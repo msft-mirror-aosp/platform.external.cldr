@@ -1,7 +1,9 @@
 package org.unicode.cldr.util;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.File;
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,8 +31,9 @@ public enum DtdType {
             "transforms",
             "validity"),
     ldmlBCP47("common/dtd/ldmlBCP47.dtd", "1.7.2", null, "bcp47"),
-    keyboard3("keyboards/dtd/ldmlKeyboard3.dtd", "44.0", null, "../keyboards/3.0"),
-    keyboardTest3("keyboards/dtd/ldmlKeyboardTest3.dtd", "44.0", null, "../keyboards/test");
+    // keyboard 3.0
+    keyboard3("keyboards/dtd/ldmlKeyboard3.dtd", "45.0", null, "../keyboards/3.0"),
+    keyboardTest3("keyboards/dtd/ldmlKeyboardTest3.dtd", "45.0", null, "../keyboards/test");
 
     public static final Set<DtdType> STANDARD_SET =
             ImmutableSet.of(ldmlBCP47, supplementalData, ldml, keyboard3);
@@ -48,8 +51,30 @@ public enum DtdType {
     public final String firstVersion;
     public final Set<String> directories;
 
+    private final DtdStatus status;
+
+    /** Get the ststus, whether this is an active DTD or not */
+    public DtdStatus getStatus() {
+        return status;
+    }
+
+    public enum DtdStatus {
+        /** DTD active (default) */
+        active,
+        /** DTD no longer used */
+        removed,
+    };
+
     private DtdType(String dtdPath) {
         this(dtdPath, null, null);
+    }
+
+    private DtdType(DtdStatus status, String sinceVersion) {
+        this.directories = Collections.emptySet();
+        this.dtdPath = null;
+        this.rootType = this;
+        this.firstVersion = sinceVersion;
+        this.status = status;
     }
 
     private DtdType(String dtdPath, DtdType realType) {
@@ -61,6 +86,7 @@ public enum DtdType {
         this.rootType = realType == null ? this : realType;
         this.firstVersion = firstVersion;
         this.directories = ImmutableSet.copyOf(directories);
+        this.status = DtdStatus.active;
     }
 
     public static DtdType fromPath(String elementOrPath) {
@@ -128,5 +154,20 @@ public enum DtdType {
 
     public String getXsdPath() {
         return dtdPath.replaceAll("\\.dtd$", ".xsd");
+    }
+
+    /** The xmlns name for this dtd type */
+    public String getNsUrl() {
+        return CLDRURLS.CLDR_CURVER_BASE + "/" + name();
+    }
+
+    /** The current version DTD as a URI */
+    String getDtdUri() {
+        return new File(CLDRPaths.BASE_DIRECTORY, dtdPath).toURI().toString();
+    }
+
+    /** DOCTYPE for this DTD (current version) */
+    String getDoctype() {
+        return "<!DOCTYPE " + name() + " SYSTEM \"" + getDtdUri() + "\">";
     }
 }
