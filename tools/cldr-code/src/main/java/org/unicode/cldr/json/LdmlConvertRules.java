@@ -290,6 +290,8 @@ class LdmlConvertRules {
         new SplittableAttributeSpec(
                 "collations", "locales", "parent"), // parentLocale component=collations
         new SplittableAttributeSpec(
+                "plurals", "locales", "parent"), // parentLocale component=plurals
+        new SplittableAttributeSpec(
                 "segmentations", "locales", "parent"), // parentLocale component=segmentations
         new SplittableAttributeSpec("hours", "regions", null),
         new SplittableAttributeSpec("dayPeriodRules", "locales", null),
@@ -298,6 +300,8 @@ class LdmlConvertRules {
         new SplittableAttributeSpec("unitPreference", "regions", null),
         new SplittableAttributeSpec("grammaticalFeatures", "locales", null),
         new SplittableAttributeSpec("grammaticalDerivations", "locales", null),
+        // this will cause EMPTY parentLocales elements to work properly
+        new SplittableAttributeSpec("parentLocales", "component", "" /* Not null */),
     };
 
     /** The set that contains all timezone type of elements. */
@@ -311,7 +315,8 @@ class LdmlConvertRules {
 
     /**
      * There are a handful of attribute values that are more properly represented as an array of
-     * strings rather than as a single string.
+     * strings rather than as a single string. These are not locked to a specific element, may need
+     * to change the matching algorithm if there are conflicts.
      */
     public static final Set<String> ATTRVALUE_AS_ARRAY_SET =
             Builder.with(new HashSet<String>())
@@ -320,6 +325,8 @@ class LdmlConvertRules {
                     .add("contains")
                     .add("systems")
                     .add("origin")
+                    .add("component") // for parentLocales - may need to be more specific here
+                    .add("localeRules") // for parentLocales
                     .add("values") // for unitIdComponents - may need to be more specific here
                     .freeze();
 
@@ -380,8 +387,13 @@ class LdmlConvertRules {
     /** These objects values should be output as arrays. */
     public static final Pattern VALUE_IS_SPACESEP_ARRAY =
             PatternCache.get(
-                    "(grammaticalCase|grammaticalGender|grammaticalDefiniteness|nameOrderLocales)");
+                    "(grammaticalCase|grammaticalGender|grammaticalDefiniteness|nameOrderLocales|component)");
 
+    /**
+     * Indicates that the child value of this element needs to be separated into array items. For
+     * example: {@code <weekOfPreference ordering="weekOfDate weekOfMonth" locales="en bn ja ka"/>}
+     * becomes {@code {"en":["weekOfDate","weekOfMonth"],"bn":["weekOfDate","weekOfMonth"]} }
+     */
     public static final Set<String> CHILD_VALUE_IS_SPACESEP_ARRAY =
             ImmutableSet.of("weekOfPreference", "calendarPreferenceData");
 
