@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -148,6 +149,10 @@ public class StandardCodes {
         return type_code_data.get(type);
     }
 
+    public Set<String> getCodes(CodeType type) {
+        return type_code_data.get(type).keySet();
+    }
+
     /**
      * Get at the language registry values, as a Map from label to value.
      *
@@ -274,7 +279,7 @@ public class StandardCodes {
                     case script:
                         return sd.getCLDRScriptCodes();
                     case tzid:
-                        break; // nothing special
+                        return sd.getCLDRTimezoneCodes();
                     default:
                         for (Iterator<String> it = result.iterator(); it.hasNext(); ) {
                             String code = it.next();
@@ -1483,5 +1488,16 @@ public class StandardCodes {
     public boolean isLstregDeprecated(String type, String code) {
         Map<String, String> lStregData = getLStreg().get(type).get(code);
         return lStregData.get("Deprecated") != null;
+    }
+
+    /** get prospective currencies. Only needed for a few tests */
+    public Set<String> getOncomingCurrencies() {
+        Set<String> result = new HashSet<>();
+        for (Entry<String, List<String>> entry : getCodeData(CodeType.currency).entrySet()) {
+            if (entry.getValue().get(3).equals("P")) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
     }
 }

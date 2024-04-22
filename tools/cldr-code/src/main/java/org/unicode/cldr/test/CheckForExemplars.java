@@ -51,8 +51,10 @@ import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 
 public class CheckForExemplars extends FactoryCheckCLDR {
-    private static final UnicodeSet RTL_CONTROLS =
-            new UnicodeSet("[\\u061C\\u200E\\u200F\\u202A-\\u202D\\u2066-\\u2069]");
+    private static final UnicodeSet RTL_CONTROLS = new UnicodeSet("[\\u061C\\u200E\\u200F]");
+
+    private static final UnicodeSet ILLEGAL_RTL_CONTROLS =
+            new UnicodeSet("[\\u202A-\\u202E\\u2066-\\u2069]");
 
     private static final UnicodeSet RTL = new UnicodeSet("[[:bc=AL:][:bc=R:]]");
 
@@ -185,11 +187,11 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     }
 
     @Override
-    public CheckCLDR setCldrFileToCheck(
+    public CheckCLDR handleSetCldrFileToCheck(
             CLDRFile cldrFile, Options options, List<CheckStatus> possibleErrors) {
         if (cldrFile == null) return this;
         skip = true;
-        super.setCldrFileToCheck(cldrFile, options, possibleErrors);
+        super.handleSetCldrFileToCheck(cldrFile, options, possibleErrors);
         if (cldrFile.getLocaleID().equals("root")) {
             return this;
         }
@@ -295,6 +297,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             String path, String fullPath, String value, Options options, List<CheckStatus> result) {
         if (fullPath == null) return this; // skip paths that we don't have
         if (value == null) return this; // skip values that we don't have ?
+        if (!accept(result)) return this;
         if (skip) return this;
         if (path == null) {
             throw new InternalCldrException("Empty path!");
@@ -316,6 +319,9 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             // if (true) return this;
             // if (path.indexOf("/calendar") >= 0 && path.indexOf("gregorian") <= 0) return this;
         }
+
+        // Check all paths for illegal characters, even EXEMPLAR_SKIPS
+        checkIllegalCharacters(path, value, result);
 
         if (containsPart(path, EXEMPLAR_SKIPS)) {
             return this;
@@ -565,6 +571,20 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         // .setMessage("This item must not contain two space characters in a row."));
         // }
         return this;
+    }
+
+    // Check for characters that are always illegal in values.
+    // Currently those are just the paired bidi marks.
+    private void checkIllegalCharacters(String path, String value, List<CheckStatus> result) {
+        if (ILLEGAL_RTL_CONTROLS.containsSome(value)) {
+            result.add(
+                    new CheckStatus()
+                            .setCause(this)
+                            .setMainType(CheckStatus.errorType)
+                            .setSubtype(Subtype.illegalCharacter)
+                            .setMessage(
+                                    "Bidi markup can only include LRM RLM ALM, not paired characters such as FSI PDI"));
+        }
     }
 
     private String checkAndReplacePlaceholders(

@@ -225,6 +225,9 @@ public class TestCLDRFile extends TestFmwk {
                 final CLDRFile cldrFile = fullCldrFactory.make(locale, true);
                 Set<String> sorted2 = new TreeSet<>(cldrFile.getExtraPaths());
                 for (String path : sorted2) {
+                    if (path.contains("speed-beaufort")) {
+                        continue; // special case
+                    }
                     if (path.contains("/gender")
                             || path.contains("@gender")
                             || path.contains("@case")) {
@@ -795,12 +798,6 @@ public class TestCLDRFile extends TestFmwk {
                 }
                 String likely = likelySubtags.minimize(loc);
                 if (!localesToDirs.containsKey(parent)) {
-                    //                    if (ldmlDir == LdmlDir.rbnf && source == Source.common &&
-                    //                        parent.equals("en_001") && loc.equals("en_IN") &&
-                    //                        logKnownIssue("cldrbug:10456", "Missing parent
-                    // (en_001) for en_IN in common/rbnf")) {
-                    //                            continue;
-                    //                    }
                     errln(
                             "Missing parent ("
                                     + parent

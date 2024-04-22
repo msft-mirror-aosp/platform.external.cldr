@@ -84,10 +84,10 @@ public class CheckNumbers extends FactoryCheckCLDR {
      * calling the super.
      */
     @Override
-    public CheckCLDR setCldrFileToCheck(
+    public CheckCLDR handleSetCldrFileToCheck(
             CLDRFile cldrFileToCheck, Options options, List<CheckStatus> possibleErrors) {
         if (cldrFileToCheck == null) return this;
-        super.setCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
+        super.handleSetCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
         icuServiceBuilder.setCldrFile(getResolvedCldrFileToCheck());
         isPOSIX = cldrFileToCheck.getLocaleID().indexOf("POSIX") >= 0;
         SupplementalDataInfo supplementalData =
@@ -130,6 +130,9 @@ public class CheckNumbers extends FactoryCheckCLDR {
 
         if (fullPath == null || value == null) return this; // skip paths that we don't have
 
+        // TODO: could exclude more paths
+        if (!accept(result)) return this;
+
         // Do a quick check on the currencyMatch, to make sure that it is a proper UnicodeSet
         if (path.indexOf("/currencyMatch") >= 0) {
             try {
@@ -149,7 +152,7 @@ public class CheckNumbers extends FactoryCheckCLDR {
 
         if (path.indexOf("/minimumGroupingDigits") >= 0) {
             try {
-                int mgd = Integer.valueOf(value);
+                int mgd = Integer.parseInt(value);
                 if (!CldrUtility.DIGITS.contains(value)) {
                     result.add(
                             new CheckStatus()

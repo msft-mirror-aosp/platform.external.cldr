@@ -26,11 +26,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.test.ExampleGenerator;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Status;
+import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CLDRURLS;
 import org.unicode.cldr.util.CldrUtility;
@@ -1269,6 +1271,9 @@ public class TestPathHeader extends TestFmwkPlus {
         Multimap<String, String> pathValuePairs = LinkedListMultimap.create();
         // get all the directories containing non-Ldml dtd files
         for (DtdType dtdType : DtdType.values()) {
+            if (dtdType.getStatus() != DtdType.DtdStatus.active) {
+                continue;
+            }
             if (dtdType == DtdType.ldml
                     || dtdType == DtdType.ldmlICU
                     || dtdType == DtdType.keyboard3
@@ -1671,6 +1676,69 @@ public class TestPathHeader extends TestFmwkPlus {
                                 + pathHeader.getOriginalPath().replace("\"", "\\\"")
                                 + "\",\t// "
                                 + pathHeader);
+            }
+        }
+    }
+
+    public void testPageSize() {
+        final long minError = 946; // above this, emit error
+        final long minLog = 700; // otherwise above this, emit warning
+        Factory factory = CLDRConfig.getInstance().getCommonAndSeedAndMainAndAnnotationsFactory();
+        List<String> locales =
+                StandardCodes.make()
+                        .getLocaleCoverageLocales(Organization.cldr, ImmutableSet.of(Level.MODERN))
+                        .stream()
+                        .filter(x -> CLDRLocale.getInstance(x).getCountry().isEmpty())
+                        .collect(Collectors.toUnmodifiableList());
+        List<Counter<PageId>> counters = new ArrayList<>();
+        final String thresholdExplanation = "log/error thresholds are " + minLog + "/" + minError;
+        for (String locale : locales) {
+            CLDRFile cldrFile = factory.make(locale, false);
+            PathHeader.Factory phf = PathHeader.getFactory();
+            Counter<PageId> c = new Counter<>();
+            counters.add(c);
+            for (String path : cldrFile) {
+                PathHeader ph = phf.fromPath(path);
+                c.add(ph.getPageId(), 1);
+            }
+            for (PageId entry : c.getKeysetSortedByKey()) {
+                long count = c.getCount(entry);
+                if (count > minLog) {
+                    final String message =
+                            String.format(
+                                    "%s\t%s\t%s\thas too many entries:\t%d\t(%s)",
+                                    locale,
+                                    entry.getSectionId().toString(),
+                                    entry,
+                                    count,
+                                    thresholdExplanation);
+                    if (count > minError) {
+                        errln(message);
+                    } else {
+                        warnln(message);
+                    }
+                }
+            }
+        }
+        if (isVerbose()) {
+            System.out.println();
+            Set<PageId> sorted = new TreeSet<>();
+            for (Counter<PageId> counter : counters) {
+                sorted.addAll(counter.keySet());
+            }
+            int i = 0;
+            System.out.print("Order" + "\t" + "Section" + "\t" + "Page");
+            for (String c : locales) {
+                System.out.print("\t" + c);
+            }
+            System.out.println();
+
+            for (PageId entry : sorted) {
+                System.out.print(++i + "\t" + entry.getSectionId() + "\t" + entry);
+                for (Counter<PageId> c : counters) {
+                    System.out.print("\t" + c.get(entry));
+                }
+                System.out.println();
             }
         }
     }

@@ -121,13 +121,13 @@ public class TestCheckCLDR extends TestFmwk {
         Map<String, String> options = new LinkedHashMap<>();
         List<CheckStatus> possibleErrors = new ArrayList<>();
         final CLDRFile english = testInfo.getEnglish();
-        c.setCldrFileToCheck(english, options, possibleErrors);
+        c.setCldrFileToCheck(english, new CheckCLDR.Options(options), possibleErrors);
         for (String path : english) {
             c.check(
                     path,
                     english.getFullXPath(path),
                     english.getStringValue(path),
-                    options,
+                    new CheckCLDR.Options(options),
                     possibleErrors);
         }
     }
@@ -138,8 +138,8 @@ public class TestCheckCLDR extends TestFmwk {
         CLDRLocale locale = CLDRLocale.getInstance(localeString);
         CheckCLDR.Options checkCldrOptions =
                 new Options(locale, Phase.SUBMISSION, "default", "basic");
-        TestCache testCache = new TestCache();
-        testCache.setFactory(testInfo.getCldrFactory(), ".*");
+        TestCache testCache = testInfo.getCldrFactory().getTestCache();
+        testCache.setNameMatcher(".*"); // will clear the cache
         TestResultBundle bundle = testCache.getBundle(checkCldrOptions);
         final CLDRFile cldrFile = testInfo.getCLDRFile(localeString, true);
         /*
@@ -467,7 +467,26 @@ public class TestCheckCLDR extends TestFmwk {
         checkLocale(test, localeID, "?", null);
     }
 
+    /** adjust the logging level of checks */
+    public java.util.logging.Level pushCheckLevel() {
+        java.util.logging.Level oldLevel = null;
+        if (logKnownIssue(
+                "CLDR-17320",
+                "turning off CheckCLDR logging to avoid thousands of log messages, please fix internal stack traces")) {
+            oldLevel = CheckCLDR.setLoggerLevel(java.util.logging.Level.OFF);
+        }
+        return oldLevel;
+    }
+
+    /** undo the effect of a pushCheckLevel */
+    public void popCheckLevel(java.util.logging.Level oldLevel) {
+        if (oldLevel != null) {
+            CheckCLDR.setLoggerLevel(oldLevel);
+        }
+    }
+
     public void TestAllLocales() {
+        java.util.logging.Level oldLevel = pushCheckLevel();
         CheckCLDR test = CheckCLDR.getCheckAll(factory, INDIVIDUAL_TESTS);
         CheckCLDR.setDisplayInformation(english);
         Set<String> unique = new HashSet<>();
@@ -487,15 +506,18 @@ public class TestCheckCLDR extends TestFmwk {
         // (And in fact this test seems faster without it)
         locales.forEach(locale -> checkLocale(test, locale, null, unique));
         logln("Count:\t" + locales.size());
+        popCheckLevel(oldLevel);
     }
 
     public void TestA() {
+        final java.util.logging.Level oldLevel = pushCheckLevel();
 
         CheckCLDR test = CheckCLDR.getCheckAll(factory, INDIVIDUAL_TESTS);
         CheckCLDR.setDisplayInformation(english);
         Set<String> unique = new HashSet<>();
 
         checkLocale(test, "ko", null, unique);
+        popCheckLevel(oldLevel);
     }
 
     public void checkLocale(
@@ -595,7 +617,7 @@ public class TestCheckCLDR extends TestFmwk {
 
     public void TestCheckNames() {
         CheckCLDR c = new CheckNames();
-        Map<String, String> options = new LinkedHashMap<>();
+        Options options = new CheckCLDR.Options(new LinkedHashMap<>());
         List<CheckStatus> possibleErrors = new ArrayList<>();
         final CLDRFile english = testInfo.getEnglish();
         c.setCldrFileToCheck(english, options, possibleErrors);
@@ -652,7 +674,7 @@ public class TestCheckCLDR extends TestFmwk {
 
         CheckCLDR c = new CheckNew(testInfo.getCommonAndSeedAndMainAndAnnotationsFactory());
         List<CheckStatus> result = new ArrayList<>();
-        Map<String, String> options = new HashMap<>();
+        final CheckCLDR.Options options = new CheckCLDR.Options(new HashMap<>());
         c.setCldrFileToCheck(testInfo.getCLDRFile(locale, true), options, result);
         c.check(path, path, "foobar", options, result);
         String actualMessage = "";
@@ -698,8 +720,8 @@ public class TestCheckCLDR extends TestFmwk {
                 TestFactory currFactory = makeTestFactory(root, localeSource);
                 CLDRFile cldrFile = currFactory.make(localeSource.getLocaleID(), true);
 
-                c.setCldrFileToCheck(cldrFile, options, result);
-                c.check(path, path, value, options, result);
+                c.setCldrFileToCheck(cldrFile, new CheckCLDR.Options(options), result);
+                c.check(path, path, value, new CheckCLDR.Options(options), result);
                 boolean gotOne = false;
                 for (CheckStatus status : result) {
                     if (status.getSubtype() == Subtype.valueMustBeOverridden) {

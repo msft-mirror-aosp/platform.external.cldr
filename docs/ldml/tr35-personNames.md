@@ -2,7 +2,7 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 8: Person Names
 
-|Version|44.1                    |
+|Version|45                      |
 |-------|------------------------|
 |Editors|Mark Davis, Peter Edberg,  Rich Gillam, Alex Kolisnychenko, Mike McKenna and [other CLDR committee members](tr35.md#Acknowledgments)|
 
@@ -39,6 +39,7 @@ The LDML specification is divided into the following parts:
 *   Part 6: [Supplemental](tr35-info.md#Contents) (supplemental data)
 *   Part 7: [Keyboards](tr35-keyboards.md#Contents) (keyboard mappings)
 *   Part 8: [Person Names](tr35-personNames.md#Contents) (person names)
+*   Part 9: [MessageFormat](tr35-messageFormat.md#Contents) (message format)
 
 ## <a name="Contents">Contents of Part 8, Person Names</a>
 
@@ -136,12 +137,6 @@ The following features are currently out of scope for Person Names formating:
   * Parsing out the other components of a name in a string, such as surname prefixes ([Tussenvoegsel](https://en.wikipedia.org/wiki/Tussenvoegsel) in Dutch).
 
 ### API Implementation
-
-A draft API for formatting personal names was first included in ICU4J 73 and has been updated for ICU4J 74 to reflect updates in this specification and associated data. (“Draft” means that the full functionality is present, but the API might be refined before it is stabilized.) The implementation can be found at the following:
-
-* [PersonName.java](https://github.com/unicode-org/icu/blob/main/icu4j/main/core/src/main/java/com/ibm/icu/text/PersonName.java)
-* [PersonNameFormatter.java](https://github.com/unicode-org/icu/blob/main/icu4j/main/core/src/main/java/com/ibm/icu/text/PersonNameFormatter.java)
-* [SimplePersonName.java](https://github.com/unicode-org/icu/blob/main/icu4j/main/core/src/main/java/com/ibm/icu/text/SimplePersonName.java)
 
 In addition to the settings in this document, it is recommended that implementations provide some additional features in their APIs to allow more control for clients, notably:
 
@@ -1120,6 +1115,6 @@ To make an initial when there are multiple words, an implementation might produc
 
 * * *
 
-Copyright © 2001–2023 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://www.unicode.org/copyright.html) apply.
+Copyright © 2001–2024 Unicode, Inc. All Rights Reserved. The Unicode Consortium makes no expressed or implied warranty of any kind, and assumes no liability for errors or omissions. No liability is assumed for incidental and consequential damages in connection with or arising out of the use of the information or programs contained or accompanying this technical report. The Unicode [Terms of Use](https://www.unicode.org/copyright.html) apply.
 
 Unicode and the Unicode logo are trademarks of Unicode, Inc., and are registered in some jurisdictions.

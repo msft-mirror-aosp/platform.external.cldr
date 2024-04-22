@@ -55,6 +55,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.unicode.cldr.test.CheckMetazones;
 import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.GrammarInfo.GrammaticalFeature;
@@ -133,7 +134,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
     public static final String SUPPLEMENTAL_NAME = "supplementalData";
     public static final String SUPPLEMENTAL_METADATA = "supplementalMetadata";
     public static final String SUPPLEMENTAL_PREFIX = "supplemental";
-    public static final String GEN_VERSION = "44.1";
+    public static final String GEN_VERSION = "45";
     public static final List<String> SUPPLEMENTAL_NAMES =
             Arrays.asList(
                     "characters",
@@ -1691,10 +1692,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
                     // <!ATTLIST version number CDATA #REQUIRED >
                     // <!ATTLIST version cldrVersion CDATA #FIXED "24" >
                     if (attribute.equals("cldrVersion") && (qName.equals("version"))) {
-                        if (!value.equals("techpreview")) { // TODO: Keyboard techpreview
-                            ((SimpleXMLSource) target.dataSource)
-                                    .setDtdVersionInfo(VersionInfo.getInstance(value));
-                        }
+                        ((SimpleXMLSource) target.dataSource)
+                                .setDtdVersionInfo(VersionInfo.getInstance(value));
                     } else {
                         putAndFixDeprecatedAttribute(qName, attribute, value);
                     }
@@ -3186,7 +3185,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
      *     client code. Make sure that updates here are reflected there and vice versa.
      *     <p>Reference: https://unicode-org.atlassian.net/browse/CLDR-11238
      */
-    private Set<String> getRawExtraPathsPrivate() {
+    private List<String> getRawExtraPathsPrivate() {
         Set<String> toAddTo = new HashSet<>();
         SupplementalDataInfo supplementalData = CLDRConfig.getInstance().getSupplementalDataInfo();
         // units
@@ -3377,7 +3376,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
                 }
             }
         }
-        return toAddTo;
+        return toAddTo.stream().map(String::intern).collect(Collectors.toList());
     }
 
     private void addPluralCounts(
@@ -3627,15 +3626,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
         this.dtdType = dtdType;
     }
 
-    /** Used only for TestExampleGenerator. */
-    public void valueChanged(String xpath) {
-        if (isResolved()) {
-            ResolvingSource resSource = (ResolvingSource) dataSource;
-            resSource.valueChanged(xpath, resSource);
-        }
-    }
-
-    /** Used only for TestExampleGenerator. */
     public void disableCaching() {
         dataSource.disableCaching();
     }
@@ -4316,44 +4306,45 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String>, LocaleSt
      * TestPaths.extraPathAllowsNullValue
      */
     static final Set<String> CONST_EXTRA_PATHS =
-            ImmutableSet.of(
-                    // Individual zone overrides — were in getRawExtraPaths
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/generic",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/standard",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/daylight",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Europe/Dublin\"]/long/daylight",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Europe/London\"]/long/daylight",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Etc/UTC\"]/long/standard",
-                    "//ldml/dates/timeZoneNames/zone[@type=\"Etc/UTC\"]/short/standard",
-                    // Person name paths
-                    "//ldml/personNames/sampleName[@item=\"nativeG\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeGS\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeGS\"]/nameField[@type=\"surname\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"given2\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"surname\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"title\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given-informal\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given2\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname-prefix\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname-core\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname2\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"generation\"]",
-                    "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"credentials\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignG\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignGS\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignGS\"]/nameField[@type=\"surname\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"given2\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"surname\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"title\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given-informal\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given2\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname-prefix\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname-core\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname2\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"generation\"]",
-                    "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"credentials\"]");
+            CharUtilities.internImmutableSet(
+                    Set.of(
+                            // Individual zone overrides — were in getRawExtraPaths
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/generic",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/standard",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Pacific/Honolulu\"]/short/daylight",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Europe/Dublin\"]/long/daylight",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Europe/London\"]/long/daylight",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Etc/UTC\"]/long/standard",
+                            "//ldml/dates/timeZoneNames/zone[@type=\"Etc/UTC\"]/short/standard",
+                            // Person name paths
+                            "//ldml/personNames/sampleName[@item=\"nativeG\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeGS\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeGS\"]/nameField[@type=\"surname\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"given2\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeGGS\"]/nameField[@type=\"surname\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"title\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given-informal\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"given2\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname-prefix\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname-core\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"surname2\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"generation\"]",
+                            "//ldml/personNames/sampleName[@item=\"nativeFull\"]/nameField[@type=\"credentials\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignG\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignGS\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignGS\"]/nameField[@type=\"surname\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"given2\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignGGS\"]/nameField[@type=\"surname\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"title\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given-informal\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"given2\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname-prefix\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname-core\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"surname2\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"generation\"]",
+                            "//ldml/personNames/sampleName[@item=\"foreignFull\"]/nameField[@type=\"credentials\"]"));
 }

@@ -187,6 +187,9 @@ public class TestDtdData extends TestFmwk {
     public void TestValueAttributesWithChildren() {
         Multimap<String, String> m = TreeMultimap.create();
         for (DtdType type : DtdType.values()) {
+            if (type.getStatus() != DtdType.DtdStatus.active) {
+                continue;
+            }
             if (type == DtdType.ldmlICU) {
                 continue;
             }
@@ -355,6 +358,9 @@ public class TestDtdData extends TestFmwk {
 
     public void TestNewDtdData() {
         for (DtdType type : DtdType.values()) {
+            if (type.getStatus() != DtdType.DtdStatus.active) {
+                continue;
+            }
             if (type == DtdType.ldmlICU) {
                 continue;
             }
@@ -771,7 +777,7 @@ public class TestDtdData extends TestFmwk {
                         || elementName.equals("layer") && attribute.equals("id")
                         || elementName.equals("string") && attribute.equals("id")
                         || elementName.equals("set") && attribute.equals("id")
-                        || elementName.equals("unicodeSet") && attribute.equals("id")) {
+                        || elementName.equals("uset") && attribute.equals("id")) {
                     return true;
                 }
                 // fall through to old keyboard
@@ -854,11 +860,11 @@ public class TestDtdData extends TestFmwk {
     }
 
     public void TestMatchValue() {
-        Object[][] tests = {{"validity/short-unit/deprecated", "inch-hg"}};
-        for (Object[] test : tests) {
-            MatchValue matcher = MatchValue.of((String) test[0]);
-            final String toMatch = (String) test[1];
-            boolean expectedValue = test.length < 3 ? true : Boolean.valueOf((String) test[2]);
+        String[][] tests = {{"validity/short-unit/deprecated", "inch-hg"}};
+        for (String[] test : tests) {
+            MatchValue matcher = MatchValue.of(test[0]);
+            final String toMatch = test[1];
+            boolean expectedValue = test.length < 3 ? true : Boolean.parseBoolean(test[2]);
 
             final boolean actual = matcher.is(toMatch);
             assertEquals(Arrays.asList(test).toString(), expectedValue, actual);
