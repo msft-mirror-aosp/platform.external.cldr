@@ -29,7 +29,6 @@ import java.util.concurrent.RecursiveAction;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
-import org.unicode.cldr.test.CheckCLDR.Options;
 import org.unicode.cldr.test.CheckCoverage;
 import org.unicode.cldr.test.CheckNew;
 import org.unicode.cldr.test.CoverageLevel2;
@@ -88,40 +87,6 @@ public class VettingViewer<T> {
     private static PathHeader.Factory pathTransform;
     private static final OutdatedPaths outdatedPaths = new OutdatedPaths();
 
-    /** See VoteResolver getStatusForOrganization to see how this is computed. */
-    public enum VoteStatus {
-        /**
-         * The value for the path is either contributed or approved, and the user's organization
-         * didn't vote. (see class def for null user)
-         */
-        ok_novotes,
-
-        /**
-         * The value for the path is either contributed or approved, and the user's organization
-         * chose the winning value. (see class def for null user)
-         */
-        ok,
-
-        /**
-         * The user's organization chose the winning value for the path, but that value is neither
-         * contributed nor approved. (see class def for null user)
-         */
-        provisionalOrWorse,
-
-        /**
-         * The user's organization's choice is not winning. There may be insufficient votes to
-         * overcome a previously approved value, or other organizations may be voting against it.
-         * (see class def for null user)
-         */
-        losing,
-
-        /**
-         * There is a dispute, meaning more than one item with votes, or the item with votes didn't
-         * win.
-         */
-        disputed
-    }
-
     /**
      * @author markdavis
      * @param <T>
@@ -139,7 +104,8 @@ public class VettingViewer<T> {
          * Return the vote status NOTE: if organization = null, then it must disregard the
          * organization and never return losing. See VoteStatus.
          */
-        VoteStatus getStatusForUsersOrganization(CLDRFile cldrFile, String path, T organization);
+        VoteResolver.VoteStatus getStatusForUsersOrganization(
+                CLDRFile cldrFile, String path, T organization);
 
         /**
          * Has the given user voted for the given path and locale?
@@ -191,7 +157,7 @@ public class VettingViewer<T> {
     private static class DefaultErrorStatus implements ErrorChecker {
 
         private CheckCLDR checkCldr;
-        private HashMap<String, String> options = new HashMap<>();
+        private CheckCLDR.Options options = null;
         private ArrayList<CheckStatus> result = new ArrayList<>();
         private CLDRFile cldrFile;
         private final Factory factory;
@@ -203,18 +169,16 @@ public class VettingViewer<T> {
         @Override
         public Status initErrorStatus(CLDRFile cldrFile) {
             this.cldrFile = cldrFile;
-            options = new HashMap<>();
+            options = new CheckCLDR.Options(CLDRLocale.getInstance(cldrFile.getLocaleID()));
             result = new ArrayList<>();
-            checkCldr = CheckCLDR.getCheckAll(factory, ".*");
-            checkCldr.setCldrFileToCheck(cldrFile, new Options(options), result);
+            // test initialization is handled by TestCache
             return Status.ok;
         }
 
         @Override
         public List<CheckStatus> getErrorCheckStatus(String path, String value) {
-            String fullPath = cldrFile.getFullXPath(path);
             ArrayList<CheckStatus> result2 = new ArrayList<>();
-            checkCldr.check(path, fullPath, value, new CheckCLDR.Options(options), result2);
+            factory.getTestCache().getBundle(options).check(path, result2, value);
             return result2;
         }
 
@@ -231,8 +195,7 @@ public class VettingViewer<T> {
                 EnumSet<Subtype> outputSubtypes) {
             Status result0 = Status.ok;
             StringBuilder errorMessage = new StringBuilder();
-            String fullPath = cldrFile.getFullXPath(path);
-            checkCldr.check(path, fullPath, value, new CheckCLDR.Options(options), result);
+            factory.getTestCache().getBundle(options).check(path, result, value);
             for (CheckStatus checkStatus : result) {
                 final CheckCLDR cause = checkStatus.getCause();
                 /*
@@ -530,9 +493,9 @@ public class VettingViewer<T> {
                 problems.add(NotificationCategory.inheritedChanged);
                 vc.problemCounter.increment(NotificationCategory.inheritedChanged);
             }
-            VoteStatus voteStatus =
+            VoteResolver.VoteStatus voteStatus =
                     userVoteStatus.getStatusForUsersOrganization(sourceFile, path, organization);
-            boolean itemsOkIfVoted = (voteStatus == VoteStatus.ok);
+            boolean itemsOkIfVoted = (voteStatus == VoteResolver.VoteStatus.ok);
             MissingStatus missingStatus =
                     onlyRecordErrors
                             ? null
@@ -695,7 +658,7 @@ public class VettingViewer<T> {
         }
 
         private void recordLosingDisputedEtc(
-                String path, VoteStatus voteStatus, MissingStatus missingStatus) {
+                String path, VoteResolver.VoteStatus voteStatus, MissingStatus missingStatus) {
             switch (voteStatus) {
                 case losing:
                     if (choices.contains(NotificationCategory.weLost)) {
@@ -1596,26 +1559,6 @@ public class VettingViewer<T> {
     public VettingViewer<T> setProgressCallback(ProgressCallback newCallback) {
         progressCallback = newCallback;
         return this;
-    }
-
-    /**
-     * Provide the styles for inclusion into the ST &lt;head&gt; element.
-     *
-     * @return
-     */
-    public static String getHeaderStyles() {
-        return "<style>\n"
-                + ".hide {display:none}\n"
-                + ".vve {}\n"
-                + ".vvn {}\n"
-                + ".vvp {}\n"
-                + ".vvl {}\n"
-                + ".vvm {}\n"
-                + ".vvu {}\n"
-                + ".vvw {}\n"
-                + ".vvd {}\n"
-                + ".vvo {}\n"
-                + "</style>";
     }
 
     /**
