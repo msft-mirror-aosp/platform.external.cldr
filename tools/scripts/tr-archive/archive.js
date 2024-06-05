@@ -1,8 +1,9 @@
 const fs = require("fs").promises;
-const marked = require("marked");
+const { marked } = require("marked");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const path = require("path");
+const markedAlert = require('marked-alert');
 
 // Setup some options for our markdown renderer
 marked.setOptions({
@@ -22,6 +23,8 @@ marked.setOptions({
   smartypants: false,
   xhtml: false,
 });
+
+marked.use(markedAlert());
 
 /**
  * Read the input .md file, and write to a corresponding .html file
@@ -53,7 +56,8 @@ async function renderit(infile) {
   head.innerHTML =
     head.innerHTML +
     `<meta charset="utf-8">\n` +
-    `<link rel='stylesheet' type='text/css' media='screen' href='../reports-v2.css'>\n`;
+    `<link rel='stylesheet' type='text/css' media='screen' href='../reports-v2.css'>\n` +
+    `<link rel='stylesheet' type='text/css' media='screen' href='tr35.css'>\n`;
 
   // Assume there's not already a title and that we need to add one.
   if (dom.window.document.getElementsByTagName("title").length >= 1) {
@@ -138,7 +142,7 @@ async function renderit(infile) {
   // put this last
   body.appendChild(getScript({
     // This invokes anchor.js
-    code: `anchors.add('h1, h2, h3, h4, h5, h6, caption');`
+    code: `anchors.add('h1, h2, h3, h4, h5, h6, caption, dfn');`
   }));
 
   // Now, fixup captions
@@ -170,6 +174,22 @@ async function renderit(infile) {
   }
   for (const h6 of toRemove) {
     h6.remove();
+  }
+
+  // Drop generated anchors where there is an explicit anchor
+  const anchors = dom.window.document.getElementsByTagName("a");
+  for (const a of anchors) {
+    // a needs to have a name
+    const aname = a.getAttribute('name');
+    if (!aname) continue;
+    // parent needs to have a single child node and its own 'id'.
+    const parent = a.parentElement;
+    if (parent.childElementCount !== 1) continue;
+    const parid = parent.getAttribute('id');
+    if(!parid) continue;
+    // Criteria met. swap the name and id
+    parent.setAttribute('id', aname);
+    a.setAttribute('name', parid);
   }
 
   // OK, done munging the DOM, write it out.
