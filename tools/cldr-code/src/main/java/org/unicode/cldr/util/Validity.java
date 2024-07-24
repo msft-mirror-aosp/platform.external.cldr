@@ -1,27 +1,31 @@
 package org.unicode.cldr.util;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.unicode.cldr.util.StandardCodes.LstrType;
-
-import com.google.common.base.Splitter;
 
 public class Validity {
 
     public enum Status {
-        regular, special, // for languages only (special codes like mul)
+        regular,
+        special, // for languages only (special codes like mul)
         macroregion, // regions only (from M.49)
-        deprecated, reserved, private_use,  // for clients of cldr with prior agreements
-        unknown, invalid; //  (anything else)
+        deprecated,
+        reserved,
+        private_use, // for clients of cldr with prior agreements
+        unknown,
+        invalid; //  (anything else)
+        public static final Set<Status> ALL = ImmutableSet.copyOf(Status.values());
     }
 
     private static final ConcurrentHashMap<String, Validity> cache = new ConcurrentHashMap<>();
@@ -72,12 +76,12 @@ public class Validity {
             }
             Map<String, Status> subCodeToStatus = codeToStatus.get(type);
             if (subCodeToStatus == null) {
-                codeToStatus.put(type, subCodeToStatus = new TreeMap<>());
+                codeToStatus.put(type, subCodeToStatus = new LinkedHashMap<>());
             }
 
             XMLFileReader.loadPathValues(basePath + file, lineData, true);
             for (Pair<String, String> item : lineData) {
-                XPathParts parts = XPathParts.getFrozenInstance(item.getFirst());
+                XPathValue parts = SimpleXPathParts.getFrozenInstance(item.getFirst());
                 if (!"id".equals(parts.getElement(-1))) {
                     continue;
                 }
@@ -98,7 +102,8 @@ public class Validity {
                     if (dashPos < 0) {
                         set.add(value);
                     } else {
-                        StringRange.expand(value.substring(0, dashPos), value.substring(dashPos + 1), set);
+                        StringRange.expand(
+                                value.substring(0, dashPos), value.substring(dashPos + 1), set);
                     }
                 }
                 for (String code : set) {
@@ -107,14 +112,14 @@ public class Validity {
             }
         }
         if (data.keySet().size() < 5) {
-            throw new IllegalArgumentException("Bad directory for validity files: " + validityDir.getAbsolutePath());
+            throw new IllegalArgumentException(
+                    "Bad directory for validity files: " + validityDir.getAbsolutePath());
         }
         typeToStatusToCodes = CldrUtility.protectCollectionX(data);
         typeToCodeToStatus = CldrUtility.protectCollectionX(codeToStatus);
     }
 
     /**
-     *
      * @deprecated Use {@link #getStatusToCodes(LstrType)}
      */
     @Deprecated
