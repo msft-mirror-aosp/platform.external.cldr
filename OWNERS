@@ -1,9 +1,10 @@
-icu-team+reviews@google.com
-mscherer@google.com
-roubert@google.com
-
-android-libcore-team+review@google.com
+# Default reviewers
 vichang@google.com
-nfuller@google.com
-ngeoffray@google.com
 mingaleev@google.com
+
+# Bug component: 24949
+# libcore team is the larger team owning the library.
+include platform/libcore:/OWNERS
+
+# Email
+android-libcore-team+review@google.com
