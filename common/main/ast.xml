@@ -213,7 +213,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<language type="gmh">altualemán mediu</language>
 			<language type="gn">guaraní</language>
 			<language type="goh">altualemán antiguu</language>
-			<language type="gom">goan konkani</language>
 			<language type="gon">gondi</language>
 			<language type="gor">gorontalo</language>
 			<language type="got">góticu</language>
@@ -1335,7 +1334,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 		<parseLenients scope="general" level="lenient">
 			<parseLenient sample="." draft="contributed">↑↑↑</parseLenient>
 			<parseLenient sample="$" draft="contributed">↑↑↑</parseLenient>
-			<parseLenient sample="£" draft="contributed">[£ ₤]</parseLenient>
+			<parseLenient sample="£" draft="contributed">[£￡ ₤]</parseLenient>
 			<parseLenient sample="₹" draft="contributed">↑↑↑</parseLenient>
 		</parseLenients>
 		<parseLenients scope="number" level="lenient">
@@ -5523,9 +5522,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<zone type="Asia/Ulaanbaatar">
 				<exemplarCity>Ulán Bátor</exemplarCity>
 			</zone>
-			<zone type="Asia/Choibalsan">
-				<exemplarCity>↑↑↑</exemplarCity>
-			</zone>
 			<zone type="Asia/Macau">
 				<exemplarCity>Macáu</exemplarCity>
 			</zone>
@@ -6339,13 +6335,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic>Hora de China</generic>
 					<standard>Hora estándar de China</standard>
 					<daylight>Hora braniega de China</daylight>
-				</long>
-			</metazone>
-			<metazone type="Choibalsan">
-				<long>
-					<generic>Hora de Choibalsan</generic>
-					<standard>Hora estándar de Choibalsan</standard>
-					<daylight>Hora braniega de Choibalsan</daylight>
 				</long>
 			</metazone>
 			<metazone type="Christmas">

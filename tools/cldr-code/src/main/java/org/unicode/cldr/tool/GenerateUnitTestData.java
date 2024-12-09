@@ -6,10 +6,10 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.ibm.icu.util.ICUUncheckedIOException;
 import com.ibm.icu.util.Output;
 import com.ibm.icu.util.ULocale;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.file.Files;
@@ -46,7 +46,7 @@ public class GenerateUnitTestData {
     private static final SupplementalDataInfo SDI = SupplementalDataInfo.getInstance();
     private static final UnitConverter converter = SDI.getUnitConverter();
     private static final String TEST_SEP = ";\t";
-    private static final Set<String> NOT_CONVERTABLE = ImmutableSet.of("generic", "beaufort");
+    private static final Set<String> NOT_CONVERTABLE = ImmutableSet.of("generic");
     private static final Rational R1000 = Rational.of(1000);
 
     private static final Map<String, String> CORE_TO_TYPE;
@@ -205,7 +205,7 @@ public class GenerateUnitTestData {
                 formatLocaleLine(
                         "byte-per-millisecond", Rational.of(123), "default", "en", "", seen);
             } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                throw new ICUUncheckedIOException(e);
             }
         }
     }
