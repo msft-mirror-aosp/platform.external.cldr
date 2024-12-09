@@ -154,7 +154,15 @@ class LdmlConvertRules {
                     "identity:variant:type",
 
                     // in common/bcp47/*.xml
-                    "keyword:key:name");
+                    "keyword:key:name",
+
+                    // transforms
+
+                    // transforms
+                    "transforms:transform:source",
+                    "transforms:transform:target",
+                    "transforms:transform:direction",
+                    "transforms:transform:variant");
 
     /**
      * The set of element:attribute pair in which the attribute should be treated as value. All the
@@ -421,6 +429,12 @@ class LdmlConvertRules {
      */
     public static final Pattern ROOT_IDENTITY_PATTERN =
             Pattern.compile("//ldml/identity/language\\[@type=\"root\"\\]");
+
+    /**
+     * Version (coming from DTD) should be discarded everywhere. This information is now in
+     * package.json.
+     */
+    public static final Pattern VERSION_PATTERN = Pattern.compile("//ldml/identity/version.*");
 
     /** A simple class to hold the specification of a path transformation. */
     public static class PathTransformSpec {

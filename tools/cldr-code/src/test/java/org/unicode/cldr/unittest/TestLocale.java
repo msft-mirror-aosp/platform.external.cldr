@@ -29,6 +29,7 @@ import org.unicode.cldr.util.AttributeValueValidity;
 import org.unicode.cldr.util.AttributeValueValidity.MatcherPattern;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
@@ -86,12 +87,12 @@ public class TestLocale extends TestFmwkPlus {
 
     public void TestLanguageRegions() {
         Set<String> missingLanguageRegion = new LinkedHashSet<>();
-        // TODO This should be derived from metadata: https://unicode.org/cldr/trac/ticket/11224
+        // TODO This should be derived from metadata: CLDR-11224
         Set<String> knownMultiScriptLanguages =
                 new HashSet<>(
                         Arrays.asList(
-                                "az", "ff", "bs", "hi", "ks", "mni", "ms", "pa", "sat", "sd", "shi",
-                                "sr", "su", "vai", "uz", "yue", "zh"));
+                                "az", "ff", "bs", "hi", "kk", "ks", "mni", "ms", "pa", "sat", "sd",
+                                "shi", "sr", "su", "vai", "uz", "yue", "zh"));
         Set<String> available = testInfo.getCldrFactory().getAvailable();
         LanguageTagParser ltp = new LanguageTagParser();
         Set<String> defaultContents = SUPPLEMENTAL_DATA_INFO.getDefaultContentLocales();
@@ -532,14 +533,14 @@ public class TestLocale extends TestFmwkPlus {
                     String[] parts = line.split("=");
                     switch (parts[0]) {
                         case "@locale":
-                            cldrFile = factory.make(parts[1], true);
+                            cldrFile = factory.make(parts[1], true, DraftStatus.contributed);
                             break;
-                        case "@compound":
+                        case "@languageDisplay":
                             switch (parts[1]) {
-                                case "true":
+                                case "standard":
                                     compound = true;
                                     break;
-                                case "false":
+                                case "dialect":
                                     compound = false;
                                     break;
                             }
@@ -582,7 +583,7 @@ public class TestLocale extends TestFmwkPlus {
                 //                assertEquals("LTP(BCP47)=>ICU=>BCP47", bcp47, roundTripId);
 
                 canonicalizer.transform(ltp);
-                String name = cldrFile.getName(ltp, true, null);
+                String name = cldrFile.getName(ltp, compound, null);
                 if (assertEquals(cldrFile.getLocaleID() + "; " + localeId, expected, name)) {
                     formattedExamplesForSpec
                             .append("<tr><td>")
@@ -899,14 +900,6 @@ public class TestLocale extends TestFmwkPlus {
 
         // likely subtags
 
-        LocaleValidator.AllowedValid allow001 =
-                new LocaleValidator.AllowedValid(
-                        null,
-                        LstrType.region,
-                        new LocaleValidator.AllowedMatch("001|419"),
-                        LstrType.language,
-                        new LocaleValidator.AllowedMatch("und|in|iw|ji|jw|mo|tl"));
-
         Map<String, String> exceptions =
                 Map.of(
                         //                "und_QO", "Disallowed region=QO, status=macroregion"
@@ -917,13 +910,13 @@ public class TestLocale extends TestFmwkPlus {
             final String value = entry.getValue();
 
             String expected = CldrUtility.ifNull(exceptions.get(key), "");
-            LocaleValidator.isValid(ltp.set(key), allow001, errors);
+            LocaleValidator.isValid(ltp.set(key), LocaleValidator.ALLOW_IN_LIKELY, errors);
             assertEquals(key, expected, Joiner.on("; ").join(errors));
             if (!expected.isEmpty()) {
                 warnln("Likely subtags, skipping " + ltp + ", " + expected);
             }
 
-            LocaleValidator.isValid(ltp.set(value), allow001, errors);
+            LocaleValidator.isValid(ltp.set(value), LocaleValidator.ALLOW_IN_LIKELY, errors);
             assertEquals(value, "", Joiner.on("; ").join(errors));
         }
 
@@ -959,7 +952,7 @@ public class TestLocale extends TestFmwkPlus {
                         LstrType.extension,
                         new AllowedMatch(
                                 "tz",
-                                "aqams|aukns|caffs|camtr|canpg|capnt|cathu|cayzf|cnckg|cnhrb|cnkhg|gaza|mxstis|uaozh|uauzh|umjon|usnavajo"));
+                                "aqams|aukns|caffs|camtr|canpg|capnt|cathu|cayzf|cnckg|cnhrb|cnkhg|gaza|mncoq|mxstis|uaozh|uauzh|umjon|usnavajo|est5edt|cst6cdt|mst7mdt|pst8pdt"));
 
         for (Entry<String, String> entry :
                 SUPPLEMENTAL_DATA_INFO.getBcp47Extension2Keys().entrySet()) {
