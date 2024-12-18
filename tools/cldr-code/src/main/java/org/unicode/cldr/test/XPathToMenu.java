@@ -220,7 +220,6 @@ final class XPathToMenu {
         "America_Central", "America",
         "Alaska", "America",
         "Georgia", "Asia",
-        "Choibalsan", "Asia",
         "Sakhalin", "Asia",
         "Anadyr", "Asia",
         "Dushanbe", "Asia",
@@ -319,6 +318,7 @@ final class XPathToMenu {
         "Long_Shu", "Asia",
         "Samara", "Europe",
         "Greenland", "America",
+        "Kazakhstan", "Asia",
     };
 
     private XPathToMenu() {}
