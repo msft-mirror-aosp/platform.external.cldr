@@ -1,9 +1,9 @@
 package org.unicode.cldr.util;
 
 import com.google.common.base.Splitter;
-import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.impl.Relation;
 import com.ibm.icu.impl.Row;
+import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.Transform;
@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -188,7 +187,9 @@ public class PathHeader implements Comparable<PathHeader> {
         Keys(SectionId.Locale_Display_Names),
 
         Fields(SectionId.DateTime),
+        Relative(SectionId.DateTime),
         Gregorian(SectionId.DateTime),
+        ISO8601(SectionId.DateTime, "ISO 8601"),
         Generic(SectionId.DateTime),
         Buddhist(SectionId.DateTime),
         Chinese(SectionId.DateTime),
@@ -229,9 +230,11 @@ public class PathHeader implements Comparable<PathHeader> {
         Measurement_Systems(SectionId.Units, "Measurement Systems"),
         Duration(SectionId.Units),
         Graphics(SectionId.Units),
-        Length(SectionId.Units),
+        Length_Metric(SectionId.Units, "Length Metric"),
+        Length_Other(SectionId.Units, "Length Other"),
         Area(SectionId.Units),
         Volume_Metric(SectionId.Units, "Volume Metric"),
+        Volume_US(SectionId.Units, "Volume US"),
         Volume_Other(SectionId.Units, "Volume Other"),
         SpeedAcceleration(SectionId.Units, "Speed and Acceleration"),
         MassWeight(SectionId.Units, "Mass and Weight"),
@@ -240,6 +243,9 @@ public class PathHeader implements Comparable<PathHeader> {
         Weather(SectionId.Units),
         Digital(SectionId.Units),
         Coordinates(SectionId.Units),
+        OtherUnitsMetric(SectionId.Units, "Other Units Metric"),
+        OtherUnitsMetricPer(SectionId.Units, "Other Units Metric Per"),
+        OtherUnitsUS(SectionId.Units, "Other Units US"),
         OtherUnits(SectionId.Units, "Other Units"),
         CompoundUnits(SectionId.Units, "Compound Units"),
 
@@ -860,28 +866,7 @@ public class PathHeader implements Comparable<PathHeader> {
             return SectionIdToPageIds;
         }
 
-        /**
-         * Return the names for Sections and Pages that are defined, for display in menus. Both are
-         * ordered.
-         *
-         * @deprecated Use getSectionIdsToPageIds
-         */
-        @Deprecated
-        public static LinkedHashMap<String, Set<String>> getSectionsToPages() {
-            LinkedHashMap<String, Set<String>> sectionsToPages = new LinkedHashMap<>();
-            for (PageId pageId : PageId.values()) {
-                String sectionId2 = pageId.getSectionId().toString();
-                Set<String> pages =
-                        sectionsToPages.computeIfAbsent(sectionId2, k -> new LinkedHashSet<>());
-                pages.add(pageId.toString());
-            }
-            return sectionsToPages;
-        }
-
-        /**
-         * @deprecated, use the filterCldr with the section/page ids.
-         */
-        public Iterable<String> filterCldr(String section, String page, CLDRFile file) {
+        public Iterable<String> filterCldr(SectionId section, PageId page, CLDRFile file) {
             return new FilteredIterable(section, page, file);
         }
 
@@ -2239,10 +2224,7 @@ public class PathHeader implements Comparable<PathHeader> {
             while (true) {
                 int functionStart = input.indexOf('&', pos);
                 if (functionStart < 0) {
-                    if ("Volume".equals(input)) {
-                        return getVolumePageId(args.value[0] /* path */).toString();
-                    }
-                    return input;
+                    return adjustPageForPath(input, args.value[0] /* path */).toString();
                 }
                 int functionEnd = input.indexOf('(', functionStart);
                 int argEnd =
@@ -2262,10 +2244,77 @@ public class PathHeader implements Comparable<PathHeader> {
             }
         }
 
-        private static Set<UnitConverter.UnitSystem> METRIC =
+        private static String adjustPageForPath(String input, String path) {
+            if ("Fields".equals(input)) {
+                return getFieldsPageId(path).toString();
+            }
+            if ("Length".equals(input)) {
+                return getLengthPageId(path).toString();
+            }
+            if ("Other Units".equals(input)) {
+                return getOtherUnitsPageId(path).toString();
+            }
+            if ("Volume".equals(input)) {
+                return getVolumePageId(path).toString();
+            }
+            return input;
+        }
+
+        private static PageId getFieldsPageId(String path) {
+            XPathParts parts = XPathParts.getFrozenInstance(path);
+            return (parts.containsElement("relative")
+                            || parts.containsElement("relativeTime")
+                            || parts.containsElement("relativePeriod"))
+                    ? PageId.Relative
+                    : PageId.Fields;
+        }
+
+        private static Set<UnitConverter.UnitSystem> METRIC_UNITS =
                 Set.of(UnitConverter.UnitSystem.metric, UnitConverter.UnitSystem.metric_adjacent);
 
+        private static Set<UnitConverter.UnitSystem> US_UNITS =
+                Set.of(UnitConverter.UnitSystem.ussystem);
+
+        private static PageId getLengthPageId(String path) {
+            final String shortUnitId = getShortUnitId(path);
+            if (isSystemUnit(shortUnitId, METRIC_UNITS)) {
+                return PageId.Length_Metric;
+            } else {
+                // Could further subdivide into US/Other with isSystemUnit(shortUnitId, US_UNITS)
+                return PageId.Length_Other;
+            }
+        }
+
         private static PageId getVolumePageId(String path) {
+            final String shortUnitId = getShortUnitId(path);
+            if (isSystemUnit(shortUnitId, METRIC_UNITS)) {
+                return PageId.Volume_Metric;
+            } else {
+                return isSystemUnit(shortUnitId, US_UNITS) ? PageId.Volume_US : PageId.Volume_Other;
+            }
+        }
+
+        private static PageId getOtherUnitsPageId(String path) {
+            String shortUnitId = getShortUnitId(path);
+            if (isSystemUnit(shortUnitId, METRIC_UNITS)) {
+                return shortUnitId.contains("per")
+                        ? PageId.OtherUnitsMetricPer
+                        : PageId.OtherUnitsMetric;
+            } else {
+                return isSystemUnit(shortUnitId, US_UNITS)
+                        ? PageId.OtherUnitsUS
+                        : PageId.OtherUnits;
+            }
+        }
+
+        private static boolean isSystemUnit(
+                String shortUnitId, Set<UnitConverter.UnitSystem> system) {
+            final UnitConverter uc = supplementalDataInfo.getUnitConverter();
+            final Set<UnitConverter.UnitSystem> systems = uc.getSystemsEnum(shortUnitId);
+            return !Collections.disjoint(system, systems);
+        }
+
+        private static String getShortUnitId(String path) {
             // Extract the unit from the path. For example, if path is
             // //ldml/units/unitLength[@type="narrow"]/unit[@type="volume-cubic-kilometer"]/displayName
             // then extract "volume-cubic-kilometer" which is the long unit id
@@ -2276,12 +2325,7 @@ public class PathHeader implements Comparable<PathHeader> {
             }
             final UnitConverter uc = supplementalDataInfo.getUnitConverter();
             // Convert, for example, "volume-cubic-kilometer" to "cubic-kilometer"
-            final String shortUnitId = uc.getShortId(longUnitId);
-            if (!Collections.disjoint(METRIC, uc.getSystemsEnum(shortUnitId))) {
-                return PageId.Volume_Metric;
-            } else {
-                return PageId.Volume_Other;
-            }
+            return uc.getShortId(longUnitId);
         }
 
         /**
