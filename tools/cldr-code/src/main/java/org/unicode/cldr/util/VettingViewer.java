@@ -197,6 +197,8 @@ public class VettingViewer<T> {
             StringBuilder errorMessage = new StringBuilder();
             factory.getTestCache().getBundle(options).check(path, result, value);
             for (CheckStatus checkStatus : result) {
+                if (checkStatus.getEntireLocale())
+                    continue; // these will show up in the Entire Locale (supplemental) report
                 final CheckCLDR cause = checkStatus.getCause();
                 /*
                  * CheckCoverage will be shown under Missing, not under Warnings; and
@@ -1082,6 +1084,25 @@ public class VettingViewer<T> {
 
     private Map<String, String> getSortedNames(Organization org, Level desiredLevel) {
         Map<String, String> sortedNames = new TreeMap<>(CLDRConfig.getInstance().getCollator());
+
+        // A user in the Unaffiliated organization can access a list with all non-TC locales.
+        if (org == Organization.unaffiliated && desiredLevel == Level.BASIC) {
+            for (String localeID : cldrFactory.getAvailable()) {
+                final CLDRLocale loc = CLDRLocale.getInstance(localeID);
+                if (SubmissionLocales.isTcLocale(loc)) continue; // skip TC locales
+                if (defaultContentLocales.contains(localeID)) continue; // skip DC
+                final SpecialLocales.Type type = SpecialLocales.getType(loc);
+                if (type != null) continue; // skip any 'special' locales, algorithmic, readonly etc
+
+                sortedNames.put(getName(localeID), localeID);
+            }
+            return sortedNames;
+        }
+
+        if (org == Organization.unaffiliated) {
+            return sortedNames; // empty
+        }
+
         // TODO Fix HACK
         // We are going to ignore the predicate for now, just using the locales that have explicit
         // coverage.

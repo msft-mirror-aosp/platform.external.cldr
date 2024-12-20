@@ -8,7 +8,7 @@ package org.unicode.cldr.tool;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.ibm.icu.dev.tool.shared.UOption;
+import com.ibm.icu.dev.util.UOption;
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DateTimePatternGenerator;
@@ -76,7 +76,6 @@ import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.SupplementalDataInfo;
-// import org.unicode.cldr.util.Log;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 import org.unicode.cldr.util.VoteResolver;
@@ -96,6 +95,7 @@ import org.unicode.cldr.util.XPathParts.Comments.CommentType;
         description =
                 "Tool for applying modifications to the CLDR files. Use -h to see the options.")
 public class CLDRModify {
+    private static final Splitter SPLIT_ON_SEMI = Splitter.onPattern("\\s*;\\s+");
     static final String DEBUG_PATHS = null; // ".*currency.*";
     static final boolean COMMENT_REMOVALS = false; // append removals as comments
     static final UnicodeSet whitespace = new UnicodeSet("[:whitespace:]").freeze();
@@ -650,11 +650,13 @@ public class CLDRModify {
                             + "Use -? for help.");
         }
         if (i == FIX && givenOptions.value != null) {
-            final UnicodeSet allowedFilters = new UnicodeSet().add('P').add('Q').add('V');
+            final UnicodeSet allowedFilters = new UnicodeSet().add('P').add('k');
             for (char c : givenOptions.value.toCharArray()) {
                 if (!allowedFilters.contains(c)) {
                     throw new IllegalArgumentException(
-                            "The filter " + c + " is currently disabled, see CLDR-17144");
+                            "The filter "
+                                    + c
+                                    + " is currently disabled, see CLDR-17144 and CLDR-17765");
                 }
             }
         }
@@ -2323,9 +2325,8 @@ public class CLDRModify {
                                             || newPath == null
                                             || newValue == null) {
                                         throw new IllegalArgumentException(
-                                                "Bad arguments, must have non-null for one of:"
-                                                        + "path, value, new_path, new_value "
-                                                        + ":\n\t"
+                                                action.action
+                                                        + ": must have no path nor value = null AND new_path or new_value:\n\t"
                                                         + entry);
                                     }
                                     String newPathString = newPath.getPath(getResolved());
@@ -2344,8 +2345,8 @@ public class CLDRModify {
                                     if ((pathMatch == null && valueMatch == null)
                                             || (newPath == null && newValue == null)) {
                                         throw new IllegalArgumentException(
-                                                "Bad arguments, must have "
-                                                        + "(path!=null OR value=null) AND (new_path!=null OR new_value!=null):\n\t"
+                                                action.action
+                                                        + ": must have (path or value) AND (new_path or new_value):\n\t"
                                                         + entry);
                                     }
                                     break;
@@ -2353,8 +2354,8 @@ public class CLDRModify {
                                 case delete:
                                     if (newPath != null || newValue != null) {
                                         throw new IllegalArgumentException(
-                                                "Bad arguments, must have "
-                                                        + "newPath=null, newValue=null"
+                                                action.action
+                                                        + ": must have no new_path nor new_value:\n\t"
                                                         + entry);
                                     }
                                     break;
@@ -2376,12 +2377,14 @@ public class CLDRModify {
                                     @Override
                                     protected boolean handleLine(int lineCount, String line) {
                                         line = line.trim();
-                                        String[] lineParts = line.split("\\s*;\\s*");
+                                        Iterable<String> lineParts = SPLIT_ON_SEMI.split(line);
                                         Map<ConfigKeys, ConfigMatch> keyValue =
                                                 new EnumMap<>(ConfigKeys.class);
                                         for (String linePart : lineParts) {
                                             int pos = linePart.indexOf('=');
                                             if (pos < 0) {
+                                                // WARNING; the code doesn't allow for ; within
+                                                // values; need to restructure for that.
                                                 throw new IllegalArgumentException(
                                                         lineCount
                                                                 + ":\t No = in command: «"
