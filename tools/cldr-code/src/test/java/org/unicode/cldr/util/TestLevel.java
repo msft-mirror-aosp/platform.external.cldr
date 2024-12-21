@@ -1,13 +1,16 @@
 package org.unicode.cldr.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -96,11 +99,24 @@ public class TestLevel {
                                 "//ldml/numbers/currencies/currency[@type=\"%s\"]/symbol", code),
                         "und");
         final Level expect = Level.MODERN;
+        assumeFalse(
+                code.equals("ZWL") && CLDRFile.GEN_VERSION.equals("46"),
+                "Skipping ZWL for CLDR 46");
+        assumeFalse(
+                code.equals("ZWG") && CLDRFile.GEN_VERSION.equals("46"),
+                "Skipping ZWG for CLDR 46");
         assertTrue(
                 expect.isAtLeast(l),
                 () ->
                         String.format(
                                 "Coverage for modern currency %s: %s, expected ≤ %s",
                                 code, l, expect));
+    }
+
+    @Test
+    public void TestMath() {
+        assertTrue(Level.MODERN.isAbove(Level.MODERATE));
+        assertFalse(Level.BASIC.isAtLeast(Level.MODERN));
+        assertTrue(Level.MODERN.isAtLeast(Level.BASIC));
     }
 }

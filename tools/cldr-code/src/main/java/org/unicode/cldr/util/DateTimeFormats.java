@@ -2,6 +2,7 @@ package org.unicode.cldr.util;
 
 import com.google.common.collect.ImmutableMap;
 import com.ibm.icu.impl.Row.R3;
+import com.ibm.icu.text.Bidi;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.DateIntervalFormat;
 import com.ibm.icu.text.DateIntervalInfo;
@@ -12,6 +13,7 @@ import com.ibm.icu.text.DateTimePatternGenerator.VariableField;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.MessageFormat;
 import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.DateInterval;
 import com.ibm.icu.util.ICUUncheckedIOException;
@@ -21,6 +23,7 @@ import com.ibm.icu.util.ULocale;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
@@ -44,6 +47,12 @@ import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
 public class DateTimeFormats {
+    private static final UnicodeSet TO_ESCAPE =
+            new UnicodeSet(CodePointEscaper.FORCE_ESCAPE)
+                    .remove(CodePointEscaper.SP.getCodePoint())
+                    .freeze();
+    private static final String MISSING_PART = "ⓜⓘⓢⓢⓘⓝⓖ";
+    private static final CLDRConfig CONFIG = CLDRConfig.getInstance();
     private static final Date SAMPLE_DATE_DEFAULT_END = new Date(2099 - 1900, 0, 13, 14, 45, 59);
     private static final String DIR = CLDRPaths.CHART_DIRECTORY + "/verify/dates/";
     private static SupplementalDataInfo sdi = SupplementalDataInfo.getInstance();
@@ -71,6 +80,25 @@ public class DateTimeFormats {
 
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
+    // The following is also in ExampleGenerator and VerifyCompactNumbers; it and other shared
+    // constant sets should
+    // probably be moved to a common file of such things.
+    private static final UnicodeSet BIDI_MARKS = new UnicodeSet("[:Bidi_Control:]").freeze();
+
+    private static final String ltrBackground = "background-color:#EEE;";
+    private static final String tableBackground = "background-color:#DDF; border: 1px solid blue;";
+
+    private static final String rtlStart = "<div dir='rtl'>";
+    private static final String autoLtrStart = "<div dir='auto' style='" + ltrBackground + "'>";
+    private static final String autoStart = "<div dir='auto'>";
+    private static final String divEnd = "</div>";
+    private static final String tableStyle =
+            "style='border-collapse: collapse;" + tableBackground + " margin: auto'"; //
+
+    private static final String ltrSpan = "<span style='" + ltrBackground + "'>";
+    private static final String tableSpan = "<span style='" + tableBackground + "'>";
+    private static final String spanEnd = "</span>";
+
     private static final String[] STOCK = {"short", "medium", "long", "full"};
     private static final String[] CALENDAR_FIELD_TO_PATTERN_LETTER = {
         "G", "y", "M",
@@ -97,7 +125,7 @@ public class DateTimeFormats {
                     .put("a", new Date(2012 - 1900, 0, 13, 2, 45, 59))
                     .put("h", new Date(2012 - 1900, 0, 13, 15, 45, 59))
                     .put("H", new Date(2012 - 1900, 0, 13, 15, 45, 59))
-                    .put("m", SAMPLE_DATE_DEFAULT_END)
+                    .put("m", new Date(2012 - 1900, 0, 13, 14, 46, 59))
                     .build();
     //        // "G", "y", "M",
     //        null, new Date(2013 - 1900, 0, 13, 14, 45, 59), new Date(2012 - 1900, 1, 13, 14, 45,
@@ -116,15 +144,15 @@ public class DateTimeFormats {
     private ULocale locale;
     private ICUServiceBuilder icuServiceBuilder;
     private ICUServiceBuilder icuServiceBuilderEnglish =
-            new ICUServiceBuilder().setCldrFile(CLDRConfig.getInstance().getEnglish());
+            new ICUServiceBuilder().setCldrFile(CONFIG.getEnglish());
 
     private DateIntervalInfo dateIntervalInfo = new DateIntervalInfo();
     private String calendarID;
     private CLDRFile file;
+    private boolean isRTL;
 
     private static String surveyUrl =
-            CLDRConfig.getInstance()
-                    .getProperty("CLDR_SURVEY_URL", "http://st.unicode.org/cldr-apps/survey");
+            CONFIG.getProperty("CLDR_SURVEY_URL", "http://st.unicode.org/cldr-apps/survey");
 
     /**
      * Set a CLDRFile and calendar. Must be done before calling addTable.
@@ -154,6 +182,8 @@ public class DateTimeFormats {
         generator = DateTimePatternGenerator.getEmptyInstance();
         this.calendarID = calendarID;
         boolean haveDefaultHourChar = false;
+        String characterOrder = file.getStringValue("//ldml/layout/orientation/characterOrder");
+        isRTL = (characterOrder != null && characterOrder.equals("right-to-left"));
 
         for (String stock : STOCK) {
             String path =
@@ -479,9 +509,35 @@ public class DateTimeFormats {
      * @param output
      */
     public void addTable(DateTimeFormats comparison, Appendable output) {
+        UnicodeSet allEscapedCharactersFound = new UnicodeSet();
         try {
             output.append(
-                    "<h2>" + hackDoubleLinked("Patterns") + "</h2>\n<table class='dtf-table'>");
+                    "<h2>"
+                            + hackDoubleLinked("Patterns")
+                            + "</h2>"
+                            + "<p>Normally, there is a single line containing an example in each Native Example cell. "
+                            + (!isRTL
+                                    ? ""
+                                    : "However, two examples are provided if the locale is right-to-left, like Arabic or Hebrew, "
+                                            + "<i>and</i> the paragraph direction can cause a different display. "
+                                            + "The first has a <b>RTL</b> paragraph direction, "
+                                            + "while the second has a <b>auto</b> paragraph direction (LTR unless the first 'strong' character is RTL) "
+                                            + ltrSpan
+                                            + "<i>and</i> a different background"
+                                            + spanEnd
+                                            + ". If the display of either example appears to cause strings of letters or numbers to collide, "
+                                            + "then a ⚠️ is shown followed by differences (this is still experimental). ")
+                            + "When an example has hidden characters, then "
+                            + tableSpan
+                            + "an extra line"
+                            + spanEnd
+                            + " shows those characters with short IDs ❰…❱: see the <b>Key</b> below the table. "
+                            + "So that the ordering of the characters in memory is clear, they are presented left-to-right one at a time. "
+                            + "so that the placement is clear. "
+                            + "When a pattern (or a component of a pattern) is missing, it is displayed as "
+                            + MISSING_PART
+                            + ".</p>"
+                            + "\n<table class='dtf-table'>");
             Diff diff = new Diff();
             boolean is24h = generator.getDefaultHourFormatChar() == 'H';
             showRow(
@@ -512,8 +568,8 @@ public class DateTimeFormats {
                             RowStyle.normal,
                             name,
                             skeleton,
-                            comparison.getExample(skeleton),
-                            getExample(skeleton),
+                            comparison.getExample(skeleton, allEscapedCharactersFound),
+                            getExample(skeleton, allEscapedCharactersFound),
                             diff.isPresent(skeleton));
                 }
             }
@@ -551,12 +607,21 @@ public class DateTimeFormats {
                             RowStyle.normal,
                             skeleton,
                             skeleton,
-                            comparison.getExample(skeleton),
-                            getExample(skeleton),
+                            comparison.getExample(skeleton, allEscapedCharactersFound),
+                            getExample(skeleton, allEscapedCharactersFound),
                             true);
                 }
             }
             output.append("</table>");
+            if (!allEscapedCharactersFound.isEmpty()) {
+                output.append("\n<h3>Key to Escaped Characters</h3>\n");
+                String keyToEscaped =
+                        CodePointEscaper.getHtmlRows(
+                                allEscapedCharactersFound,
+                                " style='border:1px solid blue; border-collapse: collapse'",
+                                " style='border:1px solid blue'");
+                output.append(keyToEscaped);
+            }
         } catch (IOException e) {
             throw new ICUUncheckedIOException(e);
         }
@@ -566,12 +631,13 @@ public class DateTimeFormats {
      * Get an example from the "enhanced" skeleton.
      *
      * @param skeleton
+     * @param escapedCharactersFound Any characters that were escaped are added to this.
      * @return
      */
-    private String getExample(String skeleton) {
+    private String getExample(String skeleton, UnicodeSet escapedCharactersFound) {
         String example;
         if (skeleton.contains("®")) {
-            return getRelativeExampleFromSkeleton(skeleton);
+            example = getRelativeExampleFromSkeleton(skeleton);
         } else {
             int slashPos = skeleton.indexOf('/');
             if (slashPos >= 0) {
@@ -602,7 +668,42 @@ public class DateTimeFormats {
                 example = format.format(SAMPLE_DATE);
             }
         }
-        return TransliteratorUtilities.toHTML.transform(example);
+        String transformedExample = TransliteratorUtilities.toHTML.transform(example);
+        ArrayList<String> listOfReorderings = new ArrayList<>();
+        if ((isRTL || BIDI_MARKS.containsSome(example)) && !example.contains(MISSING_PART)) {
+            if (!BidiUtils.isOrderingUnchanged(
+                    example,
+                    listOfReorderings,
+                    Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT,
+                    Bidi.DIRECTION_RIGHT_TO_LEFT)) {
+                // since this locale is RTL, we put it first
+                String rtlVersion = rtlStart + transformedExample + divEnd; // not colored
+                String autoVersion = autoLtrStart + transformedExample + divEnd; // colored
+                String alert = BidiUtils.getAlert(listOfReorderings);
+                transformedExample = rtlVersion + autoVersion + alert;
+            } else {
+                String autoVersion = autoStart + transformedExample + divEnd; // not colored
+                transformedExample = autoVersion;
+            }
+        }
+
+        if (TO_ESCAPE.containsSome(example)) {
+            StringBuilder processed = new StringBuilder();
+            example.codePoints()
+                    .forEach(
+                            x -> {
+                                processed
+                                        .append("<td>")
+                                        .append(
+                                                TransliteratorUtilities.toHTML.transform(
+                                                        CodePointEscaper.getEscaped(x, TO_ESCAPE)))
+                                        .append("</td>");
+                            });
+
+            transformedExample += "<table " + tableStyle + "><tr>" + processed + "</tr></table>";
+            escapedCharactersFound.addAll(new UnicodeSet().addAll(example).retainAll(TO_ESCAPE));
+        }
+        return transformedExample;
     }
 
     static final Pattern RELATIVE_DATE =
@@ -661,7 +762,7 @@ public class DateTimeFormats {
         RelativePattern rp = new RelativePattern(file, skeleton);
         String value = rp.value;
         if (value == null) {
-            value = "ⓜⓘⓢⓢⓘⓝⓖ";
+            value = MISSING_PART;
         } else {
             DecimalFormat format = icuServiceBuilder.getNumberFormat(0);
             value = value.replace("{0}", format.format(Math.abs(rp.offset)).replace("'", "''"));
@@ -675,19 +776,27 @@ public class DateTimeFormats {
             //                String length = skeleton.contains("MMMM") ? skeleton.contains("E") ?
             // "full" : "long"
             //                    : skeleton.contains("MMM") ? "medium" : "short";
-            String path2 = getDTSeparator("full");
-            String datetimePattern = file.getStringValue(path2).replace("'", "");
+            String path2 = getDTSeparator("full", "atType");
+            String datetimePattern =
+                    file.getStringValue(
+                            getDTSeparator("full", "atType")); // prefer the atType variant here
+            if (datetimePattern == null) {
+                datetimePattern = file.getStringValue(getDTSeparator("full", "standard"));
+            }
+            datetimePattern = datetimePattern.replace("'", "");
             return MessageFormat.format(datetimePattern, formattedTime, value);
         }
     }
 
-    private String getDTSeparator(String length) {
+    private String getDTSeparator(String length, String type) {
         String path =
                 "//ldml/dates/calendars/calendar[@type=\""
                         + calendarID
                         + "\"]/dateTimeFormats/dateTimeFormatLength[@type=\""
                         + length
-                        + "\"]/dateTimeFormat[@type=\"standard\"]/pattern[@type=\"standard\"]";
+                        + "\"]/dateTimeFormat[@type=\""
+                        + type
+                        + "\"]/pattern[@type=\"standard\"]";
         return path;
     }
 
@@ -963,12 +1072,14 @@ public class DateTimeFormats {
 
         String organization = MyOptions.organization.option.getValue();
         String filter = MyOptions.filter.option.getValue();
+        boolean hasFilter = MyOptions.filter.option.doesOccur();
 
-        Factory englishFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, filter);
-        CLDRFile englishFile = englishFactory.make("en", true);
+        CLDRFile englishFile = CONFIG.getEnglish();
 
-        Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, LOCALES);
-        System.out.println("Total locales: " + factory.getAvailableLanguages().size());
+        Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, filter);
+        final Set<String> availableLocales =
+                hasFilter ? factory.getAvailable() : factory.getAvailableLanguages();
+        System.out.println("Total locales: " + availableLocales.size());
         DateTimeFormats english = new DateTimeFormats().set(englishFile, "gregorian");
 
         new File(DIR).mkdirs();
@@ -980,7 +1091,7 @@ public class DateTimeFormats {
         Map<String, String> sorted = new TreeMap<>();
         SupplementalDataInfo sdi = SupplementalDataInfo.getInstance();
         Set<String> defaultContent = sdi.getDefaultContentLocales();
-        for (String localeID : factory.getAvailableLanguages()) {
+        for (String localeID : availableLocales) {
             Level level = StandardCodes.make().getLocaleCoverageLevel(organization, localeID);
             if (Level.MODERN.compareTo(level) > 0) {
                 continue;
@@ -1023,7 +1134,7 @@ public class DateTimeFormats {
                             + name
                             + "</h1>"
                             + "<p><a href='index.html'>Index</a></p>\n"
-                            + "<p>The following chart shows typical usage of date and time formatting with the Gregorian calendar. "
+                            + "<p>The following chart shows typical usage of date and time formatting with the Gregorian calendar and default number system. "
                             + "<i>There is important information on <a target='CLDR_ST_DOCS' href='http://cldr.unicode.org/translation/date-time-review'>Date/Time Review</a>, "
                             + "so please read that page before starting!</i></p>\n");
             formats.addTable(english, out);

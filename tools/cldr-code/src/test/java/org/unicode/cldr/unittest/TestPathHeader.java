@@ -482,7 +482,9 @@ public class TestPathHeader extends TestFmwkPlus {
             if (hidePathHeader != hideCoverage) {
                 String message = "PathHeader: " + status + ", Coverage: " + level + ": " + path;
                 if (hidePathHeader && !hideCoverage) {
-                    errln(message);
+                    errln(
+                            message
+                                    + " - PathHeader says to HIDE this, but it visible at <comprehensive coverage. Fix PathHeader to show, or fix coverage.");
                 } else if (!hidePathHeader && hideCoverage) {
                     logln(message);
                 }
@@ -1090,12 +1092,11 @@ public class TestPathHeader extends TestFmwkPlus {
         for (String item : threeLevel) {
             logln(item);
         }
-        LinkedHashMap<String, Set<String>> sectionsToPages =
-                org.unicode.cldr.util.PathHeader.Factory.getSectionsToPages();
-        logln("\nMenus:\t" + sectionsToPages.size());
-        for (Entry<String, Set<String>> item : sectionsToPages.entrySet()) {
-            final String section = item.getKey();
-            for (String page : item.getValue()) {
+        Relation<SectionId, PageId> s2p = PathHeader.Factory.getSectionIdsToPageIds();
+        logln("\nMenus:\t" + s2p.size());
+        for (Entry<SectionId, Set<PageId>> sectionAndPages : s2p.keyValuesSet()) {
+            final SectionId section = sectionAndPages.getKey();
+            for (PageId page : sectionAndPages.getValue()) {
                 logln("\t" + section + "\t" + page);
                 int count = 0;
                 for (String path : pathHeaderFactory.filterCldr(section, page, english)) {

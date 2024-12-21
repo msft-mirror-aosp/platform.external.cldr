@@ -424,11 +424,13 @@ public class TestCheckCLDR extends TestFmwk {
                 }
             } else { // not disallowed
                 if (!containsMessagePattern) {
+                    // The following error seems wrong if placeholderStatus is LOCALE_DEPENDENT
+                    // in which case some entries might not have placeholders; see CLDR-17820
                     errln(
                             cldrFileToTest.getLocaleID()
                                     + " Value ("
                                     + value
-                                    + ") contains placeholder, but placeholder info = «"
+                                    + ") does not contain placeholder, but placeholder info = «"
                                     + placeholderStatus
                                     + "»\t"
                                     + path);
@@ -467,26 +469,7 @@ public class TestCheckCLDR extends TestFmwk {
         checkLocale(test, localeID, "?", null);
     }
 
-    /** adjust the logging level of checks */
-    public java.util.logging.Level pushCheckLevel() {
-        java.util.logging.Level oldLevel = null;
-        if (logKnownIssue(
-                "CLDR-17320",
-                "turning off CheckCLDR logging to avoid thousands of log messages, please fix internal stack traces")) {
-            oldLevel = CheckCLDR.setLoggerLevel(java.util.logging.Level.OFF);
-        }
-        return oldLevel;
-    }
-
-    /** undo the effect of a pushCheckLevel */
-    public void popCheckLevel(java.util.logging.Level oldLevel) {
-        if (oldLevel != null) {
-            CheckCLDR.setLoggerLevel(oldLevel);
-        }
-    }
-
     public void TestAllLocales() {
-        java.util.logging.Level oldLevel = pushCheckLevel();
         CheckCLDR test = CheckCLDR.getCheckAll(factory, INDIVIDUAL_TESTS);
         CheckCLDR.setDisplayInformation(english);
         Set<String> unique = new HashSet<>();
@@ -506,18 +489,14 @@ public class TestCheckCLDR extends TestFmwk {
         // (And in fact this test seems faster without it)
         locales.forEach(locale -> checkLocale(test, locale, null, unique));
         logln("Count:\t" + locales.size());
-        popCheckLevel(oldLevel);
     }
 
     public void TestA() {
-        final java.util.logging.Level oldLevel = pushCheckLevel();
-
         CheckCLDR test = CheckCLDR.getCheckAll(factory, INDIVIDUAL_TESTS);
         CheckCLDR.setDisplayInformation(english);
         Set<String> unique = new HashSet<>();
 
         checkLocale(test, "ko", null, unique);
-        popCheckLevel(oldLevel);
     }
 
     public void checkLocale(
@@ -1037,6 +1016,46 @@ public class TestCheckCLDR extends TestFmwk {
             testFile.remove(path1);
             testFile.remove(path2);
         }
+        // Test for CLDR-14865
+        testFile = new CLDRFile(new SimpleXMLSource("fi"));
+        testFactory.addFile(testFile);
+        String availableFormatTestPath =
+                "//ldml/dates/calendars/calendar[@type=\"generic\"]/dateTimeFormats/availableFormats/dateFormatItem[@id=\"GyMd\"]";
+        String availableFormatValue = "d.m.y G"; // erroneous, should have M not m
+        testFile.add(availableFormatTestPath, availableFormatValue);
+        CheckCLDR c = new CheckDates(testFactory);
+        c.setCldrFileToCheck(testFile, options, result);
+        result.clear();
+        c.check(
+                availableFormatTestPath,
+                availableFormatTestPath,
+                availableFormatValue,
+                options,
+                result);
+        Subtype actualSubtype = Subtype.none;
+        String message = null;
+        for (CheckStatus status : result) {
+            actualSubtype = status.getSubtype();
+            message = status.getMessage();
+            break;
+        }
+        if (actualSubtype != Subtype.incorrectDatePattern
+                || message == null
+                || !message.contains("d.M.y G")) {
+            String errorMessage =
+                    "fi generic availableFormat for id=GyMd with value "
+                            + availableFormatValue
+                            + ":";
+            if (actualSubtype != Subtype.incorrectDatePattern) {
+                errorMessage +=
+                        " expected Subtype.incorrectDatePattern, got " + actualSubtype + " ;";
+            }
+            if (message == null || !message.contains("d.M.y G")) {
+                errorMessage += " expected message should contain suggested d.M.y G, got message: ";
+                errorMessage += (message == null) ? "(null)" : message;
+            }
+            errln(errorMessage);
+        }
     }
 
     /** Should be some CLDR locales, plus a locale specially allowed in limited submission */
@@ -1049,7 +1068,7 @@ public class TestCheckCLDR extends TestFmwk {
 
         for (String locale : localesForRowAction) {
             DummyPathValueInfo dummyPathValueInfo = new DummyPathValueInfo();
-            dummyPathValueInfo.locale = CLDRLocale.getInstance(locale);
+            dummyPathValueInfo.setLocale(CLDRLocale.getInstance(locale));
             CLDRFile cldrFile = testInfo.getCldrFactory().make(locale, true);
             CLDRFile cldrFileUnresolved = testInfo.getCldrFactory().make(locale, false);
 
@@ -1067,8 +1086,9 @@ public class TestCheckCLDR extends TestFmwk {
                     for (PathHeader ph : sorted) {
                         String path = ph.getOriginalPath();
                         SurveyToolStatus surveyToolStatus = ph.getSurveyToolStatus();
-                        dummyPathValueInfo.xpath = path;
-                        dummyPathValueInfo.baselineValue = cldrFileUnresolved.getStringValue(path);
+                        dummyPathValueInfo.setXpath(path);
+                        dummyPathValueInfo.setBaselineValue(
+                                cldrFileUnresolved.getStringValue(path));
                         StatusAction action =
                                 phase.getShowRowAction(
                                         dummyPathValueInfo, InputMethod.DIRECT, ph, dummyUserInfo);
@@ -1086,7 +1106,7 @@ public class TestCheckCLDR extends TestFmwk {
                                         "vo ==> FORBID_READONLY",
                                         StatusAction.FORBID_READONLY,
                                         action);
-                            } else if (dummyPathValueInfo.baselineValue == null) {
+                            } else if (dummyPathValueInfo.getBaselineValue() == null) {
                                 if (!assertEquals(
                                         "missing ==> ALLOW", StatusAction.ALLOW, action)) {
                                     warnln("\t\t" + locale + "\t" + ph);
@@ -1110,7 +1130,9 @@ public class TestCheckCLDR extends TestFmwk {
                                 }
                                 actionToExamplePath.put(
                                         key,
-                                        Pair.of(dummyPathValueInfo.baselineValue != null, path));
+                                        Pair.of(
+                                                dummyPathValueInfo.getBaselineValue() != null,
+                                                path));
                             }
                         }
                     }
@@ -1170,7 +1192,7 @@ public class TestCheckCLDR extends TestFmwk {
                 }
             };
 
-    private static class DummyPathValueInfo implements PathValueInfo {
+    public static class DummyPathValueInfo implements PathValueInfo {
         private CLDRLocale locale;
         private String xpath;
         private String baselineValue;
@@ -1230,6 +1252,18 @@ public class TestCheckCLDR extends TestFmwk {
         @Override
         public String getXpath() {
             return xpath;
+        }
+
+        public void setLocale(CLDRLocale locale) {
+            this.locale = locale;
+        }
+
+        public void setXpath(String xpath) {
+            this.xpath = xpath;
+        }
+
+        public void setBaselineValue(String baselineValue) {
+            this.baselineValue = baselineValue;
         }
     }
 
