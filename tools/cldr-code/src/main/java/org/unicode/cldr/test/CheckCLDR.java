@@ -7,6 +7,10 @@
 
 package org.unicode.cldr.test;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.ibm.icu.dev.util.ElapsedTimer;
 import com.ibm.icu.impl.Row.R3;
@@ -22,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,6 +162,16 @@ public abstract class CheckCLDR implements CheckAccessor {
         public boolean canShow() {
             return !isForbidden;
         }
+
+        public boolean canVote() {
+            // the one non-voting case
+            if (this == ALLOW_TICKET_ONLY) return false;
+            return !isForbidden();
+        }
+
+        public boolean canSubmit() {
+            return (this == ALLOW);
+        }
     }
 
     private static final HashMap<String, Phase> PHASE_NAMES = new HashMap<>();
@@ -190,9 +205,9 @@ public abstract class CheckCLDR implements CheckAccessor {
         /**
          * Return whether or not to show a row, and if so, how.
          *
-         * @param pathValueInfo
+         * @param pathValueInfo - may be null for a non-path entry.
          * @param inputMethod
-         * @param ph the path header
+         * @param ph the path header - may be null if it is a non-path entry
          * @param userInfo null if there is no userInfo (nobody logged in).
          * @return
          */
@@ -203,7 +218,14 @@ public abstract class CheckCLDR implements CheckAccessor {
                 UserInfo userInfo // can get voterInfo from this.
                 ) {
 
-            PathHeader.SurveyToolStatus status = ph.getSurveyToolStatus();
+            // default to read/write
+            PathHeader.SurveyToolStatus status = PathHeader.SurveyToolStatus.READ_WRITE;
+            boolean canReadAndWrite = true;
+
+            if (ph != null) {
+                status = ph.getSurveyToolStatus();
+                canReadAndWrite = ph.canReadAndWrite();
+            }
             /*
              * Always forbid DEPRECATED items - don't show.
              *
@@ -234,23 +256,26 @@ public abstract class CheckCLDR implements CheckAccessor {
                 return StatusAction.FORBID_READONLY;
             }
 
-            CandidateInfo winner = pathValueInfo.getCurrentItem();
-            ValueStatus valueStatus = getValueStatus(winner, ValueStatus.NONE, null);
+            ValueStatus valueStatus = ValueStatus.NONE;
+            if (pathValueInfo != null) {
+                CandidateInfo winner = pathValueInfo.getCurrentItem();
+                valueStatus = getValueStatus(winner, ValueStatus.NONE, null);
 
-            // if limited submission, and winner doesn't have an error, limit the values
+                // if limited submission, and winner doesn't have an error, limit the values
 
-            if (LIMITED_SUBMISSION) {
-                if (!SubmissionLocales.allowEvenIfLimited(
-                        pathValueInfo.getLocale().toString(),
-                        pathValueInfo.getXpath(),
-                        valueStatus == ValueStatus.ERROR,
-                        pathValueInfo.getBaselineStatus() == Status.missing)) {
-                    return StatusAction.FORBID_READONLY;
+                if (LIMITED_SUBMISSION) {
+                    if (!SubmissionLocales.allowEvenIfLimited(
+                            pathValueInfo.getLocale().toString(),
+                            pathValueInfo.getXpath(),
+                            valueStatus == ValueStatus.ERROR,
+                            pathValueInfo.getBaselineStatus() == Status.missing)) {
+                        return StatusAction.FORBID_READONLY;
+                    }
                 }
             }
 
             if (this == Phase.SUBMISSION || isUnitTest()) {
-                return (ph.canReadAndWrite())
+                return (canReadAndWrite)
                         ? StatusAction.ALLOW
                         : StatusAction.ALLOW_VOTING_AND_TICKET;
             }
@@ -260,7 +285,7 @@ public abstract class CheckCLDR implements CheckAccessor {
             // Only allow ADD if we have an error or warning
             // Only check winning value for errors/warnings per ticket #8677
             if (valueStatus != ValueStatus.NONE) {
-                return (ph.canReadAndWrite())
+                return (canReadAndWrite)
                         ? StatusAction.ALLOW
                         : StatusAction.ALLOW_VOTING_AND_TICKET;
             }
@@ -717,10 +742,9 @@ public abstract class CheckCLDR implements CheckAccessor {
         // we must load filters here, as they are used by check()
 
         // Shortlist error filters for this locale.
-        loadFilters();
         String locale = cldrFileToCheck.getLocaleID();
         filtersForLocale.clear();
-        for (R3<Pattern, Subtype, Pattern> filter : allFilters) {
+        for (R3<Pattern, Subtype, Pattern> filter : getAllFilters()) {
             if (filter.get0() == null || !filter.get0().matcher(locale).matches()) continue;
             Subtype subtype = filter.get1();
             List<Pattern> xpaths = filtersForLocale.get(subtype);
@@ -763,6 +787,8 @@ public abstract class CheckCLDR implements CheckAccessor {
             cachedPossibleErrors.clear();
             // call into the subclass
             handleSetCldrFileToCheck(this.cldrFileToCheck, cachedOptions, cachedPossibleErrors);
+            // all of these are entireLocale
+            cachedPossibleErrors.forEach(e -> e.setEntireLocale());
             initted = true;
         }
         // unconditionally append all cached possible errors
@@ -781,8 +807,14 @@ public abstract class CheckCLDR implements CheckAccessor {
 
     Options cachedOptions = null;
 
+    /**
+     * abstract interface for mapping from a Subtype to a "more details" URL. see
+     * org.unicode.cldr.web.SubtypeToURLMap
+     */
+    public interface SubtypeToURLProvider extends Function<Subtype, String> {}
+
     /** Status value returned from check */
-    public static class CheckStatus {
+    public static class CheckStatus implements Comparable<CheckStatus> {
         public static final Type alertType = Type.Comment,
                 warningType = Type.Warning,
                 errorType = Type.Error,
@@ -901,6 +933,7 @@ public abstract class CheckCLDR implements CheckAccessor {
             missingLanguage,
             namePlaceholderProblem,
             missingSpaceBetweenNameFields,
+            shortDateFieldInconsistentLength,
             illegalParameterValue,
             illegalAnnotationCode,
             illegalCharacter;
@@ -927,6 +960,7 @@ public abstract class CheckCLDR implements CheckAccessor {
                         Subtype.inconsistentPeriods,
                         Subtype.abbreviatedDateFieldTooWide,
                         Subtype.narrowDateFieldTooWide,
+                        Subtype.shortDateFieldInconsistentLength,
                         Subtype.coverageLevel);
 
         public static Set<Subtype> errorCodesPath =
@@ -1116,6 +1150,38 @@ public abstract class CheckCLDR implements CheckAccessor {
                 }
             }
             return false;
+        }
+
+        /**
+         * @returns true if this status applies to the entire locale, not a single path
+         */
+        public boolean getEntireLocale() {
+            return entireLocale;
+        }
+
+        /** Mark this CheckStatus as isEntireLocale */
+        CheckStatus setEntireLocale() {
+            entireLocale = true;
+            return this;
+        }
+
+        private boolean entireLocale = false;
+
+        @Override
+        public int compareTo(CheckStatus o) {
+            if (this == o) return 0;
+            return ComparisonChain.start()
+                    .compare(getType(), o.getType())
+                    .compare(getSubtype(), o.getSubtype())
+                    .compare(getMessage(), o.getMessage())
+                    .result();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o instanceof CheckStatus) return false;
+            return compareTo((CheckStatus) o) == 0;
         }
     }
 
@@ -1488,6 +1554,8 @@ public abstract class CheckCLDR implements CheckAccessor {
                 }
             }
             if (SHOW_TIMES) System.out.println("Overall: " + testOverallTime + ": {0}");
+            // all of these are entire locale
+            possibleErrors.forEach(e -> e.setEntireLocale());
         }
 
         public Matcher getFilter() {
@@ -1526,26 +1594,32 @@ public abstract class CheckCLDR implements CheckAccessor {
     }
 
     /** A map of error/warning types to their filters. */
-    private static List<R3<Pattern, Subtype, Pattern>> allFilters;
+    private static Supplier<List<R3<Pattern, Subtype, Pattern>>> filterSupplier =
+            Suppliers.memoize(
+                    () -> {
+                        final List<R3<Pattern, Subtype, Pattern>> newFilters = new ArrayList<>();
+                        RegexFileParser fileParser = new RegexFileParser();
+                        fileParser.setLineParser(
+                                new RegexLineParser() {
+                                    @Override
+                                    public void parse(String line) {
+                                        String[] fields = line.split("\\s*;\\s*");
+                                        Subtype subtype = Subtype.valueOf(fields[0]);
+                                        Pattern locale = PatternCache.get(fields[1]);
+                                        Pattern xpathRegex =
+                                                PatternCache.get(
+                                                        fields[2].replaceAll("\\[@", "\\\\[@"));
+                                        newFilters.add(new R3<>(locale, subtype, xpathRegex));
+                                    }
+                                });
+                        fileParser.parse(
+                                CheckCLDR.class,
+                                "/org/unicode/cldr/util/data/CheckCLDR-exceptions.txt");
+                        return ImmutableList.copyOf(newFilters);
+                    });
 
-    /** Loads the set of filters used for CheckCLDR results. */
-    private void loadFilters() {
-        if (allFilters != null) return;
-        allFilters = new ArrayList<>();
-        RegexFileParser fileParser = new RegexFileParser();
-        fileParser.setLineParser(
-                new RegexLineParser() {
-                    @Override
-                    public void parse(String line) {
-                        String[] fields = line.split("\\s*;\\s*");
-                        Subtype subtype = Subtype.valueOf(fields[0]);
-                        Pattern locale = PatternCache.get(fields[1]);
-                        Pattern xpathRegex =
-                                PatternCache.get(fields[2].replaceAll("\\[@", "\\\\[@"));
-                        allFilters.add(new R3<>(locale, subtype, xpathRegex));
-                    }
-                });
-        fileParser.parse(CheckCLDR.class, "/org/unicode/cldr/util/data/CheckCLDR-exceptions.txt");
+    private static final List<R3<Pattern, Subtype, Pattern>> getAllFilters() {
+        return filterSupplier.get();
     }
 
     /**
