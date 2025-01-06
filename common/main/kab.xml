@@ -285,6 +285,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<language type="nmg" draft="unconfirmed">Takwazyut</language>
 			<language type="nn" draft="unconfirmed">Tanuṛvijt ninuṛsk</language>
 			<language type="nnh" draft="unconfirmed">Tangimbunt</language>
+			<language type="no" draft="unconfirmed">Tanuṛvijit</language>
 			<language type="nog" draft="unconfirmed">Tanugayt</language>
 			<language type="nqo" draft="unconfirmed">Tankut</language>
 			<language type="nr" draft="unconfirmed">Tandibilit n unzul</language>
@@ -2800,7 +2801,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<exemplarCity draft="unconfirmed">↑↑↑</exemplarCity>
 			</zone>
 			<zone type="America/Fort_Nelson">
-				<exemplarCity draft="unconfirmed">↑↑↑</exemplarCity>
+				<exemplarCity draft="unconfirmed">Fuṛt Nilṣun</exemplarCity>
 			</zone>
 			<zone type="America/Dawson_Creek">
 				<exemplarCity draft="unconfirmed">Dawsun Krik</exemplarCity>
@@ -3269,9 +3270,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</zone>
 			<zone type="Asia/Ulaanbaatar">
 				<exemplarCity draft="unconfirmed">Ulanbatar</exemplarCity>
-			</zone>
-			<zone type="Asia/Choibalsan">
-				<exemplarCity draft="unconfirmed">Kwabalsan</exemplarCity>
 			</zone>
 			<zone type="Asia/Macau">
 				<exemplarCity draft="unconfirmed">Makaw</exemplarCity>
@@ -4017,13 +4015,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 					<generic draft="unconfirmed">Akud n Cin</generic>
 					<standard draft="unconfirmed">Akud amezday n Cin</standard>
 					<daylight draft="unconfirmed">Akud n unebdu n Cin</daylight>
-				</long>
-			</metazone>
-			<metazone type="Choibalsan">
-				<long>
-					<generic draft="unconfirmed">Akud n Kwabalsan</generic>
-					<standard draft="unconfirmed">Akud amezday n Kwabalsan</standard>
-					<daylight draft="unconfirmed">Akud n unebdu n Kwabalsan</daylight>
 				</long>
 			</metazone>
 			<metazone type="Christmas">
