@@ -3914,6 +3914,18 @@ annotations.
 			<regionFormat type="daylight">{0} Daylight Time</regionFormat>
 			<regionFormat type="standard">{0} Standard Time</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Antarctica/Macquarie">
+				<exemplarCity>Macquarie Island</exemplarCity>
+			</zone>
+			<zone type="Asia/Qostanay">
+				<exemplarCity>Kostanay</exemplarCity>
+			</zone>
+			<zone type="Asia/Saigon">
+				<exemplarCity>Ho Chi Minh City</exemplarCity>
+			</zone>
+			<zone type="Australia/Lord_Howe">
+				<exemplarCity>Lord Howe Island</exemplarCity>
+			</zone>
 			<zone type="Etc/UTC">
 				<long>
 					<standard>Coordinated Universal Time</standard>
@@ -3932,8 +3944,14 @@ annotations.
 					<daylight>Irish Standard Time</daylight>
 				</long>
 			</zone>
-			<zone type="Asia/Qostanay">
-				<exemplarCity>Kostanay</exemplarCity>
+			<zone type="Indian/Christmas">
+				<exemplarCity>Christmas Island</exemplarCity>
+			</zone>
+			<zone type="Indian/Cocos">
+				<exemplarCity>Cocos Islands</exemplarCity>
+			</zone>
+			<zone type="Pacific/Easter">
+				<exemplarCity>Easter Island</exemplarCity>
 			</zone>
 			<zone type="Pacific/Honolulu">
 				<short>
@@ -3942,8 +3960,8 @@ annotations.
 					<daylight>HDT</daylight>
 				</short>
 			</zone>
-			<zone type="Asia/Saigon">
-				<exemplarCity>Ho Chi Minh City</exemplarCity>
+			<zone type="Pacific/Norfolk">
+				<exemplarCity>Norfolk Island</exemplarCity>
 			</zone>
 			<metazone type="Acre">
 				<long>
@@ -4062,9 +4080,9 @@ annotations.
 			</metazone>
 			<metazone type="Apia">
 				<long>
-					<generic>Apia Time</generic>
-					<standard>Apia Standard Time</standard>
-					<daylight>Apia Daylight Time</daylight>
+					<generic>Samoa Time</generic>
+					<standard>Samoa Standard Time</standard>
+					<daylight>Samoa Daylight Time</daylight>
 				</long>
 			</metazone>
 			<metazone type="Aqtau">
@@ -4123,7 +4141,7 @@ annotations.
 			</metazone>
 			<metazone type="Australia_Central">
 				<long>
-					<generic>Central Australia Time</generic>
+					<generic>Australian Central Time</generic>
 					<standard>Australian Central Standard Time</standard>
 					<daylight>Australian Central Daylight Time</daylight>
 				</long>
@@ -4137,14 +4155,14 @@ annotations.
 			</metazone>
 			<metazone type="Australia_Eastern">
 				<long>
-					<generic>Eastern Australia Time</generic>
+					<generic>Australian Eastern Time</generic>
 					<standard>Australian Eastern Standard Time</standard>
 					<daylight>Australian Eastern Daylight Time</daylight>
 				</long>
 			</metazone>
 			<metazone type="Australia_Western">
 				<long>
-					<generic>Western Australia Time</generic>
+					<generic>Australian Western Time</generic>
 					<standard>Australian Western Standard Time</standard>
 					<daylight>Australian Western Daylight Time</daylight>
 				</long>
@@ -4251,7 +4269,7 @@ annotations.
 				<long>
 					<generic>Cook Islands Time</generic>
 					<standard>Cook Islands Standard Time</standard>
-					<daylight>Cook Islands Half Summer Time</daylight>
+					<daylight>Cook Islands Summer Time</daylight>
 				</long>
 			</metazone>
 			<metazone type="Cuba">
@@ -4790,9 +4808,9 @@ annotations.
 			</metazone>
 			<metazone type="Samoa">
 				<long>
-					<generic>Samoa Time</generic>
-					<standard>Samoa Standard Time</standard>
-					<daylight>Samoa Daylight Time</daylight>
+					<generic>American Samoa Time</generic>
+					<standard>American Samoa Standard Time</standard>
+					<daylight>American Samoa Daylight Time</daylight>
 				</long>
 			</metazone>
 			<metazone type="Seychelles">

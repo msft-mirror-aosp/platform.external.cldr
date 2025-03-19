@@ -3113,7 +3113,7 @@ XXX Code for transations where no currency is involved
 		<territory type="GN" gdp="56660000000" literacyPercent="41" population="13986200">	<!--Guinea-->
 			<languagePopulation type="fr" populationPercent="29" officialStatus="official" references="R1040"/>	<!--French-->
 			<languagePopulation type="ff" populationPercent="26"/>	<!--Fula-->
-			<languagePopulation type="man_Nkoo" populationPercent="23"/>	<!--Mandingo (N’Ko)-->
+			<languagePopulation type="man_Nkoo" literacyPercent="25" populationPercent="23"/>	<!--Mandingo (N’Ko)-->
 			<languagePopulation type="sus" populationPercent="11"/>	<!--Susu-->
 			<languagePopulation type="nqo" populationPercent="5" references="R1286"/>	<!--N’Ko-->
 			<languagePopulation type="kpe" populationPercent="3.8"/>	<!--Kpelle-->
@@ -4002,7 +4002,7 @@ XXX Code for transations where no currency is involved
 			<languagePopulation type="mrj" populationPercent="0.021"/>	<!--Western Mari-->
 			<languagePopulation type="alt" populationPercent="0.014"/>	<!--Southern Altai-->
 			<languagePopulation type="fi" populationPercent="0.012"/>	<!--Finnish-->
-			<languagePopulation type="sr_Latn" populationPercent="0.0036"/>	<!--Serbian (Latin)-->
+			<languagePopulation type="sr" populationPercent="0.0041" references="R1333"/>	<!--Serbian-->
 			<languagePopulation type="vep" populationPercent="0.0026"/>	<!--Veps-->
 			<languagePopulation type="mn" populationPercent="0.0015"/>	<!--Mongolian-->
 			<languagePopulation type="kaa" populationPercent="0.0006" references="R1199"/>	<!--Kara-Kalpak-->
@@ -5515,6 +5515,7 @@ XXX Code for transations where no currency is involved
 		<reference type="R1039" uri="https://www.cia.gov/cia/publications/factbook/geos/ls.html">German official</reference>
 		<reference type="R1040">No figures found for use of French. Used literacy 29.5% times population to get the writing pop; French is the only official language.</reference>
 		<reference type="R1041" uri="https://www.cia.gov/cia/publications/factbook/geos/ng.html">French official; the figure is derived from literacy * lang pop</reference>
+		<reference type="R1333" uri="http://rosstat.gov.ru/vpn_popul">2020 Russian Census</reference>
 		<reference type="R1042" uri="https://www.cia.gov/cia/publications/factbook/geos/nl.html">Used CIA literacy figure times population, added 'Vlaams' population</reference>
 		<reference type="R1043" uri="http://www.cso.ie/census/documents/Final%20Principal%20Demographic%20Results%202006.pdf">[missing]</reference>
 		<reference type="R1044" uri="http://www.ethnologue.com/show_language.asp?code=mri">70,000 in 1991, 100,000 who understand it, but do not speak it ; ethnic pop 530,000 in 2002</reference>
