@@ -2,7 +2,7 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 6: Supplemental
 
-|Version|46         |
+|Version|47         |
 |-------|-----------|
 |Editors|Steven Loomis (<a href="mailto:srloomis@unicode.org">srloomis@unicode.org</a>) and <a href="tr35.md#Acknowledgments">other CLDR committee members|
 
@@ -1208,9 +1208,19 @@ Instructions for use are supplied in the header of the file.
 
 Different locales have different preferences for which unit or combination of units is used for a particular usage, such as measuring a person’s height. This is more fine-grained than merely a preference for metric versus US or UK measurement systems. For example, one locale may use meters alone, while another may use centimeters alone or a combination of meters and centimeters; a third may use inches alone, or (informally) a combination of feet and inches.
 
+The determination of preferred units uses the user preference data in [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml) together with **input unit**, the **input unit usage**, and the **input locale identifer**.
+  * The _well-formed_ and _valid_ **units** are defined according to [Unit Syntax](tr35-general.md#unit-syntax).
+  * The _well-formed_ **unit usages** are of the form [a-z0-9]{3-8}("-" [a-z0-9]{3-8})*.
+The _valid_ **unit usages** are the union of the set of `NMTOKENS` in the `usage` attribute value for the `unitPreferences` element in [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml).
+For example, the following `unitPreferences` elements produce the set {default, floor, geograph, land}.
+    * \<unitPreferences category="area" usage="default">
+    * \<unitPreferences category="area" usage="geograph land">
+    * \<unitPreferences category="area" usage="floor">
+  * There are currently no deprecated **unit usages**.
+Should there be any in the future, for backwards compatibility the above definition would be expanded to include unitUsageAlias elements.
+
 ### <a name="Unit_Preferences_Overrides" href="#Unit_Preferences_Overrides">Unit Preferences Overrides</a>
 
-The determination of preferred units uses the user preference data together with **input unit**, the **input usage**, and the **input locale identifer**.
 Within the locale identifier, the subtags that can affect the result are:
   * the value of the keys mu, ms, and rg
   * the region in the locale identifier (if there is one)
@@ -1263,11 +1273,12 @@ If there is no valid -mu value, the following steps are used to determine a regi
 1. If there is a valid -ms value then let USM  be the corresponding value in column 2 of the table below.
 Otherwise FR is not used. In either case continue with step 2.
 2. If there is a valid -rg region portion of the rg value, let R be that region, and go to Compute the category.
-	* See the table above for the examples `usut`, `usabc`, and `abcdef`
-4. If there is a valid region in the locale, let R be that region, and go to Compute the category.
-5. Otherwise, compute the likely subtags for the locale.
-     1. If there is a likely region, then let R be that region, and go to Compute the category.
-	 2. Otherwise, let R be 001, and go to Compute the category
+    * In the table above, this would handle the examples `usut`, `uszzzz`, and `usabc`, resulting in R = US.
+    * Because the example `abzzzz` has an invalid region portion, no region is found and processing continues with step 3.
+3. If there is a valid region in the locale, let R be that region, and go to Compute the category.
+4. Otherwise, compute the likely subtags for the locale.
+    1. If there is a likely region, then let R be that region, and go to Compute the category.
+    2. Otherwise, let R be 001, and go to Compute the category
 
 | Key-Value   | Unit Systems Match          | Fallback Region for Unit Preferences |
 |-------------|-----------------------------|--------------------------------------|
@@ -1460,7 +1471,7 @@ As an example, ICU only uses the unit preferences (with rg, ms, and/or mu and th
 
 * * *
 
-© 2024–2024 Unicode, Inc.
+© 2001–2025 Unicode, Inc.
 This publication is protected by copyright, and permission must be obtained from Unicode, Inc.
 prior to any reproduction, modification, or other use not permitted by the [Terms of Use](https://www.unicode.org/copyright.html).
 Specifically, you may make copies of this publication and may annotate and translate it solely for personal or internal business purposes and not for public distribution,
