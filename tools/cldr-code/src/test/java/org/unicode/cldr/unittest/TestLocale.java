@@ -605,7 +605,13 @@ public class TestLocale extends TestFmwkPlus {
 
                 canonicalizer.transform(ltp);
                 String name = cldrFile.nameGetter().getNameFromParserOpt(ltp, nameOpt);
-                if (assertEquals(cldrFile.getLocaleID() + "; " + localeId, expected, name)) {
+                if (assertEquals(
+                        cldrFile.getLocaleID()
+                                + "; "
+                                + localeId
+                                + " - run GenerateLocaleIDTestData",
+                        expected,
+                        name)) {
                     formattedExamplesForSpec
                             .append("<tr><td>")
                             .append(TransliteratorUtilities.toHTML.transform(localeId))
@@ -977,11 +983,17 @@ public class TestLocale extends TestFmwkPlus {
                                 "tz",
                                 "aqams|aukns|caffs|camtr|canpg|capnt|cathu|cayzf|cnckg|cnhrb|cnkhg|gaza|mncoq|mxstis|uaozh|uauzh|umjon|usnavajo|est5edt|cst6cdt|mst7mdt|pst8pdt"));
 
+        Map<R2<String, String>, String> deprecatedMap = SUPPLEMENTAL_DATA_INFO.getBcp47Deprecated();
+
         for (Entry<String, String> entry :
                 SUPPLEMENTAL_DATA_INFO.getBcp47Extension2Keys().entrySet()) {
             String extension = entry.getKey();
             String key = entry.getValue();
+
             for (String value : SUPPLEMENTAL_DATA_INFO.getBcp47Keys().get(key)) {
+                if ("true".equals(deprecatedMap.get(Row.of(key, value)))) {
+                    continue;
+                }
                 String expected = "";
                 switch (value) {
                     case "PRIVATE_USE": // x0, valueType="any"
