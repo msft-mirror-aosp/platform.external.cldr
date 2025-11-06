@@ -2,9 +2,9 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 7: Keyboards
 
-|Version|47           |
+|Version|48           |
 |-------|-------------|
-|Editors|Steven Loomis (<a href="mailto:srloomis@unicode.org">srloomis@unicode.org</a>) and <a href="tr35.md#Acknowledgments">other CLDR committee members</a>|
+|Editors|Steven Loomis (<a href="mailto:srloomis@unicode.org">srloomis@unicode.org</a>) and <a href="tr35-acknowledgments.md#acknowledgments">other CLDR committee members</a>|
 
 For the full header, summary, and status, see [Part 1: Core](tr35.md).
 
@@ -26,14 +26,14 @@ This is a stable document and may be used as reference material or cited as a no
 > _**A Unicode Technical Standard (UTS)** is an independent specification. Conformance to the Unicode Standard does not imply conformance to any UTS._
 
 _Please submit corrigenda and other comments with the CLDR bug reporting form [[Bugs](https://cldr.unicode.org/index/bug-reports)].
-Related information that is useful in understanding this document is found in the [References](#References).
+Related information that is useful in understanding this document is found in the [References](tr35.md#References).
 For the latest version of the Unicode Standard see [[Unicode](https://www.unicode.org/versions/latest/)].
 For more information see [About Unicode Technical Reports](https://www.unicode.org/reports/about-reports.html) and the [Specifications FAQ](https://www.unicode.org/faq/specifications.html).
 Unicode Technical Reports are governed by the Unicode [Terms of Use](https://www.unicode.org/copyright.html)._
 
 See also [Compatibility Notice](#compatibility-notice).
 
-## <a name="Parts" href="#Parts">Parts</a>
+## Parts
 
 The LDML specification is divided into the following parts:
 
@@ -46,6 +46,8 @@ The LDML specification is divided into the following parts:
 *   Part 7: [Keyboards](tr35-keyboards.md#Contents) (keyboard mappings)
 *   Part 8: [Person Names](tr35-personNames.md#Contents) (person names)
 *   Part 9: [MessageFormat](tr35-messageFormat.md#Contents) (message format)
+*   Appendix A: [Modifications](tr35-modifications.md#modifications)
+*   Appendix B: [Acknowledgments](tr35-acknowledgments.md#acknowledgments)
 
 ## <a name="Contents" href="#Contents">Contents of Part 7, Keyboards</a>
 
@@ -279,7 +281,6 @@ Currently, the following attribute values allow _UnicodeSet_ notation:
 
 * `from` or `before` on the `<transform>` element
 * `from` or `before` on the `<reorder>` element
-* `chars` on the [`<repertoire>`](#test-element-repertoire) test element.
 
 ### UTS18 Escaping
 
@@ -290,7 +291,6 @@ The `\u{…usv}` notation, a subset of hex notation, is described in [UTS #18 se
 * `value` on the `<variable>` element
 * `output` and `display` on the `<display>` element
 * `baseCharacter` on the `<displayOptions>` element
-* Some attributes on [Keyboard Test Data](#keyboard-test-data) subelements
 
 Characters of general category of Mark (M), Control characters (Cc), Format characters (Cf), and whitespace other than space should be encoded using one of the notation above as appropriate.
 
@@ -1051,8 +1051,7 @@ Users of some scripts/languages may prefer a different base than U+25CC. See  [`
 
 One of the `output` or `id` attributes is required.
 
-**Note**: There is currently no way to indicate a custom display for a key without output (i.e. without a `to=` attribute), nor is there a way to indicate that such a key has a standardized identity (e.g. that a key should be identified as a “Shift”). These may be addressed in future versions of this standard.
-
+**Note**: There is currently no way to indicate that a key has a standardized identity (e.g. that a key should be identified as a “Shift”). This may be addressed in future versions of this standard.
 
 _Attribute:_ `output` (optional)
 
@@ -1653,6 +1652,8 @@ _Attribute:_ `modifiers` (required for `hardware`)
 > Each modifier component must match `[A-Za-z0-9]+`. Extra whitespace is ignored.
 >
 > To indicate that no modifiers apply, the reserved name of `none` is used.
+>
+> For hardware layouts, the `layer` with `modifiers="none"` becomes the base layer when the keyboard is used as a touch layout.
 
 **Syntax**
 
@@ -2255,7 +2256,7 @@ _Attribute:_ `from` (required)
 
     `x` and `y` are required single digits (`0` to `9`) representing the minimum and maximum number of occurrences.
 
-    `x` must be ≥ 0, `y` must be ≥ x and ≥ 1. 
+    `x` must be ≥ 0, `y` must be ≥ x and ≥ 1.
 
     Unbounded quantifiers such as `{3,}` are not allowed.
 

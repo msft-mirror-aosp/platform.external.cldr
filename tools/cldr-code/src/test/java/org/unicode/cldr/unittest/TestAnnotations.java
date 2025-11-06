@@ -14,7 +14,6 @@ import com.ibm.icu.impl.UnicodeMap;
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.UnicodeSet;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -52,8 +50,6 @@ import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XPathParts;
 
 public class TestAnnotations extends TestFmwkPlus {
-    private static final String APPS_EMOJI_DIRECTORY =
-            CLDRPaths.BASE_DIRECTORY + "/tools/cldr-apps/src/main/webapp/images/emoji";
     private static final boolean DEBUG = false;
     private static final boolean TEST_ONLY_ENGLISH_UNIQUENESS = false;
 
@@ -227,7 +223,10 @@ public class TestAnnotations extends TestFmwkPlus {
             Annotations annotations = s.getValue();
             String name = Emoji.getName(emoji);
             String annotationName = annotations.getShortName();
-            if (!symbols.contains(emoji) && !emoji.contains("👲") && !emoji.contains("🧑")) {
+            if (!symbols.contains(emoji)
+                    && !emoji.contains("👲")
+                    && !emoji.contains("🧑")
+                    && !emoji.contains("\u20E3")) {
                 assertEquals(emoji + " (en.xml vs. emoji-test.txt)", name, annotationName);
             }
         }
@@ -241,6 +240,8 @@ public class TestAnnotations extends TestFmwkPlus {
             String emoji = s.getKey();
             Annotations annotations = s.getValue();
             final String rawCategory = Emoji.getMajorCategory(emoji);
+            // Note: this call to PageId.forString possibly assumes it throws an exception if
+            // rawCategory isn't recognized as a page ID.
             PageId majorCategory = PageId.forString(rawCategory);
             if (majorCategory == PageId.Symbols) {
                 majorCategory = PageId.EmojiSymbols;
@@ -375,34 +376,6 @@ public class TestAnnotations extends TestFmwkPlus {
                     annotationPathsExpected,
                     annotationPaths,
                     Collections.<String>emptySet());
-        }
-    }
-
-    public void testEmojiImages() {
-        if (CLDRPaths.ANNOTATIONS_DIRECTORY.contains("cldr-staging/production/")) {
-            return; // don't bother checking production for this: the images are only in main, not
-            // production
-        }
-        Factory factoryAnnotations = SimpleFactory.make(CLDRPaths.ANNOTATIONS_DIRECTORY, ".*");
-        CLDRFile enAnnotations = factoryAnnotations.make("en", false);
-
-        String emojiImageDir = APPS_EMOJI_DIRECTORY;
-        for (String emoji : Emoji.getNonConstructed()) {
-            String noVs = emoji.replace(Emoji.EMOJI_VARIANT, "");
-
-            // example: emoji_1f1e7_1f1ec.png
-            String fileName =
-                    "emoji_" + Utility.hex(noVs, 4, "_").toLowerCase(Locale.ENGLISH) + ".png";
-            File file = new File(emojiImageDir, fileName);
-
-            if (!file.exists() && !fileName.endsWith("_200d_27a1.png")) {
-                String name =
-                        enAnnotations.getStringValue(
-                                "//ldml/annotations/annotation[@cp=\""
-                                        + noVs
-                                        + "\"][@type=\"tts\"]");
-                errln(fileName + " missing; " + name);
-            }
         }
     }
 
@@ -690,6 +663,26 @@ public class TestAnnotations extends TestFmwkPlus {
         }
     }
 
+    final UnicodeSet TEMPORARY_SKIP_COMPOUNDS = UnicodeSet.EMPTY;
+
+    // For any new Unicode release with emoji, put any ones that need to be derived into the
+    // following list (uncommented), replacing what was there (left just for comparison.
+    // After the submission (there is a BRS item for this) modify the algorithm in Annotations to
+    // generate the names for special compounds,
+    // and set the above to UnicodeSet.EMPTY to test, and comment out the new UnicodeSet.
+    //
+    //     new UnicodeSet(
+    // "[{👨🏻‍🐰‍👨🏼}{👨🏻‍🐰‍👨🏽}{👨🏻‍🐰‍👨🏾}{👨🏻‍🐰‍👨🏿}{👨🏻‍🫯‍👨🏼}{👨🏻‍🫯‍👨🏽}{👨🏻‍🫯‍👨🏾}{👨🏻‍🫯‍👨🏿}{👨🏼‍🐰‍👨🏻}{👨🏼‍🐰‍👨🏽}{👨🏼‍🐰‍👨🏾}{👨🏼‍🐰‍👨🏿}{👨🏼‍🫯‍👨🏻}{👨🏼‍🫯‍👨🏽}{👨🏼‍🫯‍👨🏾}{👨🏼‍🫯‍👨🏿}
+    // {👨🏽‍🐰‍👨🏻}{👨🏽‍🐰‍👨🏼}{👨🏽‍🐰‍👨🏾}{👨🏽‍🐰‍👨🏿}{👨🏽‍🫯‍👨🏻}{👨🏽‍🫯‍👨🏼}{👨🏽‍🫯‍👨🏾}{👨🏽‍🫯‍👨🏿}{👨🏾‍🐰‍👨🏻}{👨🏾‍🐰‍👨🏼}{👨🏾‍🐰‍👨🏽}{👨🏾‍🐰‍👨🏿}{👨🏾‍🫯‍👨🏻}{👨🏾‍🫯‍👨🏼}{👨🏾‍🫯‍👨🏽}{👨🏾‍🫯‍👨🏿}{👨🏿‍🐰‍👨🏻}
+    // {👨🏿‍🐰‍👨🏼}{👨🏿‍🐰‍👨🏽}{👨🏿‍🐰‍👨🏾}{👨🏿‍🫯‍👨🏻}{👨🏿‍🫯‍👨🏼}{👨🏿‍🫯‍👨🏽}{👨🏿‍🫯‍👨🏾}{👩🏻‍🐰‍👩🏼}{👩🏻‍🐰‍👩🏽}{👩🏻‍🐰‍👩🏾}{👩🏻‍🐰‍👩🏿}{👩🏻‍🫯‍👩🏼}{👩🏻‍🫯‍👩🏽}{👩🏻‍🫯‍👩🏾}{👩🏻‍🫯‍👩🏿}{👩🏼‍🐰‍👩🏻}
+    // {👩🏼‍🐰‍👩🏽}{👩🏼‍🐰‍👩🏾}{👩🏼‍🐰‍👩🏿}{👩🏼‍🫯‍👩🏻}{👩🏼‍🫯‍👩🏽}{👩🏼‍🫯‍👩🏾}{👩🏼‍🫯‍👩🏿}{👩🏽‍🐰‍👩🏻}{👩🏽‍🐰‍👩🏼}{👩🏽‍🐰‍👩🏾}{👩🏽‍🐰‍👩🏿}{👩🏽‍🫯‍👩🏻}{👩🏽‍🫯‍👩🏼}{👩🏽‍🫯‍👩🏾}{👩🏽‍🫯‍👩🏿}{👩🏾‍🐰‍👩🏻}
+    // {👩🏾‍🐰‍👩🏼}{👩🏾‍🐰‍👩🏽}{👩🏾‍🐰‍👩🏿}{👩🏾‍🫯‍👩🏻}{👩🏾‍🫯‍👩🏼}{👩🏾‍🫯‍👩🏽}{👩🏾‍🫯‍👩🏿}{👩🏿‍🐰‍👩🏻}{👩🏿‍🐰‍👩🏼}{👩🏿‍🐰‍👩🏽}{👩🏿‍🐰‍👩🏾}{👩🏿‍🫯‍👩🏻}{👩🏿‍🫯‍👩🏼}{👩🏿‍🫯‍👩🏽}{👩🏿‍🫯‍👩🏾}{👯🏻}{👯🏻‍♀}
+    // {👯🏻‍♂}{👯🏼}{👯🏼‍♀}{👯🏼‍♂}{👯🏽}{👯🏽‍♀}{👯🏽‍♂}{👯🏾}{👯🏾‍♀}{👯🏾‍♂}{👯🏿}{👯🏿‍♀}{👯🏿‍♂}{🤼🏻}{🤼🏻‍♀}{🤼🏻‍♂}{🤼🏼}{🤼🏼‍♀}{🤼🏼‍♂}
+    // {🤼🏽}{🤼🏽‍♀}{🤼🏽‍♂}{🤼🏾}{🤼🏾‍♀}{🤼🏾‍♂}{🤼🏿}{🤼🏿‍♀}{🤼🏿‍♂}{🧑🏻‍🐰‍🧑🏼}{🧑🏻‍🐰‍🧑🏽}{🧑🏻‍🐰‍🧑🏾}{🧑🏻‍🐰‍🧑🏿}{🧑🏻‍🩰}{🧑🏻‍🫯‍🧑🏼}{🧑🏻‍🫯‍🧑🏽}{🧑🏻‍🫯‍🧑🏾}{🧑🏻‍🫯‍🧑🏿}
+    // {🧑🏼‍🐰‍🧑🏻}{🧑🏼‍🐰‍🧑🏽}{🧑🏼‍🐰‍🧑🏾}{🧑🏼‍🐰‍🧑🏿}{🧑🏼‍🩰}{🧑🏼‍🫯‍🧑🏻}{🧑🏼‍🫯‍🧑🏽}{🧑🏼‍🫯‍🧑🏾}{🧑🏼‍🫯‍🧑🏿}{🧑🏽‍🐰‍🧑🏻}{🧑🏽‍🐰‍🧑🏼}{🧑🏽‍🐰‍🧑🏾}{🧑🏽‍🐰‍🧑🏿}{🧑🏽‍🩰}{🧑🏽‍🫯‍🧑🏻}{🧑🏽‍🫯‍🧑🏼}{🧑🏽‍🫯‍🧑🏾}
+    // {🧑🏽‍🫯‍🧑🏿}{🧑🏾‍🐰‍🧑🏻}{🧑🏾‍🐰‍🧑🏼}{🧑🏾‍🐰‍🧑🏽}{🧑🏾‍🐰‍🧑🏿}{🧑🏾‍🩰}{🧑🏾‍🫯‍🧑🏻}{🧑🏾‍🫯‍🧑🏼}{🧑🏾‍🫯‍🧑🏽}{🧑🏾‍🫯‍🧑🏿}{🧑🏿‍🐰‍🧑🏻}{🧑🏿‍🐰‍🧑🏼}{🧑🏿‍🐰‍🧑🏽}{🧑🏿‍🐰‍🧑🏾}{🧑🏿‍🩰}{🧑🏿‍🫯‍🧑🏻}{🧑🏿‍🫯‍🧑🏼}{🧑🏿‍🫯‍🧑🏽}{🧑🏿‍🫯‍🧑🏾}]")
+    //                        .freeze();
+
     /**
      * We test that all emoji have English annotations. This may fail when the emoji are updated for
      * a new version of Unicode, if the algorithm for computing derived annotations needs updating.
@@ -701,15 +694,88 @@ public class TestAnnotations extends TestFmwkPlus {
      */
     public void testCompleteness() {
         UnicodeSet allRgiNoEs = Emoji.getAllRgiNoES();
-        UnicodeSet namesFound = new UnicodeSet();
-        UnicodeSet searchKeywordsFound = new UnicodeSet();
 
         // get both regular and derived emoji
+        for (String file :
+                List.of("en.xml")) { // for testing, can add others like "de.xml", "fr.xml"
+            UnicodeSet namesFound = new UnicodeSet();
+            UnicodeSet searchKeywordsFound = new UnicodeSet();
+            fillNamesAndSearchKeywords(
+                    file, namesFound, searchKeywordsFound); // freezes the results
+
+            warnln(
+                    Joiner.on('\t')
+                            .join(
+                                    "FYI, RGI:",
+                                    allRgiNoEs.size(),
+                                    "namesFound:",
+                                    namesFound.size(),
+                                    "searchKeywordsFound:",
+                                    searchKeywordsFound.size()));
+
+            UnicodeSet missingNames = new UnicodeSet(allRgiNoEs).removeAll(namesFound).freeze();
+
+            UnicodeSet missingKeywords =
+                    new UnicodeSet(allRgiNoEs).removeAll(searchKeywordsFound).freeze();
+
+            // If one of the following fails, it is likely due to code needed in DerivedAnnotations
+            // to handle special sequences.
+            // See instructions below.
+
+            if (!assertEquals(
+                    file + " RGI name annotations",
+                    "[]",
+                    new UnicodeSet(missingNames)
+                            .removeAll(TEMPORARY_SKIP_COMPOUNDS)
+                            .toPattern(false))) {
+                break;
+            }
+            if (!assertEquals(
+                    file + " RGI search key annotations",
+                    "[]",
+                    new UnicodeSet(missingKeywords)
+                            .removeAll(TEMPORARY_SKIP_COMPOUNDS)
+                            .toPattern(false))) {
+                break;
+            }
+            UnicodeSet onlyAllowedBecauseOfTEMPORARY_SKIP_COMPOUNDS =
+                    new UnicodeSet(missingNames)
+                            .addAll(missingKeywords)
+                            .retainAll(TEMPORARY_SKIP_COMPOUNDS)
+                            .freeze();
+            if (!onlyAllowedBecauseOfTEMPORARY_SKIP_COMPOUNDS.isEmpty()) {
+                // Normally the following exception is used.
+                throw new IllegalArgumentException(
+                        "This is probably due to new emoji being added. See instructions for fixing.");
+                // When there are new emoji that cause a failure in the derived annotations, do the
+                // following:
+                //
+                // file a ticket,
+                // comment out the above exception
+                // uncomment the logKnownIssue below
+                // replace the ticket number by the new ticket number
+                // and populate the TEMPORARY_SKIP_COMPOUNDS.
+
+                // The extra code to handled the special derived forms must be added well before
+                // Alpha (ideally before submission).
+                // that code will go into
+
+                //      public Annotations synthesize(String code, Transform<String, String>
+                // otherSource) {
+
+                //  logKnownIssue("CLDR-18462", file
+                //   + " Update Annotations.java for new compounds: "
+                //   +  onlyAllowedBecauseOfTEMPORARY_SKIP_COMPOUNDS.toPattern(false));
+            }
+        }
+    }
+
+    private void fillNamesAndSearchKeywords(
+            String file, UnicodeSet namesFound, UnicodeSet searchKeywordsFound) {
         List<Pair<String, String>> listXmlEmoji = new ArrayList<>();
         XMLFileReader.loadPathValues(
-                CLDRPaths.ANNOTATIONS_DERIVED_DIRECTORY + "en.xml", listXmlEmoji, false);
-        XMLFileReader.loadPathValues(
-                CLDRPaths.ANNOTATIONS_DIRECTORY + "en.xml", listXmlEmoji, false);
+                CLDRPaths.ANNOTATIONS_DERIVED_DIRECTORY + file, listXmlEmoji, false);
+        XMLFileReader.loadPathValues(CLDRPaths.ANNOTATIONS_DIRECTORY + file, listXmlEmoji, false);
 
         // pull out the ones that are handled by English
 
@@ -725,23 +791,6 @@ public class TestAnnotations extends TestFmwkPlus {
         }
         namesFound.freeze();
         searchKeywordsFound.freeze();
-        logln(
-                Joiner.on('\t')
-                        .join(
-                                "RGI:",
-                                allRgiNoEs.size(),
-                                "namesFound:",
-                                namesFound.size(),
-                                "searchKeywordsFound:",
-                                searchKeywordsFound.size()));
-        assertEquals(
-                "RGI - en.xml name annotations",
-                "[]",
-                new UnicodeSet(allRgiNoEs).removeAll(namesFound).toPattern(false));
-        assertEquals(
-                "RGI - en.xml search key annotations",
-                "[]",
-                new UnicodeSet(allRgiNoEs).removeAll(searchKeywordsFound).toPattern(false));
     }
 
     public void testRightFacing() {

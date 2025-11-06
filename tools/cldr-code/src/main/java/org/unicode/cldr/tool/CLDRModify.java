@@ -64,6 +64,7 @@ import org.unicode.cldr.util.DtdType;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.FileProcessor;
 import org.unicode.cldr.util.GlossonymConstructor;
+import org.unicode.cldr.util.Joiners;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.LocaleIDParser;
@@ -131,6 +132,8 @@ public class CLDRModify {
         final ConfigAction action;
         final boolean hexPath;
 
+        static UnicodeSet SUSPICIOUS_NON_REGEX = new UnicodeSet("[*|]").freeze();
+
         public ConfigMatch(ConfigKeys key, String match) {
             if (key == ConfigKeys.action) {
                 exactMatch = null;
@@ -139,7 +142,8 @@ public class CLDRModify {
                 hexPath = false;
             } else if (match.startsWith("/") && match.endsWith("/")) {
                 if (key != ConfigKeys.locale && key != ConfigKeys.path && key != ConfigKeys.value) {
-                    throw new IllegalArgumentException("Regex only allowed for old path/value.");
+                    throw new IllegalArgumentException(
+                            "Regex only allowed for locale=, path=, or value'.");
                 }
                 exactMatch = null;
                 regexMatch =
@@ -156,6 +160,17 @@ public class CLDRModify {
                 hexPath =
                         (key == ConfigKeys.new_path || key == ConfigKeys.path)
                                 && HEX.containsAll(match);
+                if (key == ConfigKeys.locale || key == ConfigKeys.path) {
+                    if (SUSPICIOUS_NON_REGEX.containsSome(match)) {
+                        System.out.println(
+                                Joiners.ES.join(
+                                        "The value ",
+                                        match,
+                                        " is being matched literally, but contains regex charcters. Did you mean /",
+                                        match,
+                                        "/ ?"));
+                    }
+                }
             }
         }
 
@@ -317,7 +332,7 @@ public class CLDRModify {
     static final String HELP_TEXT2 =
             "Note: A set of bat files are also generated in <dest_dir>/diff. They will invoke a comparison program on the results."
                     + XPathParts.NEWLINE;
-    private static final boolean SHOW_DETAILS = false;
+    private static final boolean SHOW_DETAILS = System.getProperty("SHOW_DETAILS") != null;
     private static boolean SHOW_PROCESSING = false;
 
     static String sourceInput;
@@ -651,7 +666,8 @@ public class CLDRModify {
                             + "Use -? for help.");
         }
         if (i == FIX && givenOptions.value != null) {
-            final UnicodeSet allowedFilters = new UnicodeSet().add('P').add('k').add('E');
+            final UnicodeSet allowedFilters =
+                    new UnicodeSet().add('P').add('k').add('E').add('m').add('C');
             for (char c : givenOptions.value.toCharArray()) {
                 if (!allowedFilters.contains(c)) {
                     throw new IllegalArgumentException(
@@ -1424,6 +1440,45 @@ public class CLDRModify {
                 });
 
         fixList.add(
+                'C',
+                "Derive currency values",
+                new CLDRFilter() {
+                    @Override
+                    public void handleStart() {
+                        // We do all the work in handleStart
+                        super.handleStart();
+                        Set<XPathParts> basis = new TreeSet<>();
+                        Map<String, String> results =
+                                GenerateDerivedMain.getPathValuesToAdd(getResolved(), basis);
+                        results.entrySet().stream()
+                                .forEach(
+                                        x -> {
+                                            String oldValue =
+                                                    getResolved().getStringValue(x.getKey());
+                                            if (!x.getValue().equals(oldValue)) {
+                                                add(
+                                                        x.getKey(),
+                                                        x.getValue(),
+                                                        "Derive currency pattern, was «"
+                                                                + oldValue
+                                                                + "»");
+                                            } else if (SHOW_DETAILS) {
+                                                System.out.println(
+                                                        "Skipping: "
+                                                                + x.getKey()
+                                                                + "\t"
+                                                                + x.getValue());
+                                            }
+                                        });
+                    }
+
+                    @Override
+                    public void handlePath(String xpath) {
+                        // all the work is done in handleStart
+                    }
+                });
+
+        fixList.add(
                 'c',
                 "Fix transiton from an old currency code to a new one",
                 new CLDRFilter() {
@@ -1629,6 +1684,22 @@ public class CLDRModify {
                                 String fullXPath = cldrFileToFilter.getFullXPath(xpath);
                                 replace(fullXPath, fullXPath, preValue);
                             }
+                        }
+                    }
+                });
+
+        // Remove inheritance marker if there is no value to inherit
+        fixList.add(
+                'm',
+                "Remove inheritance from missing (null) value",
+                new CLDRFilter() {
+                    @Override
+                    public void handlePath(String xpath) {
+                        String value = cldrFileToFilter.getStringValue(xpath);
+                        if (CldrUtility.INHERITANCE_MARKER.equals(value)
+                                && getResolved().getStringValue(xpath) == null) {
+                            String fullXPath = cldrFileToFilter.getFullXPath(xpath);
+                            remove(fullXPath, "would inherit from missing value");
                         }
                     }
                 });
@@ -2310,7 +2381,8 @@ public class CLDRModify {
                                 keyValues.addAll(localeMatcher.getValue());
                             }
                         }
-                        System.out.println("# Checking entries & changing:\t" + keyValues.size());
+                        // System.out.println("# Checking entries & changing:\t" +
+                        // keyValues.size());
                         for (Map<ConfigKeys, ConfigMatch> entry : keyValues) {
                             ConfigMatch action = entry.get(ConfigKeys.action);
                             ConfigMatch pathMatch = entry.get(ConfigKeys.path);
@@ -2423,9 +2495,12 @@ public class CLDRModify {
                         myReader.process(CLDRModify.class, configFileName);
                     }
 
-                    static final String DEBUG_PATH =
-                            "//ldml/personNames/personName[@order=\"givenFirst\"][@length=\"long\"][@usage=\"referring\"][@formality=\"formal\"]/namePattern";
+                    final String DEBUG_PATH = null;
 
+                    // example:
+                    // "//ldml/personNames/personName[@order=\"givenFirst\"][@length=\"long\"][@usage=\"referring\"][@formality=\"formal\"]/namePattern";
+
+                    @SuppressWarnings("incomplete-switch")
                     @Override
                     public void handlePath(String xpath) {
                         // slow method; could optimize
