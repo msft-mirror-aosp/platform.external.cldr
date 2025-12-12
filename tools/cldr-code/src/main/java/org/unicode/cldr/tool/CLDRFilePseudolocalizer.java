@@ -268,8 +268,10 @@ public class CLDRFilePseudolocalizer {
         // Android patch (b/37512961) begin.
         /** Arabic letter mark character. */
         private static final String ALM = "\u061C";
+
         /** Pop direction formatting character. */
         private static final String PDF = "\u202c";
+
         /** Prefix to add before each LTR word */
         private static final String BIDI_PREFIX = ALM + RLO;
         /** Postfix to add after each LTR word */

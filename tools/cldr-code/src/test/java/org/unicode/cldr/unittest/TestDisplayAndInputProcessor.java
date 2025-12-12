@@ -1,6 +1,5 @@
 package org.unicode.cldr.unittest;
 
-import com.ibm.icu.dev.test.TestFmwk;
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.text.UnicodeSet;
@@ -8,6 +7,7 @@ import com.ibm.icu.text.UnicodeSetIterator;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
+import org.unicode.cldr.icu.dev.test.TestFmwk;
 import org.unicode.cldr.test.DisplayAndInputProcessor;
 import org.unicode.cldr.test.DisplayAndInputProcessor.PathSpaceType;
 import org.unicode.cldr.util.CLDRConfig;
@@ -398,6 +398,7 @@ public class TestDisplayAndInputProcessor extends TestFmwk {
             }
         }
     }
+
     /** DAIP can add characters to UnicodeSets, so remove them for a clean test. Could optimize */
     UnicodeSet suppressAdditions(UnicodeSet value, UnicodeSet input_value) {
         for (UnicodeSetIterator usi = new UnicodeSetIterator(value); usi.next(); ) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
-<!-- Copyright © 1991-2024 Unicode, Inc.
+<!-- Copyright © 1991-2025 Unicode, Inc.
 For terms of use, see http://www.unicode.org/copyright.html
 SPDX-License-Identifier: Unicode-3.0
 CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
@@ -3482,6 +3482,14 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<regionFormat type="daylight">{0} डेलाइट समय</regionFormat>
 			<regionFormat type="standard">{0} मानक समय</regionFormat>
 			<fallbackFormat>↑↑↑</fallbackFormat>
+			<zone type="Pacific/Honolulu">
+				<short>
+					<generic>एचएसटी</generic>
+					<standard>एचएसटी</standard>
+					<daylight draft="contributed">HST</daylight>
+				</short>
+				<exemplarCity>होनोलुलु</exemplarCity>
+			</zone>
 			<zone type="Etc/UTC">
 				<long>
 					<standard>समन्वित वैश्विक समय</standard>
@@ -4620,14 +4628,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</zone>
 			<zone type="America/Nome">
 				<exemplarCity>नोम</exemplarCity>
-			</zone>
-			<zone type="Pacific/Honolulu">
-				<short>
-					<generic>एचएसटी</generic>
-					<standard>एचएसटी</standard>
-					<daylight draft="contributed">HST</daylight>
-				</short>
-				<exemplarCity>होनोलुलु</exemplarCity>
 			</zone>
 			<zone type="America/Anchorage">
 				<exemplarCity>एंकरेज</exemplarCity>
