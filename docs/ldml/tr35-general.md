@@ -2,9 +2,9 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 2: General
 
-|Version|47                   |
+|Version|48                   |
 |-------|---------------------|
-|Editors|Yoshito Umaoka (<a href="mailto:yoshito_umaoka@us.ibm.com">yoshito_umaoka@us.ibm.com</a>) and <a href="tr35.md#Acknowledgments">other CLDR committee members|
+|Editors|Yoshito Umaoka (<a href="mailto:yoshito_umaoka@us.ibm.com">yoshito_umaoka@us.ibm.com</a>) and <a href="tr35-acknowledgments.md#acknowledgments">other CLDR committee members|
 
 For the full header, summary, and status, see [Part 1: Core](tr35.md).
 
@@ -26,12 +26,12 @@ This is a stable document and may be used as reference material or cited as a no
 > _**A Unicode Technical Standard (UTS)** is an independent specification. Conformance to the Unicode Standard does not imply conformance to any UTS._
 
 _Please submit corrigenda and other comments with the CLDR bug reporting form [[Bugs](https://cldr.unicode.org/index/bug-reports)].
-Related information that is useful in understanding this document is found in the [References](#References).
+Related information that is useful in understanding this document is found in the [References](tr35.md#References).
 For the latest version of the Unicode Standard see [[Unicode](https://www.unicode.org/versions/latest/)].
 For more information see [About Unicode Technical Reports](https://www.unicode.org/reports/about-reports.html) and the [Specifications FAQ](https://www.unicode.org/faq/specifications.html).
 Unicode Technical Reports are governed by the Unicode [Terms of Use](https://www.unicode.org/copyright.html)._
 
-## <a name="Parts" href="#Parts">Parts</a>
+## Parts
 
 The LDML specification is divided into the following parts:
 
@@ -44,6 +44,8 @@ The LDML specification is divided into the following parts:
 *   Part 7: [Keyboards](tr35-keyboards.md#Contents) (keyboard mappings)
 *   Part 8: [Person Names](tr35-personNames.md#Contents) (person names)
 *   Part 9: [MessageFormat](tr35-messageFormat.md#Contents) (message format)
+*   Appendix A: [Modifications](tr35-modifications.md#modifications)
+*   Appendix B: [Acknowledgments](tr35-acknowledgments.md#acknowledgments)
 
 ## <a name="Contents" href="#Contents">Contents of Part 2, General</a>
 
@@ -165,35 +167,100 @@ For example, for the locale identifier zh_Hant_CN_co_pinyin_cu_USD, the display 
 <type type="pinyin" key="collation">Pinyin Sort Order</type>
 ```
 
+The `language` element has the additional `alt="menu"` option, that allows for related languages to be sorted together.
+
+```xml
+<language type="yue" alt="menu">Chinese, Cantonese</language>
+<language type="zh" alt="menu">Chinese, Mandarin</language>
+```
+However, when `localePattern`s are used, the names start to get complicated. There is an additional `menu` attribute, with two values: `core` and `extension`.For example:
+
+```xml
+<language type="ckb">Central Kurdish</language>
+<language type="ckb" menu="core">Kurdish</language>
+<language type="ckb" menu="extension">Central</language>
+…
+<language type="ku">Kurdish</language>
+<language type="ku" menu="core">Kurdish</language>
+<language type="ku" menu="extension">Kurmanji</language>
+…
+<language type="sdh">Southern Kurdish</language>
+<language type="sdh" menu="core">Kurdish</language>
+<language type="sdh" menu="extension">Southern</language>
+```
+
+The core part can be used as the language name, with the extension going into the `localePattern`, such as in the following illustration of part of a menu:
+
+| Language |
+| ---- |
+| … |
+| Kashmiri |
+| Kurdish (Kurmanji, Latin) |
+| Kurdish (Central, Arabic) |
+| Kurdish (Southern, Arabic) |
+| Kyrgyz |
+| … |
+
 ### <a name="locale_display_name_algorithm" href="#locale_display_name_algorithm">Locale Display Name Algorithm</a>
 
-A locale display name LDN is generated for a locale identifier L in the following way. First, convert the locale identifier to *canonical syntax* per **[Part 1, Canonical Unicode Locale Identifiers](tr35.md#Canonical_Unicode_Locale_Identifiers)**. That will put the subtags in a defined order, and replace aliases by their canonical counterparts. (That defined order is followed in the processing below.)
+A locale display name LDN is generated for a locale identifier L in the following way.
+1. Convert the locale identifier to *canonical syntax* per **[Part 1, Canonical Unicode Locale Identifiers](tr35.md#Canonical_Unicode_Locale_Identifiers)**.
+That will put the subtags in a defined order, and replace aliases by their canonical counterparts. (That defined order is followed in the processing below.)
+2. Build a base name LDN from the language, possibly also some other subtags, taking into account the parameters listed below.
+    * The language name uses the longest match, dropping all fields that match. For example:
+        * With L = "nl_Cyrl_BE", if there is a `<language type="nl_BE">`Flemish`</language>`, the language name is set to "Flemish", and the "BE" is ignored in step 4.
+        * With L = "ca_fonipa_valencia", if there is a `<language type="ca_valencia">`Valencian`</language>`, the language name is set to "Valencian", and the subtag "valencia" is ignored in step 4.
+4. Build a list of qualifying strings LQS.
+    1. For each remaining subtag language identifier (script, region, or variant):
+        1. Where there is a match for a subtag, disregard that subtag from L and add the name of the subtag to LDN or LQS as described below.
+        2. If there is no match for a subtag, use the fallback pattern with the subtag instead.
+    2. For any remaining `-u` or `t` key-value pairs, there are two options (based on the parameters; the first is the default)
+        1. `WholeKeyValue`: Add the formatted key-value, OR
+        2. `SeparateKeyValue` Add a string created from the formatted key and the formatted value using `scope="core"`
+5. Once LDN and LQS are built, return the following based on the length of LQS.
 
-Then follow each of the following steps for the subtags in L, building a base name LDN and a list of qualifying strings LQS.
+| Length | Processing |
+| :---- | :---- |
+| 0 | return LDN |
+| 1 | use the \<localePattern\> to compose the result LDN from LDN and LQS\[0\], and return it. |
+| \>1 | use the \<localeSeparator\> element value to join the elements of the list into LDN2, then use the \<localePattern\> to compose the result LDN from LDN and LDN2, and return it. |
 
-Where there is a match for a subtag, disregard that subtag from L and add the element value to LDN or LQS as described below. If there is no match for a subtag, use the fallback pattern with the subtag instead.
-
-Once LDN and LQS are built, return the following based on the length of LQS.
-
-<!-- HTML: no header -->
-<table><tbody>
-<tr><td>0</td><td>return LDN</td></tr>
-<tr><td>1</td><td>use the &lt;localePattern&gt; to compose the result LDN from LDN and LQS[0], and return it.</td></tr>
-<tr><td>&gt;1</td><td>use the &lt;localeSeparator&gt; element value to join the elements of the list into LDN2, then use the &lt;localePattern&gt; to compose the result LDN from LDN and LDN2, and return it.</td></tr>
-</tbody></table>
-
-The processing can be controlled via the following parameters.
+The processing can be controlled via the following parameters (the names of the parameters are only illustrative):
 
 *   `CombineLanguage`: boolean
     *   Example: the `CombineLanguage = true`, picking the bold value below.
-    *   `<language type="nl">Dutch</language>`
+    *   `<language type="nl">`Dutch`</language>`
     *   **`<language type="nl_BE">Flemish</language>`**
 *   `PreferAlt`: map from element to preferred alt value, picking the bold value below.
     *   Example: the `PreferAlt` contains `{"language"="short"}`:
-    *   `<language type="az">Azerbaijani</language>`
+    *   `<language type="az">`Azerbaijani`</language>`
     *   **`<language type="az" alt="short">Azeri</language>`**
+*  `CoreAndExtension`: if there is a `menu="core"` and a `menu="extension"` value:
+    1.  Use the `menu=core` variant for the name in question.
+    2.  Add the `menu=extension` variant to the head of the LQS before it is formatted.
+*  `WholeKeyValue`: for `-u` or `t` key-value pairs
+    1.  Format with combined key-value, if available; otherwise format with `SeparateKeyValue`
+        *  For example, using `…_ca_buddhist`
+        *  `<type key="calendar" type="buddhist">`Buddhist Calendar`</type>`
+		* ⇒ "Buddhist Calendar"
+*  `SeparateKeyValue`: for `-u` or `t` key-value pairs
+    1.  Format with separate key and value using `scope="core"`, if available; otherwise format with `WholeKeyValue`
+        *  For example, using `…_ca_buddhist`
+         * `<key type="calendar">`Calendar`</key>` +
+         * `<type key="calendar" type="buddhist" scope="core">`Buddhist`</type>` +
+         * `<localeKeyTypePattern>`{0}: {1}`</localeKeyTypePattern>`
+		 * ⇒ "Calendar: Buddhist"
 
 In addition, the input locale display name could be minimized (see [Part 1: Likely Subtags](tr35.md#Likely_Subtags)) before generating the LDN. Selective minimization is often the best choice. For example, in a menu list it is often clearer to show the region if there are any regional variants. Thus the user would just see \["Spanish"\] for es if the latter is the only supported Spanish, but where es-MX is also listed, then see \["Spanish (Spain)", "Spanish (Mexico)"\].
+
+The key-type `scope="core"` is also useful in menus. For example, if a menu or pull-down is offering different choices of calendars, it is cleaner to use the key value for the name of the menu (eg, "Calendar"), and use the `scope="core"` values for the choices. Thus:
+
+| Calendar |
+| ---- |
+| Buddhist |
+| Chinese |
+| Gregorian |
+| Hijri |
 
 * * *
 
@@ -514,13 +581,24 @@ Exemplars are characters used by a language, separated into different categories
 | --------------- | ----------- | -------- |
 | main / standard | Main letters used in the language | a-z å æ ø |
 | auxiliary       | Additional characters for common foreign words, technical usage | á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ |
+| numbers         | Main characters needed to display the common number formats: decimal, percent, and currency. | \[\\u061C\\u200E \\- , ٫ ٬ . % ٪ ‰ ؉ + 0٠ 1١ 2٢ 3٣ 4٤ 5٥ 6٦ 7٧ 8٨ 9٩\] |
+| numbers-auxiliary         | Additional characters for use with numbers (technical or older usage) |  |
+| punctuation     | Main punctuation characters | - ‐ – — , ; \\: ! ? . … “ ” ‘ ’ ( ) [ ] § @ * / & # † ‡ ′ ″ |
+| punctuation-auxiliary     | Additional punctuation (technical or older usage) |  |
+| punctuation-person     | Punctuation used in people names, such as "Jean-Luc Smith Ph.D., MD. | - / . , |
 | index           | Characters for the header of an index | A B C D E F G H I J K L M N O P Q R S T U V W X Y Z |
-| punctuation     | Common punctuation | - ‐ – — , ; \\: ! ? . … “ ” ‘ ’ ( ) [ ] § @ * / & # † ‡ ′ ″ |
-| numbers         | The characters needed to display the common number formats: decimal, percent, and currency. | \[\\u061C\\u200E \\- , ٫ ٬ . % ٪ ‰ ؉ + 0٠ 1١ 2٢ 3٣ 4٤ 5٥ 6٦ 7٧ 8٨ 9٩\] |
 
 The basic exemplar character sets (main and auxiliary) contain the commonly used letters for a given modern form of a language, which can be for testing and for determining the appropriate repertoire of letters for charset conversion or collation. ("Letter" is interpreted broadly, as anything having the property Alphabetic in the [[UAX44](https://www.unicode.org/reports/tr41/#UAX44)], which also includes syllabaries and ideographs.) It is not a complete set of letters used for a language, nor should it be considered to apply to multiple languages in a particular country. Punctuation and other symbols should not be included in the main and auxiliary sets. In particular, format characters like CGJ are not included.
 
-There are five sets altogether: main, auxiliary, punctuation, numbers, and index. The _main_ set should contain the minimal set required for users of the language, while the _auxiliary_ exemplar set is designed to encompass additional characters: those non-native or historical characters that would customarily occur in common publications, dictionaries, and so on. Major style guidelines are good references for the auxiliary set. So, for example, if Irish newspapers and magazines would commonly have Danish names using å, for example, then it would be appropriate to include å in the auxiliary exemplar characters; just not in the main exemplar set. Thus English has the following:
+There are 4 types of sets altogether: main, numbers, punctuation, and index.
+Within each type, there are are subtypes:
+a _main_ set containing the minimal set required for users of the language,
+and an _auxiliary_ set, which is designed to encompass additional characters —
+those non-native or historical characters that would customarily occur in common publications, dictionaries, and so on.
+There are two exceptions: an index set doesn't have an _auxiliary_ set,
+and the punctuation set has an additional subtype for person-name punctuation (see [Person Name Validation](tr35-personNames.md#person-name-validation).
+
+Major style guidelines are good references for an auxiliary set. So, for example, if Irish newspapers and magazines would commonly have Danish names using å, for example, then it would be appropriate to include å in the auxiliary exemplar characters; just not in the main exemplar set. Thus English has the following:
 
 ```xml
 <exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
@@ -906,16 +984,16 @@ As with other identifiers in CLDR, the American English spelling is used for uni
 #### Unit Syntax
 
 The formal [EBNF](tr35.md#ebnf) syntax for identifiers is provided below.
-Some of the constraints reference data from various elements in the unit conversion data [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml). 
-These may be either element values or element attribute values. 
+Some of the constraints reference data from various elements in the unit conversion data [units.xml](https://github.com/unicode-org/cldr/blob/main/common/supplemental/units.xml).
+These may be either element values or element attribute values.
 See [Unit_Conversion](tr35-info.md#Unit_Conversion).
 
-<a name='unit_identifier' href='#unit_identifier'>unit_identifier</a> 
+<a name='unit_identifier' href='#unit_identifier'>unit_identifier</a>
 <br/>:= core_unit_identifier
 <br/>   | mixed_unit_identifier
 <br/>   | long_unit_identifier
 
-<a name='core_unit_identifier' href='#core_unit_identifier'>core_unit_identifier</a> 
+<a name='core_unit_identifier' href='#core_unit_identifier'>core_unit_identifier</a>
 <br/>:= product_unit ("-" per "-" product_unit)\*
 <br/>   | per "-" product_unit\*
 <br/>   | per "-" product_unit ("-" per "-" product_unit)\*   // unnormalized
@@ -936,35 +1014,34 @@ See [Unit_Conversion](tr35-info.md#Unit_Conversion).
        * at most one `per`
        * at most one unit_constant; and that only immediately after a `per`
 
-per 
+per
 <br/>:= "per"
 * [ wfc: The token 'per' is the single value in \<unitIdComponent type="per"\> ]
 
-<a name='product_unit' href='#product_unit'>product_unit</a> 
-<br/>:= single_unit ("-" single_unit)* ("-" pu_single_unit)*
-<br/>   | pu_single_unit ("-" pu_single_unit)*
-* [ wfc:  No pu\_single\_unit may precede a single unit ]
+<a name='product_unit' href='#product_unit'>product_unit</a>
+<br/>:= single_unit ("-" single_unit)*
 * *Examples:*
     * foot-pound-force
 
-<a name='single_unit' href='#single_unit'>single_unit</a> 
-<br/>:= dimensionality_prefix? simple_unit 
+<a name='single_unit' href='#single_unit'>single_unit</a>
+<br/>:= dimensionality_prefix? simple_unit
 <br/>   | unit_constant
+<br/>   | pu_single_unit
 * *Examples:*
     * square-kilometer
     * 100
 
-<a name='pu_single_unit' href='#pu_single_unit'>pu_single_unit</a> 
-<br/>:= := ("xxx-" | "x-") [a-z0-9]{3,8}
+<a name='pu_single_unit' href='#pu_single_unit'>pu_single_unit</a>
+<br/>:= ("xxx-" | "x-") [a-z0-9]{3,8}
 * *Examples:*
-    * square-xxx-knuts (a Harry Potter unit)  
+    * square-xxx-knuts (a Harry Potter unit)
 * *Notes:*
     * "x-" is only for backwards compatibility; it is deprecated and should not be generated
     * See [Private-Use Units](https://github.com/unicode-org/cldr/edit/main/docs/ldml/tr35-general.md#Private_Use_Units)
 
-<a name='unit_constant' href='#unit_constant'>unit_constant</a> 
+<a name='unit_constant' href='#unit_constant'>unit_constant</a>
 <br/>:= [1-9][0-9]* ("e" [1-9][0-9]*)?
-* *Examples:*  
+* *Examples:*
   * kilowatt-hour-per-100-kilometer
   * gallon-per-100-mile
   * per-200-pound
@@ -980,17 +1057,17 @@ per
          * per-1e2 ⇒ per-100
          * per-1000 ⇒ per-1e3
          * per-10000 ⇒ per-10e3
-  
-<a name='dimensionality_prefix' href='#dimensionality_prefix'>dimensionality_prefix</a> 
-<br/>:= "square-" 
-<br/>   | "cubic-" 
+
+<a name='dimensionality_prefix' href='#dimensionality_prefix'>dimensionality_prefix</a>
+<br/>:= "square-"
+<br/>   | "cubic-"
 <br/>   | "pow" ([2-9]|1[0-5]) "-"
-* [ wfc:  Must be value in: \<unitIdComponent type="power"\>. ] 
+* [ wfc:  Must be value in: \<unitIdComponent type="power"\>. ]
 * *Notes:*
-    * "pow2-" and "pow3-" canonicalize to "square-" and "cubic-" 
-  
-<a name='simple_unit' href='#simple_unit'>simple_unit</a> 
-<br/>:= (prefix_component "-")* (prefixed_unit 
+    * "pow2-" and "pow3-" canonicalize to "square-" and "cubic-"
+
+<a name='simple_unit' href='#simple_unit'>simple_unit</a>
+<br/>:= (prefix_component "-")* (prefixed_unit
 <br/>   | base_component) ("-" suffix_component)*
 <br/>   | currency_unit
 <br/>   | ("em" | "g" | "us" | "hg" | "of")
@@ -1003,37 +1080,37 @@ per
     * em
 * *Notes:*
     * Five simple units are currently allowed as legacy usage, for tokens that wouldn’t otherwise be a base\_component due to length (eg, "g-force").Those are likely to be deprecated in teh future, with conformant aliases added: the "hg" and "of" are already only in deprecated simple\_units.
-  
+
 <a name='prefixed_unit' href='#prefixed_unit'>prefixed_unit</a>
     prefix base_component
 * *Examples:*
     *  kilometer
 
-<a name='prefix' href='#prefix'>prefix</a> 
-<br/>:= si_prefix 
+<a name='prefix' href='#prefix'>prefix</a>
+<br/>:= si_prefix
 <br/>   | binary_prefix
 
-<a name='si_prefix' href='#si_prefix'>si_prefix</a> 
-<br/>:= "deka" 
-<br/>   | "hecto" 
+<a name='si_prefix' href='#si_prefix'>si_prefix</a>
+<br/>:= "deka"
+<br/>   | "hecto"
 <br/>   | "kilo", …
 * [ wfc:  Must be an attribute value of the `type` in: \<unitPrefix type='…' … power10='…'\> ]
 * *Notes:*
-    * See also [NIST special publication 811](https://www.nist.gov/pml/special-publication-811) 
+    * See also [NIST special publication 811](https://www.nist.gov/pml/special-publication-811)
 
-<a name='binary_prefix' href='#binary_prefix'>binary_prefix</a> 
+<a name='binary_prefix' href='#binary_prefix'>binary_prefix</a>
 <br/>:= "kibi", "mebi", …
 * [ wfc:  Must be an attribute value of the `type` in: \<unitPrefix type='…' … power2='…'\>. ]
 * *Notes:*
     * See also [Prefixes for binary multiples](https://physics.nist.gov/cuu/Units/binary.html)
 
-<a name='prefix_component' href='#prefix_component'>prefix_component</a> 
+<a name='prefix_component' href='#prefix_component'>prefix_component</a>
 <br/>:= [a-z]{3,}
 * [ vc:  must be value in: \<unitIdComponent type="prefix"\>. ]
 * *Notes:*
     * The set of prefix components often expands in new releases, so the requirement to be one of these attribute values is a validity constraint, not a well-formedness constraint. *
 
-<a name='base_component' href='#base_component'>base_component</a> 
+<a name='base_component' href='#base_component'>base_component</a>
 <br/>:= [a-z]{3,}
 * [ wfc:  must not have a prefix as an initial segment. ]
 * [ wfc:  must not be a value in \<unitIdComponent type="X"\> for X in \{prefix, suffix, power, and, per} ]
@@ -1043,28 +1120,31 @@ per
     * The base-components in unitAlias `type` are deprecated, should be converted to their replacement values.
     * No two different base\_components will share the first 8 letters; see [Unit Identifier Uniqueness](https://github.com/unicode-org/cldr/edit/main/docs/ldml/tr35-general.md#Unit_Identifier_Uniqueness).) ]
 
-<a name='suffix_component' href='#suffix_component'>suffix_component</a> 
+<a name='suffix_component' href='#suffix_component'>suffix_component</a>
 <br/>:= [a-z]{3,}
 * [ vc:  must be value in: \<unitIdComponent type="suffix"\> ]
 * *Notes:*
     * The set of suffix components often expands in new releases, so the requirement to be one of these attribute values is a validity constraint, not a well-formedness constraint.
 
-<a name='mixed_unit_identifier' href='#mixed_unit_identifier'>mixed_unit_identifier</a> 
-<br/>:= (single_unit | pu_single_unit) ("-" and "-" (single_unit | pu_single_unit ))*
+<a name='mixed_unit_identifier' href='#mixed_unit_identifier'>mixed_unit_identifier</a>
+<br/>:= single_unit ("-" and "-" single_unit)*
+* [ wfc: Each part separated by -and- must be convertible to the others.]
+* Note: in the normalized form, each part is smaller than the subsequent one: thus `inch-and-foot` normalizes to `foot-and-inch`.
 * *Examples:*
     * foot-and-inch
+    * degree-and-arc-minute-and-arc-second
 
-and 
+and
 <br/>:= "and"
 * [ wfc:  The token 'and' is the single value in \<unitIdComponent type="and"\> ]
 
-<a name='long_unit_identifier' href='#long_unit_identifier'>long_unit_identifier</a> 
+<a name='long_unit_identifier' href='#long_unit_identifier'>long_unit_identifier</a>
 <br/>:= grouping "-" core_unit_identifier
 
-grouping 
+grouping
 <br/>:= [a-z]{3,}
 
-<a name='currency_unit' href='#currency_unit'>currency_unit</a> 
+<a name='currency_unit' href='#currency_unit'>currency_unit</a>
 <br/>:= "curr-" [a-z]{3}
 * [ wfc:  The first part of the currency\_unit is a standard prefix; the second part of the currency unit must be a valid [Unicode currency identifier](https://github.com/unicode-org/cldr/blob/main/docs/ldml/tr35.md#UnicodeCurrencyIdentifier). ]
 * *Examples:*
@@ -2660,12 +2740,12 @@ For more information, see version 5.0 or [UTR #51, Unicode Emoji](https://www.un
 
 There are two kinds of annotations: **short names**, and **search keywords**.
 
-With an attribute `type="tts"`, the value is a **short name**, such as one that can be used for text-to-speech. 
+With an attribute `type="tts"`, the value is a **short name**, such as one that can be used for text-to-speech.
 It should be treated as one of the element values for other purposes.
 
-When there is no `type` attribute, the value is a set of **keywords**, delimited by |. 
-Spaces around each element are to be trimmed. 
-The **keywords** are words associated with the character(s) that might be used in searching for the character, 
+When there is no `type` attribute, the value is a set of **keywords**, delimited by |.
+Spaces around each element are to be trimmed.
+The **keywords** are words associated with the character(s) that might be used in searching for the character,
 or in predictive typing on keyboards. The short name itself can be used as a keyword.
 
 Here is an example from German:
@@ -2681,10 +2761,10 @@ These are intended as search keywords, and not for "triggering" (aka suggesting)
   displayed adjacent to the virtual keyboard. Selecting the emoji adds it to the message.
   For example, you mention your birthday while writing, and an emoji cake pops up.
   That is typically done with an LLM or similar advanced technology.
-- For searching, the user is looking for an emoji in a search box, 
+- For searching, the user is looking for an emoji in a search box,
   and typing in in words that narrow down a displayed set of emoji.
   For example, you type 'heart', but that has too many hits, so you add 'blue' and get the set of blue hearts.
-  
+
 ### Usage Model
 
 The usage model for the search keywords is:
@@ -2702,23 +2782,23 @@ The usage model for the search keywords is:
     - celebrate → 🥳 🥂 🎈 🎉 🎊 🪅
 - The order of words doesn’t matter.
 
-Multiword search keywords are typically broken up into separate parts, 
+Multiword search keywords are typically broken up into separate parts,
 because that works better with the usage model. So [hand | mouth | omg | open | over] covers the phrase "hand over mouth".
 
 ### cp attribute
 
-The `cp` attribute value has two formats: either a single string, or if contained within \[…\] a UnicodeSet. 
+The `cp` attribute value has two formats: either a single string, or if contained within \[…\] a UnicodeSet.
 The latter format can contain multiple code points or strings. A code point pr string can occur in multiple annotation element **cp** values, such as the following, which also contains the "thumbs down" character.
 
 ```xml
 <annotation cp='[☝✊-✍👆-👐👫-👭💁🖐🖕🖖🙅🙆🙋🙌🙏🤘]'>hand</annotation>
 ```
 
-Both for short names and keywords, values do not have to match between different languages. 
-They should be the most common values that people using _that_ language would associate with those characters. 
+Both for short names and keywords, values do not have to match between different languages.
+They should be the most common values that people using _that_ language would associate with those characters.
 For example, a "black heart" might have the association of "wicked" in English, but not in some other languages.
 
-The cp value may contain sequences, but does not contain any Emoji or Text Variant (VS15 & VS16) characters. 
+The cp value may contain sequences, but does not contain any Emoji or Text Variant (VS15 & VS16) characters.
 All such characters should be removed before looking up any short names and keywords.
 
 ### <a name="SynthesizingNames" href="#SynthesizingNames">Synthesizing Sequence Names</a>

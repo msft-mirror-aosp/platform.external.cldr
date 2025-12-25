@@ -560,6 +560,12 @@ public class ICUServiceBuilder {
         "integer", "decimal", "percent", "scientific"
     }; // // "standard", , "INR",
 
+    // add symbols for clarity.
+    public static int integer = 0, decimal = 2, percent = 3, scientific = 4;
+
+    // ICUServiceBuilder needs a much more substantial overhaul, so adding an enum would be wasted
+    // effort
+
     private static class MyCurrency extends Currency {
         String symbol;
         String displayName;
@@ -707,7 +713,7 @@ public class ICUServiceBuilder {
             return (DecimalFormat) result.clone();
         }
 
-        String pattern = kind == PATTERN ? key1 : getPattern(key1, kind);
+        String pattern = kind == PATTERN ? key1 : getPattern(key1, kind, numberSystem);
 
         DecimalFormatSymbols symbols = _getDecimalFormatSymbols(numberSystem);
         /*
@@ -868,8 +874,8 @@ public class ICUServiceBuilder {
         }
 
         // currently constants
-        // symbols.setPadEscape(cldrFile.getWinningValueWithBailey("//ldml/numbers/symbols/xxx"));
-        // symbols.setSignificantDigit(cldrFile.getWinningValueWithBailey("//ldml/numbers/symbols/patternDigit"));
+        // symbols.setPadEscape(cldrFile.getWinningValueWithBailey("//ldml/numbers/symbols[@numberSystem=\"latn\"]/xxx"));
+        // symbols.setSignificantDigit(cldrFile.getWinningValueWithBailey("//ldml/numbers/symbols[@numberSystem=\"latn\"]/patternDigit"));
 
         symbols.setDecimalSeparator(getSymbolCharacter("decimal", numberSystem));
         // symbols.setDigit(getSymbolCharacter("patternDigit", numberSystem));
@@ -901,7 +907,8 @@ public class ICUServiceBuilder {
             symbols.setMonetaryGroupingSeparator(symbols.getGroupingSeparator());
         }
 
-        String prefix = "//ldml/numbers/currencyFormats/currencySpacing/beforeCurrency/";
+        String prefix =
+                "//ldml/numbers/currencyFormats[@numberSystem=\"latn\"]/currencySpacing/beforeCurrency/";
         beforeCurrencyMatch =
                 new UnicodeSet(cldrFile.getWinningValueWithBailey(prefix + "currencyMatch"))
                         .freeze();
@@ -909,7 +916,8 @@ public class ICUServiceBuilder {
                 new UnicodeSet(cldrFile.getWinningValueWithBailey(prefix + "surroundingMatch"))
                         .freeze();
         beforeInsertBetween = cldrFile.getWinningValueWithBailey(prefix + "insertBetween");
-        prefix = "//ldml/numbers/currencyFormats/currencySpacing/afterCurrency/";
+        prefix =
+                "//ldml/numbers/currencyFormats[@numberSystem=\"latn\"]/currencySpacing/afterCurrency/";
         afterCurrencyMatch =
                 new UnicodeSet(cldrFile.getWinningValueWithBailey(prefix + "currencyMatch"))
                         .freeze();
@@ -937,8 +945,8 @@ public class ICUServiceBuilder {
             value =
                     cldrFile.getWinningValueWithBailey(
                             "//ldml/numbers/symbols[@numberSystem=\"" + numsys + "\"]/" + key);
-            if (value == null || value.length() < 1) {
-                throw new RuntimeException();
+            if (value == null || value.isEmpty()) {
+                throw new IllegalArgumentException("No value for path");
             }
             return value;
         } catch (RuntimeException e) {
@@ -949,7 +957,8 @@ public class ICUServiceBuilder {
                             + "//ldml/numbers/symbols[@numberSystem='"
                             + numsys
                             + "']/"
-                            + key);
+                            + key,
+                    e);
         }
     }
 
@@ -960,15 +969,21 @@ public class ICUServiceBuilder {
     UnicodeSet afterSurroundingMatch;
     String afterInsertBetween;
 
-    private String getPattern(String key1, int isCurrency) {
+    private String getPattern(String key1, int isCurrency, String numberSystem) {
         String prefix = "//ldml/numbers/";
         String type = key1;
         if (isCurrency == CURRENCY) type = "currency";
         else if (key1.equals("integer")) type = "decimal";
+        if (numberSystem == null) {
+            numberSystem =
+                    cldrFile.getWinningValueWithBailey("//ldml/numbers/defaultNumberingSystem");
+        }
         String path =
                 prefix
                         + type
-                        + "Formats/"
+                        + "Formats[@numberSystem=\""
+                        + numberSystem
+                        + "\"]/"
                         + type
                         + "FormatLength/"
                         + type
