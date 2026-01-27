@@ -2,8 +2,8 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 6: Supplemental
 
-|Version|48         |
-|-------|-----------|
+|Version|48.1        |
+|-------|------------|
 |Editors|Steven Loomis (<a href="mailto:srloomis@unicode.org">srloomis@unicode.org</a>) and <a href="tr35-acknowledgments.md#acknowledgments">other CLDR committee members|
 
 For the full header, summary, and status, see [Part 1: Core](tr35.md).

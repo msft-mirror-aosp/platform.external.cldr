@@ -2,8 +2,8 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Appendix A: Modifications
 
-|Version|48        |
-|-------|----------|
+|Version|48.1        |
+|-------|------------|
 |Editors|<a href="tr35-acknowledgments.md#acknowledgments">CLDR committee members|
 
 For the full header, summary, and status, see [Part 1: Core](tr35.md).
@@ -65,9 +65,11 @@ The LDML specification is divided into the following parts:
       Note: As of CLDR-18209, ALL changes to the spec require this file, tr35-modifications.md to be modified as well. If you are making a change that doesn't need to be noted, or is already noted, please simply add an HTML comment (such as this one) to the appropriate section.  The comment will not be visible to viewers of the HTML page.
 -->
 
+**Changes in LDML Version 48.1 (Differences from Version 48)**
+
+* [Segmentations](tr35-general.html#Segmentations) removed outdated note about `X Format*->X` not being supported in CLDR since it no longer accurate.
+
 **Changes in LDML Version 48 (Differences from Version 47)**
-<!-- Updated date -->
-<!-- Fixed broken links -->
 
 ### Locale Identifiers and Names
 * [Display Name Elements](tr35-general.md#display-name-elements) Described the usage of the `language` element `menu` values `core` and `extension`, and `alt="menu"`.
