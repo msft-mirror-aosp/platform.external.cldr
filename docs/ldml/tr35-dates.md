@@ -2,7 +2,7 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 4: Dates
 
-|Version|48.1              |
+|Version|48.2              |
 |-------|------------------|
 |Editors|Peter Edberg and <a href="tr35-acknowledgments.md#acknowledgments">other CLDR committee members</a>|
 
@@ -1681,7 +1681,7 @@ The `<mapTimezones>` element can be also used to provide mappings between Unicod
 
 The attributes otherVersion and typeVersion in `<mapTimezones>` specify the versions of two systems. In the example above, otherVersion="07dc0000" specifies the version of Windows time zone and typeVersion="2011n" specifies the version of Unicode time zone IDs. The attribute `territory="001"` in `<mapZone>` element indicates the long canonical Unicode time zone ID specified by the `type` attribute is used as the default mapping for the Windows TZID. For each unique Windows TZID, there must be exactly one `<mapZone>` element with `territory="001"`. `<mapZone>` elements other than `territory="001"` specify territory specific mappings. When multiple Unicode time zone IDs are available for a single territory, the value of the `type` attribute will be a list of Unicode time zone IDs delimited by space. In this case, the first entry represents the default mapping for the territory. The territory "ZZ" is used when a Unicode time zone ID is not associated with a specific territory.
 
-**Note:** The long canonical Unicode time zone ID might be deprecated in the tz database [[Olson](tr35.md#Olson)]. For example, CLDR uses "Asia/Culcutta" as the long canonical time zone ID for Kolkata, India. The same ID was moved to 'backward' file and replaced with a new ID "Asia/Kolkata" in the tz database. Therefore, if you want to get an equivalent Windows TZID for a zone ID in the tz database, you have to resolve the long canonical Unicode time zone ID (e.g. "Asia/Culcutta") for the zone ID (e.g. "Asia/Kolkata"). For more details, see [Time Zone Identifiers](tr35.md#Time_Zone_Identifiers).
+**Note:** The long canonical Unicode time zone ID might be deprecated in the tz database [[Olson](tr35.md#Olson)]. For example, CLDR uses "Asia/Calcutta" as the long canonical time zone ID for Kolkata, India. The same ID was moved to 'backward' file and replaced with a new ID "Asia/Kolkata" in the tz database. Therefore, if you want to get an equivalent Windows TZID for a zone ID in the tz database, you have to resolve the long canonical Unicode time zone ID (e.g. "Asia/Calcutta") for the zone ID (e.g. "Asia/Kolkata"). For more details, see [Time Zone Identifiers](tr35.md#Time_Zone_Identifiers).
 
 **Note:** Not all Unicode time zones have equivalent Windows TZID mappings. Also, not all Windows TZIDs have equivalent Unicode time zones. For example, there is no equivalent Windows zone for Unicode time zone "Australia/Lord_Howe", and there is no equivalent Unicode time zone for Windows zone "E. Europe Standard Time" (as of CLDR 25 release).
 
@@ -2795,7 +2795,7 @@ For example, a conformant specification must reject the following inputs:
 
 * * *
 
-© 2001–2025 Unicode, Inc.
+© 2001–2026 Unicode, Inc.
 This publication is protected by copyright, and permission must be obtained from Unicode, Inc.
 prior to any reproduction, modification, or other use not permitted by the [Terms of Use](https://www.unicode.org/copyright.html).
 Specifically, you may make copies of this publication and may annotate and translate it solely for personal or internal business purposes and not for public distribution,

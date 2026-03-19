@@ -2,7 +2,7 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Appendix A: Modifications
 
-|Version|48.1        |
+|Version|48.2        |
 |-------|------------|
 |Editors|<a href="tr35-acknowledgments.md#acknowledgments">CLDR committee members|
 
@@ -48,6 +48,7 @@ The LDML specification is divided into the following parts:
 ## <a name="Contents" href="#Contents">Contents of Appendix A, Modifications</a>
 
 * [Modifications](#modifications)
+  * [MessageFormat](#messageformat)
   * [Locale Identifiers and Names](#locale-identifiers-and-names)
   * [Misc.](#misc)
   * [DateTime formats](#datetime-formats)
@@ -65,9 +66,25 @@ The LDML specification is divided into the following parts:
       Note: As of CLDR-18209, ALL changes to the spec require this file, tr35-modifications.md to be modified as well. If you are making a change that doesn't need to be noted, or is already noted, please simply add an HTML comment (such as this one) to the appropriate section.  The comment will not be visible to viewers of the HTML page.
 -->
 
+**Changes in LDML Version 48.2 (Differences from Version 48.1)**
+
+<!-- CLDR-19231 reformatted/simplified tr35.md version block to improve deployment-->
+<!-- Updated spec date for last mod per CLDR-17223 -->
+
+* New section [Nested Bracket Replacement](tr35-general.md#Character_Nested_Bracket_Replacement)
+* [Locale Display Name Algorithm](tr35-general.md#locale_display_name_algorithm) updated to use the nested bracket replacement data and avoid nested parentheses by flattening `-t-` (transform) language names.
+    * As part of this, the display name order is changed so that any names for `-u-` items appear _before_ (instead of after) any names for `-t-` items.
+* Specify that missing `<keys>` translations should fall back to the key identifier
+* The section "Enhanced Language Matching" is retitled as [Language Matching Variables](tr35.md#enhanced-language-matching) and clarified.
+
+### MessageFormat
+
+* The `:currency` and `:percent` functions are now Stable, with the same implementations as previously.
+* The `u:locale` option (previously in Draft) is dropped from the specification.
+
 **Changes in LDML Version 48.1 (Differences from Version 48)**
 
-* [Segmentations](tr35-general.html#Segmentations) removed outdated note about `X Format*->X` not being supported in CLDR since it no longer accurate.
+* [Segmentations](tr35-general.md#Segmentations) removed outdated note about `X Format*->X` not being supported in CLDR since it no longer accurate.
 
 **Changes in LDML Version 48 (Differences from Version 47)**
 
@@ -132,6 +149,7 @@ The rules have been converted to a “flat” format, which is easier for client
 * [`display`](tr35-keyboards.md#element-display): Noted that a key without output may be indicated by means of the `keyId=` attribute on the display.
 * [`layer`](tr35-keyboards.md#element-layer): Noted the use of the `modifiers=` attribute for hardware layouts being used as touch layouts.
 * References and links into the section concerning keyboard test data (which was removed prior to spec finalization) were removed.
+* Normalization for the default backspace transform was clarified, and authors were encouraged to add backspace transforms to avoid the default.
 
 ### Modifications section
 
@@ -147,7 +165,7 @@ Click on **Previous Version** in the header until you get to the desired version
 
 * * *
 
-© 2001–2025 Unicode, Inc.
+© 2001–2026 Unicode, Inc.
 This publication is protected by copyright, and permission must be obtained from Unicode, Inc.
 prior to any reproduction, modification, or other use not permitted by the [Terms of Use](https://www.unicode.org/copyright.html).
 Specifically, you may make copies of this publication and may annotate and translate it solely for personal or internal business purposes and not for public distribution,
