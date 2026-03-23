@@ -2,7 +2,7 @@
 
 # Unicode Locale Data Markup Language (LDML)<br/>Part 8: Person Names
 
-|Version|48.1                    |
+|Version|48.2                    |
 |-------|------------------------|
 |Editors|Mark Davis, Peter Edberg,  Rich Gillam, Alex Kolisnychenko, Mike McKenna and [other CLDR committee members](tr35-acknowledgments.md#acknowledgments)|
 
@@ -1191,7 +1191,7 @@ To make an initial when there are multiple words, an implementation might produc
 
 * * *
 
-© 2001–2025 Unicode, Inc.
+© 2001–2026 Unicode, Inc.
 This publication is protected by copyright, and permission must be obtained from Unicode, Inc.
 prior to any reproduction, modification, or other use not permitted by the [Terms of Use](https://www.unicode.org/copyright.html).
 Specifically, you may make copies of this publication and may annotate and translate it solely for personal or internal business purposes and not for public distribution,
