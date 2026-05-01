@@ -659,6 +659,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</timezone>
 			<timezone type="America/Coyhaique">
 				<usesMetazone to="2025-03-19 21:00" mzone="Chile"/>
+			</timezone>
 			<timezone type="America/Rainy_River">
 				<usesMetazone mzone="America_Central"/>
 			</timezone>
@@ -754,8 +755,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<timezone type="America/Tortola">
 				<usesMetazone mzone="Atlantic"/>
 			</timezone>
+			<!--- Android patch: move America/Vancouver to America_Mountain after 1 Nov 2026. -->
 			<timezone type="America/Vancouver">
-				<usesMetazone mzone="America_Pacific"/>
+				<usesMetazone to="2026-11-01 09:00" mzone="America_Pacific"/>
+				<usesMetazone from="2026-11-01 09:00" mzone="America_Mountain"/>
 			</timezone>
 			<timezone type="America/Whitehorse">
 				<usesMetazone to="2020-11-01 07:00" mzone="America_Pacific"/>
@@ -1637,7 +1640,8 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<mapZone other="America_Mountain" territory="CA" type="America/Edmonton"/>
 			<mapZone other="America_Mountain" territory="MX" type="America/Hermosillo"/>
 			<mapZone other="America_Pacific" territory="001" type="America/Los_Angeles"/>
-			<mapZone other="America_Pacific" territory="CA" type="America/Vancouver"/>
+			<!-- Android patch: move America/Vancouver to America_Mountain after 1 Nov 2026. -->
+			<!-- mapZone other="America_Pacific" territory="CA" type="America/Vancouver"/-->
 			<mapZone other="America_Pacific" territory="MX" type="America/Tijuana"/>
 			<mapZone other="Anadyr" territory="001" type="Asia/Anadyr"/>
 			<mapZone other="Apia" territory="001" type="Pacific/Apia"/>
